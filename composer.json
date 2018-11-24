@@ -1,0 +1,23 @@
+{
+  "name": "ruesin/swover",
+  "description": "A Server-Framework based on Swoole extension",
+  "keywords": ["swoole", "process", "server"],
+  "homepage": "https://github.com/ruesin",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Ruesin Liu",
+      "email": "ruesin@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.6",
+    "ext-json": "*",
+    "ext-swoole": ">=1.9.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Swover\\": "src/"
+    }
+  }
+}
