@@ -3,6 +3,7 @@ namespace Swover\Server;
 
 use Swover\Utils\Cache;
 use Swover\Utils\Response;
+use Swover\Utils\Worker;
 
 /**
  * Socket Server || HTTP Server
@@ -72,6 +73,7 @@ class Socket extends Base
     private function onStart()
     {
         $this->server->on('Start', function ($server) {
+            Worker::setMasterPid($server->master_pid);
             $this->_setProcessName('master');
         });
 
@@ -85,6 +87,7 @@ class Socket extends Base
             if ($this->trace) {
                 $this->log("Worker[$worker_id] started.");
             }
+            Worker::setChildStatus(true);
         });
 
         return $this;
@@ -98,11 +101,9 @@ class Socket extends Base
             if ($this->trace) {
                 $this->log("[#{$server->worker_pid}] Client@[$fd:$from_id]: Connect.");
             }
-
         });
 
         $this->server->on('receive', function ($server, $fd, $from_id, $data) {
-
             if ($this->trace) {
                 $this->log('Receive Data : '.$data);
             }

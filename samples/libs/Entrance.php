@@ -7,7 +7,9 @@ class Entrance
         //pull data from queue
         $data = ['action' => 'test_process', 'data' => [ 'id' => 123 ]];
         $result = self::execute($data);
-        echo $result.PHP_EOL;
+
+        echo 'master:['.\Swover\Utils\Worker::getMasterPid().'] current:['.posix_getpid().'-'.\Swover\Utils\Worker::getChildStatus().']'
+            .$result.PHP_EOL;
     }
 
     public static function tcp($request)

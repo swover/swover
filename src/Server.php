@@ -1,6 +1,8 @@
 <?php
 namespace Swover;
 
+use Swover\Server\Process;
+use Swover\Server\Socket;
 use Swover\Utils\Cache;
 
 class Server
@@ -40,9 +42,9 @@ class Server
     {
         $table = Cache::getInstance();
         if ($this->config['server_type'] == 'process') {
-            new \Swover\Server\Process($table);
+            new Process($table);
         } else {
-            new \Swover\Server\Socket($table);
+            new Socket($table);
         }
     }
 

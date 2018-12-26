@@ -2,22 +2,18 @@
 
 namespace Swover\Server;
 
+use Swover\Utils\Worker;
+
 /**
  * Process Server
  */
 class Process extends Base
 {
-    //master process id
-    private $master_pid = 0;
-
     //child-process index => pid
     private $works = [];
 
     //child-process index => process
     private $processes = [];
-
-    //will quit process
-    private $quit_process = [];
 
     public function __construct($table)
     {
@@ -30,7 +26,7 @@ class Process extends Base
 
             $this->_setProcessName('master');
 
-            $this->master_pid = posix_getpid();
+            Worker::setMasterPid(posix_getpid());
 
             for ($i = 0; $i < $this->worker_num; $i++) {
                 $this->CreateProcess($i);
@@ -52,14 +48,16 @@ class Process extends Base
 
             $this->_setProcessName('worker_'.$index);
 
-            pcntl_signal(SIGUSR1, function ($signo) use ($worker) {
-                $this->quit_process[$worker->pid] = 1;
+            Worker::setChildStatus(true);
+
+            pcntl_signal(SIGUSR1, function ($signo) {
+                Worker::setChildStatus(false);
             });
 
             $request_count = 0;
             $signal = 0;
             while (true) {
-                $signal = self::getProcessSignal($worker, $request_count);
+                $signal = $this->getProcessSignal($request_count);
                 if ($signal > 0) {
                     break;
                 }
@@ -97,7 +95,7 @@ class Process extends Base
      * get child process sign
      * @return int
      */
-    private function getProcessSignal($worker, &$request_count)
+    private function getProcessSignal(&$request_count)
     {
         if ($this->max_request > 0) {
             if ($request_count > $this->max_request) {
@@ -106,26 +104,15 @@ class Process extends Base
             $request_count ++;
         }
 
-        if (!$this->checkMaster()) {
+        if (! Worker::checkMaster() ) {
             return 2;
         }
 
-        pcntl_signal_dispatch();
-
-        if (isset($this->quit_process[$worker->pid])) {
-            unset($this->quit_process[$worker->pid]);
+        if (Worker::getChildStatus() == false) {
             return 3;
         }
 
         return 0;
-    }
-
-    /**
-     * check master process still alive
-     */
-    private function checkMaster()
-    {
-        return \swoole_process::kill($this->master_pid, 0);
     }
 
     /**

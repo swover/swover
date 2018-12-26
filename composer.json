@@ -13,7 +13,8 @@
   "require": {
     "php": ">=5.6",
     "ext-json": "*",
-    "ext-swoole": ">=1.9.5"
+    "ext-swoole": ">=1.9.5",
+    "ext-pcntl" : "*"
   },
   "autoload": {
     "psr-4": {
