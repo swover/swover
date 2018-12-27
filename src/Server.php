@@ -40,11 +40,10 @@ class Server
      */
     public function start()
     {
-        $table = Cache::getInstance();
         if ($this->config['server_type'] == 'process') {
-            new Process($table);
+            new Process();
         } else {
-            new Socket($table);
+            new Socket();
         }
     }
 

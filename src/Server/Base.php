@@ -21,16 +21,11 @@ class Base
 
     protected $log_file = '';
 
-    /**
-     * @var \Swover\Utils\Cache
-     */
-    protected $table = null;
 
     protected $entrance = '';
 
-    public function __construct($table)
+    public function __construct()
     {
-        $this->table = $table;
         $this->initConfig();
     }
 
@@ -43,7 +38,7 @@ class Base
 
         $this->server_type = Cache::get('server_type');
 
-        $this->daemonize = boolval(Cache::get('daemonize', ''));
+        $this->daemonize = boolval(Cache::get('daemonize', false));
 
         $this->process_name = Cache::get('process_name');
 

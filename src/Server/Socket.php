@@ -26,10 +26,10 @@ class Socket extends Base
     //output trace log?
     private $trace = false;
 
-    public function __construct($table)
+    public function __construct()
     {
         try {
-            parent::__construct($table);
+            parent::__construct();
 
             $this->host = Cache::get('host', '127.0.0.1');
             $this->port = Cache::get('port', '9501');
@@ -52,9 +52,6 @@ class Socket extends Base
         $this->server = new $className($this->host, $this->port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
 
         $this->server->server_type = $this->server_type;
-        if (!is_null($this->table)) {
-            $this->server->table = $this->table;
-        }
 
         $this->server->set([
             'worker_num'      => $this->worker_num,
