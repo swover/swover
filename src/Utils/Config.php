@@ -7,48 +7,48 @@ namespace Swover\Utils;
  */
 class Config
 {
+
     private static $config = [];
 
     /**
-     * Initializes the configuration item
+     * Loads the configuration file under the path into the application
      *
-     * @param string $path config-file's path
-     * @param null $name Filename without ext
+     * @param  string $path
+     * @return void
      */
-    public function init($path, $name = null)
+    public static function loadPath($path)
     {
-        $path = rtrim($path, '/').'/';
-        if (is_null($name)) {
-            self::initPath($path);
-        } else {
-            self::initFile($path, $name);
-        }
-    }
-
-    private static function initPath($path)
-    {
-        $dp = dir($path);
-        while ($file = $dp ->read()){
-            if($file !="." && $file !=".." && is_file($path.$file) && strrchr($file,'.') == '.php'){
-                self::initFile($path, substr($file, 0, strlen($file) - 4));
+        $path = rtrim($path, '/') . '/';
+        $files = scandir($path);
+        foreach ($files as $file) {
+            if ($file != "." && $file != "..") {
+                self::loadFile($path . $file);
             }
         }
-        $dp->close();
     }
 
-    private static function initFile($path, $name)
+    /**
+     * Load a configuration file into the application.
+     *
+     * @param  string $file_name
+     * @return bool
+     */
+    public static function loadFile($file_name)
     {
-        $file_name = $path.$name.'.php';
-        if (file_exists($file_name)) {
-            self::$config[$name] = require $file_name;
-        }
+        if (!is_file($file_name)) return false;
+
+        if (strrchr($file_name, '.') !== '.php') return false;
+
+        self::set(basename($file_name, '.php'), require $file_name);
+
+        return true;
     }
 
     /**
      * Get an item from an array using "dot" notation.
      *
-     * @param  string  $key
-     * @param  mixed   $default
+     * @param  string $key
+     * @param  mixed $default
      * @return mixed
      */
     public static function get($key, $default = null)
@@ -68,7 +68,7 @@ class Config
         }
 
         foreach (explode('.', $key) as $segment) {
-            if ( is_array($array) && array_key_exists($segment, $array) ) {
+            if (is_array($array) && array_key_exists($segment, $array)) {
                 $array = $array[$segment];
             } else {
                 return $default;
@@ -80,8 +80,8 @@ class Config
     /**
      * Set an array item to a given value using "dot" notation.
      *
-     * @param  string  $key
-     * @param  mixed   $value
+     * @param  string $key
+     * @param  mixed $value
      * @return array
      */
     public static function set($key, $value)
@@ -96,7 +96,7 @@ class Config
         $keys = explode('.', $key);
         while (count($keys) > 1) {
             $key = array_shift($keys);
-            if (! isset($array[$key]) || ! is_array($array[$key])) {
+            if (!isset($array[$key]) || !is_array($array[$key])) {
                 $array[$key] = [];
             }
 
