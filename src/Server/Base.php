@@ -77,16 +77,8 @@ class Base
     protected function entrance($request = null)
     {
         $entrance = explode('::', $this->entrance);
-        if (empty($entrance)) {
-            throw new \Exception('Has not entrance!');
-        }
-
         $class = $entrance[0];
-        $method = 'run';
-        if (count($entrance) >= 2) {
-            $method = $entrance[1];
-        }
-
+        $method = isset($entrance[1]) ? $entrance[1] : 'run';
         return call_user_func_array([$class, $method], [$request]);
     }
 
