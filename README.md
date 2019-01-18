@@ -8,6 +8,7 @@ Swover是一个基于Swoole扩展的server框架，提供HTTP、TCP、Process能
 
 - PHP 5.6及之后版本。
 - [Swoole Extension](http://pecl.php.net/package/swoole) 1.9.5 及更新版本.
+- [ruesin/utils](https://github.com/ruesin/utils)
 
 ## 安装
 

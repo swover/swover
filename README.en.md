@@ -9,6 +9,7 @@ Swover has the following requirements:
 
 - PHP version 5.6 or later.
 - [Swoole Extension](http://pecl.php.net/package/swoole) 1.9.5 or later.
+- [ruesin/utils](https://github.com/ruesin/utils)
 
 ## Installation
 
