@@ -2,6 +2,8 @@
 
 namespace Swover\Utils;
 
+use Ruesin\Utils\Config;
+
 /**
  * Across processes config-cache Class
  */
@@ -11,12 +13,12 @@ class Cache
 
     public static function set($key, $val)
     {
-        \Ruesin\Utils\Config::set(self::$config_key.'.'.$key, $val);
+        Config::set(self::$config_key.'.'.$key, $val);
     }
 
     public static function get($key, $default = '')
     {
-        return \Ruesin\Utils\Config::get(self::$config_key.'.'.$key, $default);
+        return Config::get(self::$config_key.'.'.$key, $default);
     }
 
     public static function del($key)
@@ -25,6 +27,6 @@ class Cache
 
     public static function all()
     {
-        return \Ruesin\Utils\Config::get(self::$config_key);
+        return Config::get(self::$config_key);
     }
 }
