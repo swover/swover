@@ -11,12 +11,12 @@ class Cache
 
     public static function set($key, $val)
     {
-        Config::set(self::$config_key.'.'.$key, $val);
+        \Ruesin\Utils\Config::set(self::$config_key.'.'.$key, $val);
     }
 
     public static function get($key, $default = '')
     {
-        return Config::get(self::$config_key.'.'.$key, $default);
+        return \Ruesin\Utils\Config::get(self::$config_key.'.'.$key, $default);
     }
 
     public static function del($key)
@@ -25,6 +25,6 @@ class Cache
 
     public static function all()
     {
-        return Config::get(self::$config_key);
+        return \Ruesin\Utils\Config::get(self::$config_key);
     }
 }
