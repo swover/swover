@@ -30,6 +30,9 @@ class Server
             die('process_name defined error!' . PHP_EOL);
         }
 
+        //This \Swover\Utils\Config::class definition will be removed in the next version
+        class_alias('\Ruesin\Utils\Config', '\Swover\Utils\Config');
+
         foreach ($config as $key=>$value) {
             Cache::set($key, $value);
         }
