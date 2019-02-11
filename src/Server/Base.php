@@ -2,9 +2,6 @@
 
 namespace Swover\Server;
 
-
-use Swover\Utils\Cache;
-
 class Base
 {
     protected $server_type = '';
@@ -21,37 +18,41 @@ class Base
 
     protected $log_file = '';
 
-
     protected $entrance = '';
 
-    public function __construct()
+    protected $config = [];
+
+    public function __construct(array $config)
     {
-        $this->initConfig();
+        $this->initConfig($config);
+
+        if (!$this->entrance) {
+            die('Has Not Entrance!' . PHP_EOL);
+        }
     }
 
-    private function initConfig()
+    private function initConfig($config)
     {
-        $this->entrance = Cache::get('entrance');
-        if (!$this->entrance) {
-            die('Has Not Entrance!');
+        foreach ($config as $key => $value) {
+            if ($key == 'daemonize') {
+                $value = boolval($value);
+            }
+            if ($key == 'max_request') {
+                $value = intval($value);
+            }
+            $this->$key = $value;
         }
 
-        $this->server_type = Cache::get('server_type');
+        if ($this->worker_num <= 0) {
+            $this->worker_num = 1;
+        }
 
-        $this->daemonize = boolval(Cache::get('daemonize', false));
+        if ($this->task_worker_num <= 0) {
+            $this->task_worker_num = 1;
+        }
 
-        $this->process_name = Cache::get('process_name');
-
-        $this->worker_num = Cache::get('worker_num', 1);
-
-        $this->task_worker_num = Cache::get('task_worker_num', 1);
-
-        $this->max_request = intval(Cache::get('max_request', 0));
-
-        $this->log_file = Cache::get('log_file');
         if (!$this->log_file) {
             $this->log_file = '/tmp/' . $this->process_name . '/swoole.log';
-            Cache::set('log_file', $this->log_file);
         }
         $log_path = dirname($this->log_file);
         if (!file_exists($this->log_file) || !file_exists($log_path)) {
@@ -87,7 +88,20 @@ class Base
      */
     protected function log($msg)
     {
-        error_log(date('Y-m-d H:i:s').' '.ltrim($msg).PHP_EOL, 3, $this->log_file);
+        error_log(date('Y-m-d H:i:s') . ' ' . ltrim($msg) . PHP_EOL, 3, $this->log_file);
+    }
+
+    public function __get($name)
+    {
+        if (!isset($this->config[$name])) {
+            return false;
+        }
+        return $this->config[$name];
+    }
+
+    public function __set($name, $value)
+    {
+        return $this->config[$name] = $value;
     }
 }
 

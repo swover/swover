@@ -3,7 +3,6 @@ namespace Swover;
 
 use Swover\Server\Process;
 use Swover\Server\Socket;
-use Swover\Utils\Cache;
 
 class Server
 {
@@ -29,10 +28,6 @@ class Server
         if (!isset($this->config['process_name']) ) {
             die('process_name defined error!' . PHP_EOL);
         }
-
-        foreach ($config as $key=>$value) {
-            Cache::set($key, $value);
-        }
     }
 
     /**
@@ -41,9 +36,9 @@ class Server
     public function start()
     {
         if ($this->config['server_type'] == 'process') {
-            new Process();
+            new Process($this->config);
         } else {
-            new Socket();
+            new Socket($this->config);
         }
     }
 

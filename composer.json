@@ -12,10 +12,9 @@
   ],
   "require": {
     "php": ">=5.6",
-    "ext-json": "*",
     "ext-swoole": ">=1.9.5",
-    "ext-pcntl" : "*",
-    "ruesin/utils": "^1.0"
+    "ext-json": "*",
+    "ext-pcntl" : "*"
   },
   "autoload": {
     "psr-4": {

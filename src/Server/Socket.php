@@ -1,55 +1,48 @@
 <?php
 namespace Swover\Server;
 
-use Swover\Utils\Cache;
 use Swover\Utils\Response;
 use Swover\Utils\Worker;
 
 /**
  * Socket Server || HTTP Server
+ *
+ * @property $async Is it asynchronous？
+ * @property $signature Need to sign? verify sign function.
+ * @property $trace_log output trace log?
  */
 class Socket extends Base
 {
     //server object
     private $server;
 
-    private $host;
-
-    private $port;
-
-    //Is it asynchronous？
-    private $async = true;
-
-    //Need to sign? verify sign function.
-    private $signature = '';
-
-    //output trace log?
-    private $trace = false;
-
-    public function __construct()
+    public function __construct(array $config)
     {
         try {
-            parent::__construct();
+            parent::__construct($config);
 
-            $this->host = Cache::get('host', '127.0.0.1');
-            $this->port = Cache::get('port', '9501');
+            if (!isset($config['host']) || !isset($config['port'])) {
+                die('Has Not Host or Port!' . PHP_EOL);
+            }
 
-            $this->async = boolval(Cache::get('async', true));
+            if (!is_bool($this->async)) {
+                $this->async = boolval($this->async);
+            }
 
-            $this->signature = Cache::get('signature', '');
+            if (!is_bool($this->trace_log)) {
+                $this->trace_log = boolval($this->trace_log);
+            }
 
-            $this->trace = boolval(Cache::get('trace_log', false));
-
-            $this->start();
+            $this->start($config['host'], $config['port']);
         } catch (\Exception $e) {
             die('Start error: ' . $e->getMessage());
         }
     }
 
-    private function start()
+    private function start($host, $port)
     {
         $className = ($this->server_type == 'http') ? '\swoole_http_server' : '\swoole_server';
-        $this->server = new $className($this->host, $this->port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
+        $this->server = new $className($host, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
 
         $this->server->server_type = $this->server_type;
 
@@ -81,7 +74,7 @@ class Socket extends Base
         $this->server->on('WorkerStart', function ($server, $worker_id){
             $str = ($worker_id >= $server->setting['worker_num']) ? 'task' : 'event';
             $this->_setProcessName('worker_'.$str);
-            if ($this->trace) {
+            if ($this->trace_log) {
                 $this->log("Worker[$worker_id] started.");
             }
             Worker::setChildStatus(true);
@@ -95,13 +88,13 @@ class Socket extends Base
         if ($this->server_type == 'http') return $this;
 
         $this->server->on('connect', function ($server, $fd, $from_id) {
-            if ($this->trace) {
+            if ($this->trace_log) {
                 $this->log("[#{$server->worker_pid}] Client@[$fd:$from_id]: Connect.");
             }
         });
 
         $this->server->on('receive', function ($server, $fd, $from_id, $data) {
-            if ($this->trace) {
+            if ($this->trace_log) {
                 $this->log('Receive Data : '.$data);
             }
 
@@ -131,7 +124,7 @@ class Socket extends Base
 
             $data = array_merge((array)$request->get, (array)$request->post);
 
-            if ($this->trace) {
+            if ($this->trace_log) {
                 $this->log('Request Data : '.json_encode($data));
             }
 
@@ -154,7 +147,7 @@ class Socket extends Base
     private function onTask()
     {
         $this->server->on('Task', function ($server, $task_id, $src_worker_id, $data)  {
-            if ($this->trace) {
+            if ($this->trace_log) {
                 $this->log("[#{$server->worker_pid}] Task@[$src_worker_id:$task_id]: Start.");
             }
             $this->event($data);
@@ -167,14 +160,14 @@ class Socket extends Base
     {
         $this->server->on('WorkerStop', function ($server, $worker_id){});
         $this->server->on('Finish', function ($server, $task_id, $data) {
-            if ($this->trace) {
+            if ($this->trace_log) {
                 $this->log("[#{$server->worker_pid}] Task-$task_id: Finish.");
             }
         });
 
         $this->server->on('close', function ($server, $fd, $from_id) {
             if ($this->server_type !== 'http') {
-                if ($this->trace) {
+                if ($this->trace_log) {
                     $this->log("[#{$server->worker_pid}] Client@[$fd:$from_id]: Close.");
                 }
             }

@@ -15,10 +15,10 @@ class Process extends Base
     //child-process index => process
     private $processes = [];
 
-    public function __construct()
+    public function __construct(array $config)
     {
         try {
-            parent::__construct();
+            parent::__construct($config);
 
             if ($this->daemonize === true) {
                 \swoole_process::daemon(true, false);
