@@ -1,5 +1,3 @@
-[English document](./README.en.md)
-
 # Swoole Server
 
 Swover是一个基于Swoole扩展的server框架，提供HTTP、TCP、Process能力。只需简单配置即可使用，对业务代码完全无侵入。
