@@ -2,7 +2,7 @@
   "name": "swover/swover",
   "description": "A Server-Framework based on Swoole extension",
   "keywords": ["swoole", "process", "server"],
-  "homepage": "https://github.com/ruesin",
+  "homepage": "https://github.com/swover",
   "license": "Apache-2.0",
   "authors": [
     {
