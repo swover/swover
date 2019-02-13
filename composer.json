@@ -1,5 +1,5 @@
 {
-  "name": "ruesin/swover",
+  "name": "swover/swover",
   "description": "A Server-Framework based on Swoole extension",
   "keywords": ["swoole", "process", "server"],
   "homepage": "https://github.com/ruesin",
