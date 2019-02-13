@@ -80,7 +80,16 @@ class Base
         $entrance = explode('::', $this->entrance);
         $class = $entrance[0];
         $method = isset($entrance[1]) ? $entrance[1] : 'run';
-        return call_user_func_array([$class, $method], [$request]);
+        $result = call_user_func_array([$class, $method], [$request]);
+        
+        if (is_string($result) || is_numeric($result) || is_bool($result)) {
+            return $result;
+        }
+        if (is_array($result)) {
+            return json_encode($result);
+        }
+
+        return 'none';
     }
 
     /**
