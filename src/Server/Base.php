@@ -101,6 +101,9 @@ class Base
         if (is_array($result)) {
             return json_encode($result);
         }
+        if (is_null($result)) {
+            return 'null';
+        }
 
         return 'none';
     }
