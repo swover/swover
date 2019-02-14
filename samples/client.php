@@ -25,7 +25,9 @@ function http($config)
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     $output = curl_exec($curl);
     curl_close($curl);
-    echo $output.PHP_EOL;
+
+    var_dump($output);
+    echo PHP_EOL;
 }
 
 function tcp($config)

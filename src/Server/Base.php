@@ -78,10 +78,23 @@ class Base
     protected function entrance($request = null)
     {
         $entrance = explode('::', $this->entrance);
-        $class = $entrance[0];
+        $instance = $entrance[0];
         $method = isset($entrance[1]) ? $entrance[1] : 'run';
-        $result = call_user_func_array([$class, $method], [$request]);
-        
+
+        $ref = new \ReflectionClass($instance);
+        if ($ref->getConstructor() != null) {
+            $class = $ref;
+            while ($parent = $class->getParentClass()) {
+                if ('Swover\Utils\Entrance' == $parent->getName()) {
+                    $instance = $ref->newInstance($request);
+                    break;
+                }
+                $class = $parent;
+            }
+        }
+
+        $result = call_user_func_array([$instance, $method], [$request]);
+
         if (is_string($result) || is_numeric($result) || is_bool($result)) {
             return $result;
         }
