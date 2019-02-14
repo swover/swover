@@ -1,6 +1,11 @@
 <?php
 namespace Swover\Utils;
 
+/**
+ * Base Class of Entrance
+ * If the entry-class extend this class
+ * The entry class will be instantiated when the service is invoked
+ */
 class Entrance
 {
     protected $request = [];
