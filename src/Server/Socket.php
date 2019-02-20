@@ -96,9 +96,7 @@ class Socket extends Base
             if ($this->trace_log) {
                 $this->log('Receive Data : '.$data);
             }
-
-            $data = json_decode($data, true);
-
+            
             $resInstance = new Response($this->server, $fd);
 
             if ($this->async !== true) {

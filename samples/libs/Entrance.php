@@ -24,6 +24,10 @@ class Entrance
 
     private static function execute($request)
     {
+        if (is_string($request)) {
+            return "request is string: {$request}";
+        }
+
         sleep(mt_rand(1,3));
         $route = self::route($request['action']);
         return " data :".json_encode($request, JSON_UNESCAPED_UNICODE).' route: '. $route;
