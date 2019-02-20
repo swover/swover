@@ -96,7 +96,7 @@ class Socket extends Base
             if ($this->trace_log) {
                 $this->log('Receive Data : '.$data);
             }
-            
+
             $resInstance = new Response($this->server, $fd);
 
             if ($this->async !== true) {
@@ -114,6 +114,10 @@ class Socket extends Base
         if ($this->server_type !== 'http') return $this;
 
         $this->server->on('request', function ($request, $response) {
+
+            if ($request->server['path_info'] == '/favicon.ico' || $request->server['request_uri'] == '/favicon.ico') {
+                return $response->end();
+            }
 
             $data = array_merge((array)$request->get, (array)$request->post);
 
