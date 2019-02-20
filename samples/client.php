@@ -36,9 +36,6 @@ function tcp($config)
     $client->connect($config['host'], $config['port'], -1);
 
     $requst = ['action' => 'test_tcp', 'data'=>['id'=>234]];
-    $time = time();
-    $requst['sign'] = Sign::build($requst, $time);
-    $requst['time'] = $time;
 
     $client->send(json_encode($requst));
     echo $client->recv();

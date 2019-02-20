@@ -8,7 +8,6 @@ use Swover\Utils\Worker;
  * Socket Server || HTTP Server
  *
  * @property $async Is it asynchronous？
- * @property $signature Need to sign? verify sign function.
  * @property $trace_log output trace log?
  */
 class Socket extends Base
@@ -102,10 +101,6 @@ class Socket extends Base
 
             $resInstance = new Response($this->server, $fd);
 
-            if ($this->verify_sign($data) !== true) {
-                return $resInstance->send('no no no~');
-            }
-
             if ($this->async !== true) {
                 return $this->event($data, $resInstance);
             }
@@ -129,10 +124,6 @@ class Socket extends Base
             }
 
             $resInstance = new Response($this->server, $response);
-
-            if ($this->verify_sign($data) !== true) {
-                return $resInstance->send('no no no~');
-            }
 
             if ($this->async !== true) {
                 return $this->event($data, $resInstance);
@@ -172,12 +163,6 @@ class Socket extends Base
                 }
             }
         });
-    }
-
-    private function verify_sign($data)
-    {
-        if (!$this->signature) return true;
-        return call_user_func_array($this->signature, [$data]);
     }
 
     private function event($data, $response = null)

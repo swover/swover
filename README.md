@@ -31,7 +31,6 @@ $ composer update
 | log_file        |  string  | all      | 默认日志文件。如果 daemonize 设置为 true, 子进程的输出 'echo,print_r,var_dump' 会保存到这个文件中 |
 | entrance        |  string  | all      | 业务代码的入口文件，会从server中执行，必须指定类名，方法名默认是run |
 | async           |   bool   | tcp,http | 是否异步执行，如果为true，接收到请求后，会将请求分发到task-worker，并立即响应success |
-| signature       |  string  | tcp,http | 验证签名的方法，为空则不验证签名。                           |
 | trace_log       |   bool   | tcp,http | 如果为true，woker 进程的 'connect','receive','task','finish','close' 事件会记录日志到log_file中 |
 
 ## 开始使用
@@ -49,7 +48,6 @@ $config = [
     'host' => '127.0.0.1',
     'port' => '9501',
     'async'    => false,
-    'signature'   => '\\Sign::verify',
     'trace_log'   => true
 ];
 
