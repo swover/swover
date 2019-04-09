@@ -1,42 +1,22 @@
 <?php
+
 namespace Swover\Utils;
 
 /**
  * The Request data injected into Entrance Class
  */
-class Request implements \ArrayAccess
+class Request extends \ArrayObject implements \ArrayAccess
 {
-    private $request = null;
+    private static $string_key = 'swover_request_array_object_string_key';
 
-    public function __construct($request)
+    public function __construct($request, $flags = 0, $iterator_class = "ArrayIterator")
     {
-        $this->request = $request;
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        if (is_null($offset)) {
-            $this->request[] = $value;
+        if (is_array($request) || is_object($request)) {
+            $input = $request;
         } else {
-            $this->request[$offset] = $value;
+            $input[self::$string_key] = $request;
         }
-    }
-
-    public function offsetGet($offset)
-    {
-        return $this->offsetExists($offset) ? $this->request[$offset] : null;
-    }
-
-    public function offsetExists($offset)
-    {
-        return isset($this->request[$offset]);
-    }
-
-    public function offsetUnset($offset)
-    {
-        if ($this->offsetExists($offset)) {
-            unset($this->request[$offset]);
-        }
+        parent::__construct($input, $flags, $iterator_class);
     }
 
     public function __set($name, $value)
@@ -61,14 +41,9 @@ class Request implements \ArrayAccess
 
     public function __toString()
     {
-        if (is_string($this->request)) {
-            return $this->request;
+        if ($this->offsetExists(self::$string_key)) {
+            return $this->offsetGet(self::$string_key);
         }
         return '';
-    }
-
-    public function __debugInfo()
-    {
-        return $this->request;
     }
 }
