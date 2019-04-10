@@ -15,7 +15,6 @@ class Request extends \ArrayObject implements \ArrayAccess
             $input = $request;
         } else {
             $this->__default_string = strval($request);
-            //settype($this, 'string');
             $input = [];
         }
         parent::__construct($input, $flags, $iterator_class);
