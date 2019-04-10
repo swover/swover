@@ -7,14 +7,16 @@ namespace Swover\Utils;
  */
 class Request extends \ArrayObject implements \ArrayAccess
 {
-    private static $string_key = 'swover_request_array_object_string_key';
+    private $__default_string = '';
 
     public function __construct($request, $flags = 0, $iterator_class = "ArrayIterator")
     {
         if (is_array($request) || is_object($request)) {
             $input = $request;
         } else {
-            $input[self::$string_key] = $request;
+            $this->__default_string = strval($request);
+            //settype($this, 'string');
+            $input = [];
         }
         parent::__construct($input, $flags, $iterator_class);
     }
@@ -41,9 +43,6 @@ class Request extends \ArrayObject implements \ArrayAccess
 
     public function __toString()
     {
-        if ($this->offsetExists(self::$string_key)) {
-            return $this->offsetGet(self::$string_key);
-        }
-        return '';
+        return $this->__default_string;
     }
 }
