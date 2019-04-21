@@ -60,7 +60,8 @@ class Server
         $pid = $this->getPid('master');
 
         if (empty($pid)) {
-            die("{$this->config['process_name']} has not process" . PHP_EOL);
+            echo "{$this->config['process_name']} has not process" . PHP_EOL;
+            return;
         }
 
         exec("kill -15 " . implode(' ', $pid), $output, $return);
