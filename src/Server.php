@@ -44,12 +44,17 @@ class Server
             }
             echo PHP_EOL;
         }
+
         echo "Starting {$this->config['process_name']} ..." . PHP_EOL;
+
         if ($this->config['server_type'] == 'process') {
             new Process($this->config);
         } else {
             new Socket($this->config);
         }
+
+        echo "{$this->config['process_name']} start success." . PHP_EOL;
+        return true;
     }
 
     /**
@@ -61,23 +66,15 @@ class Server
 
         if (empty($pid)) {
             echo "{$this->config['process_name']} has not process" . PHP_EOL;
-            return;
+            return true;
         }
 
         exec("kill -15 " . implode(' ', $pid), $output, $return);
-
         if ($return === false) {
-            die("{$this->config['process_name']} stop fail" . PHP_EOL);
+            echo "{$this->config['process_name']} stop fail" . PHP_EOL;
+            return false;
         }
-        echo "{$this->config['process_name']} stop success" . PHP_EOL;
-    }
 
-    /**
-     * safe restart server
-     */
-    public function restart()
-    {
-        $this->stop();
         $stopped = false;
         for ($i = 0; $i < 10; $i++) {
             if (empty($this->getAllPid())) {
@@ -88,9 +85,25 @@ class Server
         }
 
         if (!$stopped) {
-            die("{$this->config['process_name']} has not stopped" . PHP_EOL);
+            echo "{$this->config['process_name']} did not stop altogether." . PHP_EOL;
+            return false;
         }
-        $this->start();
+
+        echo "{$this->config['process_name']} stop success" . PHP_EOL;
+        return true;
+    }
+
+    /**
+     * safe restart server
+     */
+    public function restart()
+    {
+        if ($this->stop() != true) {
+            echo "{$this->config['process_name']} has not stopped, restart fail." . PHP_EOL;
+            return false;
+        }
+
+        return $this->start();
     }
 
     /**
@@ -105,15 +118,18 @@ class Server
         }
 
         if (empty($pid)) {
-            die("{$this->config['process_name']} has not process" . PHP_EOL);
+            echo "{$this->config['process_name']} has not process" . PHP_EOL;
+            return false;
         }
 
         exec("kill -USR1 " . implode(' ', $pid), $output, $return);
 
         if ($return === false) {
-            die("{$this->config['process_name']} reload fail" . PHP_EOL);
+            echo "{$this->config['process_name']} reload fail" . PHP_EOL;
+            return false;
         }
         echo "{$this->config['process_name']} reload success" . PHP_EOL;
+        return true;
     }
 
     /**
