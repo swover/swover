@@ -133,6 +133,42 @@ class Server
     }
 
     /**
+     * force stop server
+     */
+    public function force()
+    {
+        $pids = $this->getAllPid();
+
+        if (empty($pids)) {
+            echo "{$this->config['process_name']} has not process" . PHP_EOL;
+            return true;
+        }
+
+        exec("kill -9 " . implode(' ', $pids), $output, $return);
+        if ($return === false) {
+            echo "{$this->config['process_name']} stop fail" . PHP_EOL;
+            return false;
+        }
+
+        $stopped = false;
+        for ($i = 0; $i < 10; $i++) {
+            if (empty($this->getAllPid())) {
+                $stopped = true;
+                break;
+            }
+            sleep(mt_rand(1, 3));
+        }
+
+        if (!$stopped) {
+            echo "{$this->config['process_name']} did not stop altogether." . PHP_EOL;
+            return false;
+        }
+
+        echo "{$this->config['process_name']} stop success" . PHP_EOL;
+        return true;
+    }
+
+    /**
      * get all server process IDS
      */
     private function getAllPid()
