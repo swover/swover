@@ -20,6 +20,11 @@ class Process extends Base
         try {
             parent::__construct($config);
 
+            if (!extension_loaded('pcntl')) {
+                echo 'Process required pcntl-extension!';
+                return false;
+            }
+
             if ($this->daemonize === true) {
                 \swoole_process::daemon(true, false);
             }

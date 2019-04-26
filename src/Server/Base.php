@@ -2,6 +2,8 @@
 
 namespace Swover\Server;
 
+use Swover\Utils\Request;
+
 class Base
 {
     protected $server_type = '';
@@ -81,17 +83,7 @@ class Base
         $instance = $entrance[0];
         $method = isset($entrance[1]) ? $entrance[1] : 'run';
 
-        $ref = new \ReflectionClass($instance);
-        if ($ref->getConstructor() != null) {
-            $class = $ref;
-            while ($parent = $class->getParentClass()) {
-                if ('Swover\Utils\Entrance' == $parent->getName()) {
-                    $instance = $ref->newInstance($request);
-                    break;
-                }
-                $class = $parent;
-            }
-        }
+        $request = new Request($request);
 
         $result = call_user_func_array([$instance, $method], [$request]);
 

@@ -6,6 +6,7 @@ Swover是一个基于Swoole扩展的server框架，提供HTTP、TCP、Process能
 
 - PHP 5.6及之后版本。
 - [Swoole Extension](http://pecl.php.net/package/swoole) 1.9.5 及更新版本.
+- pcntl-extension
 
 ## 安装
 
@@ -52,10 +53,11 @@ $config = [
 ];
 
 $class = new \Swover\Server($config);
-$class->start();
-//$class->stop();
-//$class->restart();
-//$class->reload();
+$class->start(); //启动服务
+//$class->stop(); //安全的停止服务
+//$class->force(); //强制停止
+//$class->restart(); //安全的重启服务
+//$class->reload(); //安全的重新加载服务
 ```
 
 可以在 [samples](./samples) 查看示例。
