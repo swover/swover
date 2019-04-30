@@ -83,9 +83,9 @@ class Base
         $instance = $entrance[0];
         $method = isset($entrance[1]) ? $entrance[1] : 'run';
 
-        $request = new Request($request);
+        Request::setInstance(new Request($request));
 
-        $result = call_user_func_array([$instance, $method], [$request]);
+        $result = call_user_func_array([$instance, $method], []);
 
         if (is_string($result) || is_numeric($result) || is_bool($result)) {
             return $result;

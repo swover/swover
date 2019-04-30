@@ -9,6 +9,8 @@ class Request extends \ArrayObject implements \ArrayAccess
 {
     private $__default_string = '';
 
+    private static $instances = [];
+
     public function __construct($request, $flags = 0, $iterator_class = "ArrayIterator")
     {
         if (is_array($request) || is_object($request)) {
@@ -18,6 +20,20 @@ class Request extends \ArrayObject implements \ArrayAccess
             $input = [];
         }
         parent::__construct($input, $flags, $iterator_class);
+    }
+
+    public static function setInstance($instance, $name = 'default')
+    {
+        self::$instances[$name] = $instance;
+    }
+
+    public static function getInstance($name = 'default')
+    {
+        if (!isset(self::$instances[$name])) {
+            $instance = new self([]);
+            self::setInstance($instance, $name);
+        }
+        return self::$instances[$name];
     }
 
     public function __set($name, $value)
