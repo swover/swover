@@ -1,7 +1,7 @@
 <?php
 namespace Swover\Utils;
 
-class Config extends Request
+class Config extends Cache
 {
     protected static $instance = null;
 }
