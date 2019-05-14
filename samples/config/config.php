@@ -4,8 +4,6 @@ require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
 
 require_once dirname(__DIR__).'/libs/Entrance.php';
 
-require_once dirname(__DIR__).'/libs/HttpEntrance.php';
-
 return [
     'process' => [
         'server_type' => 'process',
