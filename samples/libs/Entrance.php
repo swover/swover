@@ -10,22 +10,30 @@ class Entrance
 
         echo 'master:['.\Swover\Utils\Worker::getMasterPid().'] current:['.posix_getpid().'-'.\Swover\Utils\Worker::getChildStatus().']'
             .$result.PHP_EOL;
+        sleep(300);
+        echo \Swover\Utils\Worker::getMasterPid().'finish';
     }
 
-    public static function tcp($request)
+    public static function tcp()
     {
+        $request = \Swover\Utils\Request::getInstance();
         return self::execute($request);
     }
 
-    public static function http($request)
+    public static function http()
     {
+        $request = \Swover\Utils\Request::getInstance();
+        if (!$request->action) {
+            return ['message'=>'action error'];
+        }
         return self::execute($request);
     }
 
     private static function execute($request)
     {
-        if (is_string($request)) {
-            return "request is string: {$request}";
+        if (count($request) <= 0 && strlen($request) > 0) {
+            echo "request is string: {$request}";
+            $request = json_decode($request, true);
         }
 
         sleep(mt_rand(1,3));
