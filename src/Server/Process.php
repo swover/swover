@@ -15,10 +15,10 @@ class Process extends Base
     //child-process index => process
     private $processes = [];
 
-    public function __construct(array $config)
+    public function __construct()
     {
         try {
-            parent::__construct($config);
+            parent::__construct();
 
             if (!extension_loaded('pcntl')) {
                 echo 'Process required pcntl-extension!';
@@ -34,7 +34,7 @@ class Process extends Base
             Worker::setMasterPid(posix_getpid());
 
             for ($i = 0; $i < $this->worker_num; $i++) {
-                $this->CreateProcess($i);
+                $this->createProcess($i);
             }
 
             $this->asyncProcessWait();
@@ -47,7 +47,7 @@ class Process extends Base
     /**
      * create process
      */
-    private function CreateProcess($index)
+    private function createProcess($index)
     {
         $process = new \swoole_process(function (\swoole_process $worker) use ($index) {
 
@@ -136,7 +136,7 @@ class Process extends Base
             $this->processes[$index]->close();
 
             $index = intval($index);
-            $new_pid = $this->CreateProcess($index);
+            $new_pid = $this->createProcess($index);
             $this->log("[#{$new_pid}]\tWorker-{$index}: restarted..");
             return;
         }
