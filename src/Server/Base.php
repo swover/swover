@@ -2,6 +2,7 @@
 
 namespace Swover\Server;
 
+use Swover\Utils\Config;
 use Swover\Utils\Request;
 
 class Base
@@ -24,18 +25,19 @@ class Base
 
     protected $config = [];
 
-    public function __construct(array $config)
+    public function __construct()
     {
-        $this->initConfig($config);
+        $this->config = Config::getInstance();
+        $this->initConfig();
 
         if (!$this->entrance) {
             die('Has Not Entrance!' . PHP_EOL);
         }
     }
 
-    private function initConfig($config)
+    private function initConfig()
     {
-        foreach ($config as $key => $value) {
+        foreach ($this->config as $key => $value) {
             if ($key == 'daemonize') {
                 $value = boolval($value);
             }
@@ -83,7 +85,7 @@ class Base
         $instance = $entrance[0];
         $method = isset($entrance[1]) ? $entrance[1] : 'run';
 
-        Request::setInstance(new Request($request));
+        Request::getInstance($request);
 
         $result = call_user_func_array([$instance, $method], []);
 

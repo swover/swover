@@ -15,12 +15,12 @@ class Socket extends Base
     //server object
     private $server;
 
-    public function __construct(array $config)
+    public function __construct()
     {
         try {
-            parent::__construct($config);
+            parent::__construct();
 
-            if (!isset($config['host']) || !isset($config['port'])) {
+            if (!isset($this->config['host']) || !isset($this->config['port'])) {
                 die('Has Not Host or Port!' . PHP_EOL);
             }
 
@@ -32,7 +32,7 @@ class Socket extends Base
                 $this->trace_log = boolval($this->trace_log);
             }
 
-            $this->start($config['host'], $config['port']);
+            $this->start($this->config['host'], $this->config['port']);
         } catch (\Exception $e) {
             die('Start error: ' . $e->getMessage());
         }
