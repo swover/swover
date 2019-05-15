@@ -26,7 +26,7 @@ return [
         'task_worker_num' => 2,
         'max_request' => 0,
         'log_file' => '/tmp/swoole_http.log',
-        'entrance'    => '\\HttpEntrance::http',
+        'entrance'    => '\\Entrance::http',
         'async'    => false,
         'trace_log'   => true
     ],

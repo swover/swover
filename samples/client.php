@@ -14,7 +14,8 @@ call_user_func($server_type, $config);
 function http($config)
 {
     $url =  "http://{$config['host']}:{$config['port']}?action=reload_server";
-    $post_data = ['action'=>'test_http','data'=> ['id'=>123] ];
+    $post_data = ['action'=>'test_http','data'=> ['id'=>mt_rand(100,200)] ];
+    echo json_encode($post_data).PHP_EOL;
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
@@ -35,8 +36,8 @@ function tcp($config)
     $client = new \swoole_client(SWOOLE_SOCK_TCP, SWOOLE_SOCK_SYNC);
     $client->connect($config['host'], $config['port'], -1);
 
-    $requst = ['action' => 'test_tcp', 'data'=>['id'=>234]];
-
+    $requst = ['action' => 'test_tcp', 'data'=>['id'=>mt_rand(200, 300)]];
+    echo json_encode($requst).PHP_EOL;
     $client->send(json_encode($requst));
     echo $client->recv();
     $client->close();
