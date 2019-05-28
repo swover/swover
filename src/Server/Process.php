@@ -59,26 +59,9 @@ class Process extends Base
                 Worker::setChildStatus(false);
             });
 
-            $request_count = 0;
-            $signal = 0;
-            while (true) {
-                $signal = $this->getProcessSignal($request_count);
-                if ($signal > 0) {
-                    break;
-                }
+            $signal = $this->execute($worker);
 
-                try {
-                    $result = $this->entrance();
-                    if ($result === false) {
-                        break;
-                    }
-                } catch (\Exception $e) {
-                    $this->log("[Error] worker id: {$worker->pid}, e: " . $e->getMessage());
-                    break;
-                }
-            }
             $this->log("[#{$worker->pid}]\tWorker-{$index}: shutting down by {$signal}..");
-            sleep(mt_rand(1,3));
             $worker->exit();
         }, $this->daemonize ? true : false);
 
@@ -94,6 +77,29 @@ class Process extends Base
         $this->processes[$index] = $process;
         $this->works[$index] = $pid;
         return $pid;
+    }
+
+    private function execute($worker)
+    {
+        $request_count = 0;
+        $signal = 0;
+        while (true) {
+            $signal = $this->getProcessSignal($request_count);
+            if ($signal > 0) {
+                break;
+            }
+
+            try {
+                $result = $this->entrance();
+                if ($result === false) {
+                    break;
+                }
+            } catch (\Exception $e) {
+                $this->log("[Error] worker id: {$worker->pid}, e: " . $e->getMessage());
+                break;
+            }
+        }
+        return $signal;
     }
 
     /**
