@@ -3,7 +3,7 @@
 namespace Swover\Utils;
 
 /**
- * The Request data injected into Entrance Class
+ * The Base Instance used like array
  */
 class Cache extends \ArrayObject implements \ArrayAccess
 {

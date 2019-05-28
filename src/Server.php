@@ -66,7 +66,7 @@ class Server
         $pid = $this->getPid('master');
 
         if (empty($pid)) {
-            echo "{$this->config['process_name']} has not process" . PHP_EOL;
+            echo "{$this->config['process_name']} has not master process." . PHP_EOL;
             return true;
         }
 
