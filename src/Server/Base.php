@@ -85,7 +85,7 @@ class Base
         $instance = $entrance[0];
         $method = isset($entrance[1]) ? $entrance[1] : 'run';
 
-        Request::setInstance(new Request($request));
+        Request::getInstance($request);
 
         $result = call_user_func_array([$instance, $method], []);
 

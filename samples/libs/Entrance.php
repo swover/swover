@@ -6,6 +6,7 @@ class Entrance
     {
         //pull data from queue
         $data = ['action' => 'test_process', 'data' => [ 'id' => 123 ]];
+        $request = \Swover\Utils\Request::getInstance($data);
         $result = self::execute($data);
 
         echo 'master:['.\Swover\Utils\Worker::getMasterPid().'] current:['.posix_getpid().'-'.\Swover\Utils\Worker::getChildStatus().']'
