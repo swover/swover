@@ -38,9 +38,7 @@ function singleProcess()
 {
     $data = ['action' => 'test_process', 'data' => ['id' => mt_rand(100, 200)]];
 
-    $request = \Swover\Utils\Cache::setInstance('request', new \Swover\Utils\Cache($data));
-
-    $result = Entrance::execute($request);
+    $result = Entrance::execute($data);
 
     echo 'master:[' . \Swover\Utils\Worker::getMasterPid() . '] current:[' . posix_getpid() . '-' . \Swover\Utils\Worker::getChildStatus() . ']'
         . $result . PHP_EOL;
@@ -48,15 +46,13 @@ function singleProcess()
     return true;
 }
 
-function normalTcp()
+function normalTcp($request)
 {
-    $request = \Swover\Utils\Cache::getInstance('request');
     return Entrance::execute($request);
 }
 
-function notmalHttp()
+function notmalHttp($request)
 {
-    $request = \Swover\Utils\Cache::getInstance('request');
     if (!$request->action) {
         return ['message' => 'action error'];
     }

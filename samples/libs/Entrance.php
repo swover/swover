@@ -12,15 +12,13 @@ class Entrance
             . $result . PHP_EOL;
     }
 
-    public static function tcp()
+    public static function tcp($request)
     {
-        $request = \Swover\Utils\Cache::getInstance('request');
         return self::execute($request);
     }
 
-    public static function http()
+    public static function http($request)
     {
-        $request = \Swover\Utils\Cache::getInstance('request');
         if (!$request->action) {
             return ['message'=>'action error'];
         }

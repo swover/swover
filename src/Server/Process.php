@@ -2,7 +2,6 @@
 
 namespace Swover\Server;
 
-use Swover\Utils\Cache;
 use Swover\Utils\Worker;
 
 /**
