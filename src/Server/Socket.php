@@ -99,6 +99,7 @@ class Socket extends Base
                 $this->log('Receive Data : '.$data);
             }
 
+            Response::setInstance(null);
             $instance = Response::getInstance();
             if ($this->async === true) {
                 $this->server->task($data);
@@ -127,6 +128,7 @@ class Socket extends Base
                 $this->log('Request Data : '.json_encode($data));
             }
 
+            Response::setInstance(null);
             $instance = Response::getInstance();
             if ($this->async === true) {
                 $this->server->task($data);

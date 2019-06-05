@@ -20,6 +20,11 @@ class Cache extends \ArrayObject implements \ArrayAccess
         parent::__construct($input, $flags, $iterator_class);
     }
 
+    public static function setInstance($instance)
+    {
+        static::$instance = $instance;
+    }
+
     /**
      * @param array $cache
      * @return static

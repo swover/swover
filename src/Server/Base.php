@@ -89,6 +89,8 @@ class Base
 
         $result = call_user_func_array([$instance, $method], []);
 
+        Request::setInstance(null);
+
         if (is_string($result) || is_numeric($result) || is_bool($result)) {
             return $result;
         }
