@@ -39,6 +39,8 @@ abstract class Base
 
     abstract protected function boot();
 
+    abstract protected function execute($data = null);
+
     private function initConfig()
     {
         foreach ($this->config as $key => $value) {

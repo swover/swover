@@ -19,6 +19,11 @@ class Worker
         return self::$master_pid;
     }
 
+    public static function getPid()
+    {
+        return posix_getpid();
+    }
+
     /**
      * check master process still alive
      */

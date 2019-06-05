@@ -56,7 +56,7 @@ class Process extends Base
                 Worker::setChildStatus(false);
             });
 
-            $signal = $this->execute($worker);
+            $signal = $this->execute();
 
             $this->log("[#{$worker->pid}]\tWorker-{$index}: shutting down by {$signal}..");
             $worker->exit();
@@ -76,7 +76,7 @@ class Process extends Base
         return $pid;
     }
 
-    private function execute($worker)
+    protected function execute($data = null)
     {
         $request_count = 0;
         $signal = 0;
@@ -92,7 +92,7 @@ class Process extends Base
                     break;
                 }
             } catch (\Exception $e) {
-                $this->log("[Error] worker id: {$worker->pid}, e: " . $e->getMessage());
+                $this->log("[Error] worker aa: ".Worker::getPid().", e: " . $e->getMessage());
                 break;
             }
         }

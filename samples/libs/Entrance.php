@@ -8,10 +8,12 @@ class Entrance
         $data = ['action' => 'test_process', 'data' => [ 'id' => 123 ]];
         $request = \Swover\Utils\Request::getInstance($data);
         $result = self::execute($data);
-
+        if(mt_rand(1,3) == 2) {
+            throw new \Exception('mt_rand_error');
+        }
         echo 'master:['.\Swover\Utils\Worker::getMasterPid().'] current:['.posix_getpid().'-'.\Swover\Utils\Worker::getChildStatus().']'
             .$result.PHP_EOL;
-        sleep(300);
+        // sleep(300);
         echo \Swover\Utils\Worker::getMasterPid().'finish';
     }
 

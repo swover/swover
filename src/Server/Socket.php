@@ -144,7 +144,7 @@ class Socket extends Base
         });
     }
 
-    protected function execute($data)
+    protected function execute($data = null)
     {
         if ($this->trace_log) {
             $this->log('Request Data : '.json_encode($data));
