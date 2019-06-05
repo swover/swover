@@ -42,17 +42,10 @@ function singleProcess()
 
     $result = Entrance::execute($request);
 
-    $response = \Swover\Utils\Cache::getInstance('response');
-
-    $response['body'] = $result;
-
-    $mt_rand = mt_rand(1,3);
-    if ($mt_rand == 2) {
-        $response['status'] = 404;
-    }
-
     echo 'master:[' . \Swover\Utils\Worker::getMasterPid() . '] current:[' . posix_getpid() . '-' . \Swover\Utils\Worker::getChildStatus() . ']'
-        . json_encode($response) . PHP_EOL;
+        . $result . PHP_EOL;
+
+    return true;
 }
 
 function normalTcp()

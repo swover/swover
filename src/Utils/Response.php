@@ -88,4 +88,9 @@ class Response
             'httponly' => $httponly
         ];
     }
+
+    public function __get($name)
+    {
+        return isset($this->instance[$name]) ? $this->instance[$name] : null;
+    }
 }

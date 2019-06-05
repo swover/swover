@@ -82,19 +82,15 @@ class Process extends Base
         $request_count = 0;
         $signal = 0;
         while (true) {
-            $response = Cache::setInstance('response', new Cache([]));
-
             $signal = $this->getProcessSignal($request_count);
             if ($signal > 0) {
                 break;
             }
 
             try {
-                $this->entrance();
+                $response = $this->entrance();
 
-                if (!isset($response['status'])) continue;
-
-                if ($response['status'] >= 400 || $response['status'] < 0) {
+                if ($response->status >= 400 || $response->status < 0) {
                     break;
                 }
 
