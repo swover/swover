@@ -5,9 +5,9 @@ namespace Swover\Utils;
 /**
  * Response
  */
-class Response extends Cache
+class Response
 {
-    protected static $instance = null;
+    protected $instance = null;
 
     /**
      * @param $resource mixed | \Swoole\Http\Response
@@ -20,11 +20,13 @@ class Response extends Cache
             return false;
         }
 
+        $this->instance = Cache::getInstance('response');
+
         if ($resource instanceof \Swoole\Http\Response) {
             return $this->sendHttpResponse($resource);
         }
 
-        return $server->send($resource, $this['body']);
+        return $server->send($resource, $this->instance['body']);
     }
 
     /**
@@ -35,61 +37,61 @@ class Response extends Cache
     {
         $this->build();
 
-        foreach ($this['header'] as $key=>$value) {
+        foreach ($this->instance['header'] as $key=>$value) {
             $response->header($key, $value);
         }
-        foreach ($this['cookie'] as $cKey=>$cVal) {
+        foreach ($this->instance['cookie'] as $cKey=>$cVal) {
             $response->cookie($cKey, $cVal['value'], $cVal['expire'], $cVal['path'], $cVal['domain'], $cVal['secure'], $cVal['httponly']);
         }
 
-        $response->status($this['status']);
+        $response->status($this->instance['status']);
 
-        return $response->end($this['body']);
+        return $response->end($this->instance['body']);
     }
 
     private function build()
     {
-        if (!isset($this['header']) || !is_array($this['header'])) {
-            $this['header'] = [];
+        if (!isset($this->instance['header']) || !is_array($this->instance['header'])) {
+            $this->instance['header'] = [];
         }
 
-        if (!isset($this['body'])) {
-            $this['body'] = '';
+        if (!isset($this->instance['body'])) {
+            $this->instance['body'] = '';
         }
 
-        if (!isset($this['status'])) {
-            $this['status'] = 200;
+        if (!isset($this->instance['status'])) {
+            $this->instance['status'] = 200;
         }
 
-        if (!isset($this['cookie'])) {
-            $this['cookie'] = [];
+        if (!isset($this->instance['cookie'])) {
+            $this->instance['cookie'] = [];
         }
     }
 
     public function body($body)
     {
-        $this['body'] = $body;
+        $this->instance['body'] = $body;
     }
 
     public function header($key, $value)
     {
-        if (!isset($this['header'])) {
-            $this['header'] = [];
+        if (!isset($this->instance['header'])) {
+            $this->instance['header'] = [];
         }
-        $this['header'][$key] = $value;
+        $this->instance['header'][$key] = $value;
     }
 
     public function status($http_status_code)
     {
-        $this['status'] = $http_status_code;
+        $this->instance['status'] = $http_status_code;
     }
 
     public function cookie($key, $value = '', $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = false)
     {
-        if (!isset($this['cookie'])) {
-            $this['cookie'] = [];
+        if (!isset($this->instance['cookie'])) {
+            $this->instance['cookie'] = [];
         }
-        $this['cookie'][$key] = [
+        $this->instance['cookie'][$key] = [
             'value'  => $value,
             'expire' => $expire,
             'path'   => $path,

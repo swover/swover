@@ -2,8 +2,7 @@
 
 namespace Swover\Server;
 
-use Swover\Utils\Config;
-use Swover\Utils\Request;
+use Swover\Utils\Cache;
 
 abstract class Base
 {
@@ -27,7 +26,8 @@ abstract class Base
 
     public function __construct()
     {
-        $this->config = Config::getInstance();
+        $this->config = Cache::getInstance('config');
+
         $this->initConfig();
 
         if (!$this->entrance) {
@@ -91,11 +91,9 @@ abstract class Base
         $instance = $entrance[0];
         $method = isset($entrance[1]) ? $entrance[1] : 'run';
 
-        Request::getInstance($request);
-
-        call_user_func_array([$instance, $method], []);
-
-        Request::setInstance(null);
+        $request = Cache::setInstance('request', new Cache($request));
+        call_user_func_array([$instance, $method], [$request]);
+        Cache::clearInstance('request');
     }
 
     /**

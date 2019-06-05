@@ -1,6 +1,7 @@
 <?php
 namespace Swover\Server;
 
+use Swover\Utils\Cache;
 use Swover\Utils\Response;
 use Swover\Utils\Worker;
 
@@ -150,14 +151,14 @@ class Socket extends Base
             $this->log('Request Data : '.json_encode($data));
         }
 
-        Response::setInstance(null);
-        $instance = Response::getInstance();
+        $response = Cache::setInstance('response', new Cache([]));
+
         if ($this->async === true) {
             $this->server->task($data);
-            $instance->body('success'); //TODO 异步测试
+            $response->body('success'); //TODO 异步测试
         } else {
             $this->entrance($data);
         }
-        return $instance;
+        return new Response();
     }
 }

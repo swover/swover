@@ -9,7 +9,7 @@ class Cache extends \ArrayObject implements \ArrayAccess
 {
     private $__default_string = '';
 
-    protected static $instance = null;
+    protected static $instance = [];
 
     public function __construct($input, $flags = 0, $iterator_class = "ArrayIterator")
     {
@@ -20,21 +20,33 @@ class Cache extends \ArrayObject implements \ArrayAccess
         parent::__construct($input, $flags, $iterator_class);
     }
 
-    public static function setInstance($instance)
+    /**
+     * @param $name
+     * @param null $instance
+     * @return mixed
+     */
+    public static function setInstance($name, $instance = null)
     {
-        static::$instance = $instance;
+        static::$instance[$name] = $instance;
+        return static::$instance[$name];
+    }
+
+    public static function clearInstance($name)
+    {
+        self::setInstance($name);
+        unset(static::$instance[$name]);
     }
 
     /**
-     * @param array $cache
-     * @return static
+     * @param string $name
+     * @return static|null
      */
-    public static function getInstance($cache = [])
+    public static function getInstance($name)
     {
-        if (is_null(static::$instance)) {
-            static::$instance = new static($cache);
+        if (!isset(static::$instance[$name])) {
+            self::setInstance($name, new self([]));
         }
-        return static::$instance;
+        return static::$instance[$name];
     }
 
     public function __set($name, $value)

@@ -2,7 +2,7 @@
 
 namespace Swover\Server;
 
-use Swover\Utils\Response;
+use Swover\Utils\Cache;
 use Swover\Utils\Worker;
 
 /**
@@ -82,8 +82,7 @@ class Process extends Base
         $request_count = 0;
         $signal = 0;
         while (true) {
-            Response::setInstance(null);
-            $response = Response::getInstance();
+            $response = Cache::setInstance('response', new Cache([]));
 
             $signal = $this->getProcessSignal($request_count);
             if ($signal > 0) {
