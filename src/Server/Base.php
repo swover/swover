@@ -93,21 +93,9 @@ abstract class Base
 
         Request::getInstance($request);
 
-        $result = call_user_func_array([$instance, $method], []);
+        call_user_func_array([$instance, $method], []);
 
         Request::setInstance(null);
-
-        if (is_string($result) || is_numeric($result) || is_bool($result)) {
-            return $result;
-        }
-        if (is_array($result)) {
-            return json_encode($result);
-        }
-        if (is_null($result)) {
-            return 'null';
-        }
-
-        return 'none';
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Swover\Server;
 
+use Swover\Utils\Response;
 use Swover\Utils\Worker;
 
 /**
@@ -81,18 +82,25 @@ class Process extends Base
         $request_count = 0;
         $signal = 0;
         while (true) {
+            Response::setInstance(null);
+            $response = Response::getInstance();
+
             $signal = $this->getProcessSignal($request_count);
             if ($signal > 0) {
                 break;
             }
 
             try {
-                $result = $this->entrance();
-                if ($result === false) {
+                $this->entrance();
+
+                if (!isset($response['status'])) continue;
+
+                if ($response['status'] >= 400 || $response['status'] < 0) {
                     break;
                 }
+
             } catch (\Exception $e) {
-                $this->log("[Error] worker aa: ".Worker::getPid().", e: " . $e->getMessage());
+                $this->log("[Error] worker pid: ".Worker::getPid().", e: " . $e->getMessage());
                 break;
             }
         }

@@ -5,16 +5,20 @@ class Entrance
     public static function process()
     {
         //pull data from queue
-        $data = ['action' => 'test_process', 'data' => [ 'id' => 123 ]];
+        $data = ['action' => 'test_process', 'data' => [ 'id' => mt_rand(100,200) ]];
         $request = \Swover\Utils\Request::getInstance($data);
         $result = self::execute($data);
         if(mt_rand(1,3) == 2) {
             throw new \Exception('mt_rand_error');
         }
-        echo 'master:['.\Swover\Utils\Worker::getMasterPid().'] current:['.posix_getpid().'-'.\Swover\Utils\Worker::getChildStatus().']'
-            .$result.PHP_EOL;
+        $response = \Swover\Utils\Response::getInstance();
+        var_dump(json_encode($response));
+        echo PHP_EOL;
+
+        // echo 'master:['.\Swover\Utils\Worker::getMasterPid().'] current:['.posix_getpid().'-'.\Swover\Utils\Worker::getChildStatus().']'
+        //     .$result.PHP_EOL;
         // sleep(300);
-        echo \Swover\Utils\Worker::getMasterPid().'finish';
+        // echo \Swover\Utils\Worker::getMasterPid().'finish';
     }
 
     public static function tcp()
@@ -51,7 +55,7 @@ class Entrance
         $mt_rand = mt_rand(1,3);
         if ($mt_rand == 2) {
             echo $mt_rand.PHP_EOL;
-            $response->status(302);
+            $response->status(404);
         }
 
         return " data :".json_encode($request, JSON_UNESCAPED_UNICODE).' route: '. $route;
