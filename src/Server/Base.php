@@ -3,6 +3,7 @@
 namespace Swover\Server;
 
 use Swover\Utils\Cache;
+use Swover\Utils\Response;
 
 abstract class Base
 {
@@ -84,16 +85,33 @@ abstract class Base
 
     /**
      * Execute Application code
+     *
+     * @param null $request
+     * @return mixed|Response
      */
     protected function entrance($request = null)
     {
-        $entrance = explode('::', $this->entrance);
-        $instance = $entrance[0];
-        $method = isset($entrance[1]) ? $entrance[1] : 'run';
-
         $request = Cache::setInstance('request', new Cache($request));
-        call_user_func_array([$instance, $method], [$request]);
+
+        $result = call_user_func_array($this->entrance, [$request]);
+
+        if ($result instanceof Response) {
+            $response = $result;
+        } else {
+            $response = new Response();
+        }
+
+        if (is_string($result) || is_numeric($result)) {
+            $response->body($result);
+        }
+
+        if (is_bool($result) && $result === false) {
+            $response->status(500);
+        }
+
         Cache::clearInstance('request');
+
+        return $response;
     }
 
     /**

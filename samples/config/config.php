@@ -4,6 +4,8 @@ require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
 
 require_once dirname(__DIR__).'/libs/Entrance.php';
 
+require_once dirname(__DIR__).'/libs/functions.php';
+
 return [
     'process' => [
         'server_type' => 'process',
@@ -13,7 +15,8 @@ return [
         'task_worker_num' => 1,
         'max_request' => 0,
         'log_file' => '/tmp/swoole.log',
-        'entrance' => '\\Entrance::process',
+        // 'entrance' => '\\Entrance::process',
+        'entrance' => 'singleProcess',
     ],
 
     'http' => [

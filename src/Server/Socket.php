@@ -151,14 +151,14 @@ class Socket extends Base
             $this->log('Request Data : '.json_encode($data));
         }
 
-        $response = Cache::setInstance('response', new Cache([]));
-
         if ($this->async === true) {
             $this->server->task($data);
-            $response->body('success'); //TODO 异步测试
+            //TODO 异步测试
+            $response = new Response();
+            $response->body('success');
         } else {
-            $this->entrance($data);
+            $response = $this->entrance($data);
         }
-        return new Response();
+        return $response;
     }
 }

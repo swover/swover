@@ -7,7 +7,17 @@ namespace Swover\Utils;
  */
 class Response
 {
-    protected $instance = null;
+    protected $instance = [];
+
+    public function __construct()
+    {
+        $this->instance = [
+            'header' => [],
+            'status' => 200,
+            'cookie' => [],
+            'body' => '',
+        ];
+    }
 
     /**
      * @param $resource mixed | \Swoole\Http\Response
@@ -19,8 +29,6 @@ class Response
         if (!$server instanceof \Swoole\Server) {
             return false;
         }
-
-        $this->instance = Cache::getInstance('response');
 
         if ($resource instanceof \Swoole\Http\Response) {
             return $this->sendHttpResponse($resource);
@@ -35,11 +43,10 @@ class Response
      */
     private function sendHttpResponse($response)
     {
-        $this->build();
-
         foreach ($this->instance['header'] as $key=>$value) {
             $response->header($key, $value);
         }
+
         foreach ($this->instance['cookie'] as $cKey=>$cVal) {
             $response->cookie($cKey, $cVal['value'], $cVal['expire'], $cVal['path'], $cVal['domain'], $cVal['secure'], $cVal['httponly']);
         }
@@ -47,25 +54,6 @@ class Response
         $response->status($this->instance['status']);
 
         return $response->end($this->instance['body']);
-    }
-
-    private function build()
-    {
-        if (!isset($this->instance['header']) || !is_array($this->instance['header'])) {
-            $this->instance['header'] = [];
-        }
-
-        if (!isset($this->instance['body'])) {
-            $this->instance['body'] = '';
-        }
-
-        if (!isset($this->instance['status'])) {
-            $this->instance['status'] = 200;
-        }
-
-        if (!isset($this->instance['cookie'])) {
-            $this->instance['cookie'] = [];
-        }
     }
 
     public function body($body)
