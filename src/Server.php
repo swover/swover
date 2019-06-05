@@ -4,7 +4,6 @@ namespace Swover;
 
 use Swover\Server\Process;
 use Swover\Server\Socket;
-use Swover\Utils\Cache;
 
 class Server
 {
@@ -21,7 +20,7 @@ class Server
 
     public function __construct(array $config)
     {
-        $this->config = Cache::setInstance('config', new Cache($config));
+        $this->config = $config;
 
         if (!isset($this->config['server_type']) || !in_array($this->config['server_type'], $this->server_type)) {
             die('server_type defined error!' . PHP_EOL);
@@ -50,9 +49,9 @@ class Server
 
         try {
             if ($this->config['server_type'] == 'process') {
-                new Process();
+                new Process($this->config);
             } else {
-                new Socket();
+                new Socket($this->config);
             }
         } catch (\Exception $e) {
             echo "{$this->config['process_name']} start fail. error: ".  $e->getMessage() . PHP_EOL;

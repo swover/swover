@@ -25,9 +25,9 @@ abstract class Base
 
     protected $config = [];
 
-    public function __construct()
+    public function __construct(array $config)
     {
-        $this->config = Cache::getInstance('config');
+        $this->config = $config;
 
         $this->initConfig();
 
