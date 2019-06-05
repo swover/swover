@@ -91,7 +91,7 @@ abstract class Base
      */
     protected function entrance($request = null)
     {
-        $request = Cache::setInstance('request', new Cache($request));
+        $request = new Cache($request);
 
         $result = call_user_func_array($this->entrance, [$request]);
 
@@ -108,8 +108,6 @@ abstract class Base
         if (is_bool($result) && $result === false) {
             $response->status(500);
         }
-
-        Cache::clearInstance('request');
 
         return $response;
     }
