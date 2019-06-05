@@ -39,6 +39,19 @@ class Entrance
 
         sleep(mt_rand(1,3));
         $route = self::route($request['action']);
+
+        $body = " body :".json_encode($request, JSON_UNESCAPED_UNICODE).' route: '. $route;
+
+        $response = \Swover\Utils\Response::getInstance();
+
+        $response->body($body);
+
+        $mt_rand = mt_rand(1,3);
+        if ($mt_rand == 2) {
+            echo $mt_rand.PHP_EOL;
+            $response->status(302);
+        }
+
         return " data :".json_encode($request, JSON_UNESCAPED_UNICODE).' route: '. $route;
     }
 

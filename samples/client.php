@@ -25,8 +25,9 @@ function http($config)
     curl_setopt($curl,CURLOPT_HTTPHEADER, []);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     $output = curl_exec($curl);
+    $info = curl_getinfo($curl);
     curl_close($curl);
-
+    var_dump(json_encode($info, JSON_UNESCAPED_UNICODE));
     var_dump($output);
     echo PHP_EOL;
 }

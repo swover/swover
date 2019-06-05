@@ -12,7 +12,9 @@ use Swover\Utils\Worker;
  */
 class Socket extends Base
 {
-    //server object
+    /**
+     * @var \Swoole\Http\Server | \Swoole\Server
+     */
     private $server;
 
     public function __construct()
@@ -40,7 +42,7 @@ class Socket extends Base
 
     private function start($host, $port)
     {
-        $className = ($this->server_type == 'http') ? '\swoole_http_server' : '\swoole_server';
+        $className = ($this->server_type == 'http') ? \Swoole\Http\Server::class : \Swoole\Server::class;
         $this->server = new $className($host, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
 
         $this->server->server_type = $this->server_type;
@@ -97,14 +99,14 @@ class Socket extends Base
                 $this->log('Receive Data : '.$data);
             }
 
-            $resInstance = new Response($this->server, $fd);
-
-            if ($this->async !== true) {
-                return $this->event($data, $resInstance);
+            $instance = Response::getInstance();
+            if ($this->async === true) {
+                $this->server->task($data);
+                $instance->body('success'); //TODO 异步测试
+            } else {
+                $this->event($data);
             }
-
-            $server->task($data);
-            return $resInstance->send('success');
+            return $instance->send($fd, $this->server);
         });
         return $this;
     }
@@ -125,14 +127,14 @@ class Socket extends Base
                 $this->log('Request Data : '.json_encode($data));
             }
 
-            $resInstance = new Response($this->server, $response);
-
-            if ($this->async !== true) {
-                return $this->event($data, $resInstance);
+            $instance = Response::getInstance();
+            if ($this->async === true) {
+                $this->server->task($data);
+                $instance->body('success'); //TODO 异步测试
+            } else {
+                $this->event($data);
             }
-
-            $this->server->task($data);
-            return $resInstance->send('success');
+            return $instance->send($response, $this->server);
         });
         return $this;
     }
@@ -167,13 +169,14 @@ class Socket extends Base
         });
     }
 
-    private function event($data, $response = null)
+    /**
+     * @param $data
+     * @return bool
+     */
+    private function event($data)
     {
         try {
-            $result = $this->entrance($data);
-            if ($response != null) {
-                $response->send($result ? : 'success');
-            }
+            $this->entrance($data);
         } catch (\Exception $e) {
             return false;
         }
