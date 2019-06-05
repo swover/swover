@@ -15,33 +15,30 @@ class Process extends Base
     //child-process index => process
     private $processes = [];
 
-    public function __construct()
+    protected function boot()
     {
-        try {
-            parent::__construct();
-
-            if (!extension_loaded('pcntl')) {
-                echo 'Process required pcntl-extension!';
-                return false;
-            }
-
-            if ($this->daemonize === true) {
-                \swoole_process::daemon(true, false);
-            }
-
-            $this->_setProcessName('master');
-
-            Worker::setMasterPid(posix_getpid());
-
-            for ($i = 0; $i < $this->worker_num; $i++) {
-                $this->createProcess($i);
-            }
-
-            $this->asyncProcessWait();
-
-        } catch (\Exception $e) {
-            die('Start error: ' . $e->getMessage());
+        if (!extension_loaded('pcntl')) {
+            throw new \Exception('Process required pcntl-extension!');
         }
+
+        $this->start();
+    }
+
+    private function start()
+    {
+        if ($this->daemonize === true) {
+            \swoole_process::daemon(true, false);
+        }
+
+        $this->_setProcessName('master');
+
+        Worker::setMasterPid(posix_getpid());
+
+        for ($i = 0; $i < $this->worker_num; $i++) {
+            $this->createProcess($i);
+        }
+
+        $this->asyncProcessWait();
     }
 
     /**

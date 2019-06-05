@@ -5,7 +5,7 @@ namespace Swover\Server;
 use Swover\Utils\Config;
 use Swover\Utils\Request;
 
-class Base
+abstract class Base
 {
     protected $server_type = '';
 
@@ -31,9 +31,13 @@ class Base
         $this->initConfig();
 
         if (!$this->entrance) {
-            die('Has Not Entrance!' . PHP_EOL);
+            throw new \Exception('Has Not Entrance!');
         }
+
+        $this->boot();
     }
+
+    abstract protected function boot();
 
     private function initConfig()
     {
