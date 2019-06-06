@@ -39,13 +39,16 @@ class Socket extends Base
         $className = ($this->server_type == 'http') ? \Swoole\Http\Server::class : \Swoole\Server::class;
         $this->server = new $className($this->config['host'], $this->config['port'], SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
 
-        $this->server->set([
+        $setting = [
             'worker_num'      => $this->worker_num,
             'task_worker_num' => $this->task_worker_num,
             'daemonize'       => $this->daemonize,
-            'log_file'        => $this->log_file,
             'max_request'     => $this->max_request
-        ]);
+        ];
+
+        $setting = array_merge($setting, $this->config['setting']);
+
+        $this->server->set($setting);
 
         $this->onStart()->onReceive()->onRequest()->onTask()->onStop();
 

@@ -19,8 +19,6 @@ abstract class Base
 
     protected $max_request = 0;
 
-    protected $log_file = '';
-
     protected $entrance = '';
 
     protected $config = [];
@@ -44,6 +42,16 @@ abstract class Base
 
     private function initConfig()
     {
+        if (!isset($this->config['setting'])) {
+            $this->config['setting'] = [];
+        }
+
+        foreach ($this->config['setting'] as $key => $item) {
+            if (isset($this->config[$key])) {
+                $this->config[$key] = $item;
+            }
+        }
+        
         foreach ($this->config as $key => $value) {
             if ($key == 'daemonize') {
                 $value = boolval($value);
@@ -60,14 +68,6 @@ abstract class Base
 
         if ($this->task_worker_num <= 0) {
             $this->task_worker_num = 1;
-        }
-
-        if (!$this->log_file) {
-            $this->log_file = '/tmp/' . $this->process_name . '/swoole.log';
-        }
-        $log_path = dirname($this->log_file);
-        if (!file_exists($this->log_file) || !file_exists($log_path)) {
-            !is_dir($log_path) && mkdir($log_path, 0777, true);
         }
     }
 
@@ -117,11 +117,19 @@ abstract class Base
      */
     protected function log($msg)
     {
-        error_log(date('Y-m-d H:i:s') . ' ' . ltrim($msg) . PHP_EOL, 3, $this->log_file);
+        if ($this->log_file != '') {
+            error_log(date('Y-m-d H:i:s') . ' ' . ltrim($msg) . PHP_EOL, 3, $this->log_file);
+        } else {
+            echo trim($msg) . PHP_EOL;
+        }
     }
 
     public function __get($name)
     {
+        if (isset($this->config['setting'][$name])) {
+            return $this->config['setting'][$name];
+        }
+
         if (!isset($this->config[$name])) {
             return false;
         }

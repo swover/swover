@@ -19,20 +19,20 @@ $ composer update
 
 ## 配置项
 
-| 配置            | 数据类型 | 场景     | 描述                                                         |
-| --------------- | :------: | :------- | ------------------------------------------------------------ |
-| server_type     |  string  | all      | 服务类型，可选项：http,tcp,process                           |
-| daemonize       |   bool   | all      | 服务是否以守护进程方式运行                                   |
-| process_name    |  string  | all      | 服务的进程名，建议单机内唯一                                 |
-| worker_num      |   int    | all      | worker 进程数                                                |
-| task_worker_num |   int    | tcp,http | task-worker 进程数                                           |
-| host            |  string  | tcp,http | 监听地址                                                     |
-| port            |   int    | tcp,http | 监听端口                                                     |
-| max_request     |   int    | all      | 进程最大执行次数，超过这个值时，进程会安全重启。如果设置为0，则永远不会重启 |
-| log_file        |  string  | all      | 默认日志文件。如果 daemonize 设置为 true, 子进程的输出 'echo,print_r,var_dump' 会保存到这个文件中 |
-| entrance        |  string  | all      | 业务代码的入口文件，会从server中执行，必须指定类名，方法名默认是run |
-| async           |   bool   | tcp,http | 是否异步执行，如果为true，接收到请求后，会将请求分发到task-worker，并立即响应success |
-| trace_log       |   bool   | tcp,http | 如果为true，woker 进程的 'connect','receive','task','finish','close' 事件会记录日志到log_file中 |
+| 配置            | 数据类型 | 场景     | 必填 & 默认    | 描述                                                         |
+| --------------- | :------: | :------- | :------- | ------------------------------------------------------------ |
+| server_type     |  string  | all      | 是 [无]      | 服务类型，可选项：http,tcp,process                           |
+| daemonize       |   bool   | all      | 是 [false]     | 服务是否以守护进程方式运行                                   |
+| process_name    |  string  | all      | 是 [server]     | 服务的进程名，建议单机内唯一                                 |
+| worker_num      |   int    | all      | 是 [1]     | worker 进程数                                                |
+| task_worker_num |   int    | tcp,http | 是 [1]     | task-worker 进程数                                           |
+| host            |  string  | tcp,http | 是 [无]     | 监听地址                                                     |
+| port            |   int    | tcp,http | 是 [无]     | 监听端口                                                     |
+| max_request     |   int    | all      | 否 [0]     | 进程最大执行次数，超过这个值时，进程会安全重启。如果设置为0，则永远不会重启 |
+| entrance        |  string  | all      | 是 [无]     | 业务代码的入口文件，会从server中执行，必须指定类名，方法名默认是run |
+| async           |   bool   | tcp,http | 否 [false]     | 是否异步执行，如果为true，接收到请求后，会将请求分发到task-worker，并立即响应 |
+| trace_log       |   bool   | tcp,http | 否 [false]     | 如果为true，woker 进程的 'connect','receive','task','finish','close' 事件会输出日志 |
+| setting         |   array  | all      | 否 [无]     | [配置选项](https://wiki.swoole.com/wiki/page/274.html) 同一配置出现在setting中会覆盖单独的定义 |
 
 ## 开始使用
 

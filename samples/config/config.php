@@ -14,7 +14,7 @@ return [
         'worker_num' => 2,
         'task_worker_num' => 1,
         'max_request' => 0,
-        'log_file' => '/tmp/swoole.log',
+        #'log_file' => '/Users/sin/swoole.log',
         // 'entrance' => '\\Entrance::process',
         'entrance' => 'singleProcess',
     ],
@@ -28,10 +28,14 @@ return [
         'worker_num' => 2,
         'task_worker_num' => 2,
         'max_request' => 0,
-        'log_file' => '/tmp/swoole_http.log',
+        #'log_file' => '/tmp/swoole_http.log',
         'entrance'    => '\\Entrance::http',
         'async'    => false,
-        'trace_log'   => true
+        'trace_log'   => true,
+        'setting' => [
+            'log_file' => '/Users/sin/swoole_http.log',
+            'worker_num' => 3,
+        ]
     ],
 
     'tcp' => [
@@ -43,7 +47,7 @@ return [
         'worker_num' => 2,
         'task_worker_num' => 2,
         'max_request' => 0,
-        'log_file' => '/tmp/swoole_tcp.log',
+        #'log_file' => '/Users/sin/swoole_tcp.log',
         'entrance'    => '\\Entrance::tcp',
         'async'    => false,
         'trace_log'   => true
