@@ -89,9 +89,29 @@ class Socket extends Base
             }
         });
 
-        $this->server->on('receive', function ($server, $fd, $from_id, $data) {
+        $this->server->on('receive', function (\Swoole\Server $server, $fd, $from_id, $data) {
 
-            $result = $this->execute($data);
+            $info = $server->getClientInfo($fd);
+
+            $data = [
+                'input' => $data,
+                'server' => [
+                    'query_string' => '',
+                    'request_method' => 'GET',
+                    'request_uri' => '/',
+                    'path_info' => '/',
+                    'request_time' => $info['connect_time'],
+                    'request_time_float' => $info['connect_time'] . '.000',
+                    'server_port' => $info['server_port'],
+                    'remote_port' => $info['remote_port'],
+                    'remote_addr' => $info['remote_ip'],
+                    'master_time' => $info["last_time"],
+                    //'server_protocol' => 'HTTP/1.1',
+                    'server_software' => 'swoole-server'
+                ]
+            ];
+
+            $result = $this->execute($info);
 
             return $result->send($fd, $this->server);
         });
@@ -108,9 +128,7 @@ class Socket extends Base
                 return $response->end();
             }
 
-            $data = array_merge((array)$request->get, (array)$request->post);
-
-            $result = $this->execute($data);
+            $result = $this->execute($request);
 
             return $result->send($response, $this->server);
         });
@@ -147,6 +165,10 @@ class Socket extends Base
         });
     }
 
+    /**
+     * @param $data \Swoole\Http\Request|array
+     * @return mixed|Response
+     */
     protected function execute($data = null)
     {
         if ($this->trace_log) {

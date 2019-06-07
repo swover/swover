@@ -2,7 +2,7 @@
 
 namespace Swover\Server;
 
-use Swover\Utils\Cache;
+use Swover\Utils\Request;
 use Swover\Utils\Response;
 
 abstract class Base
@@ -91,7 +91,7 @@ abstract class Base
      */
     protected function entrance($request = null)
     {
-        $request = new Cache($request);
+        $request = new Request($request);
 
         $result = call_user_func_array($this->entrance, [$request]);
 
