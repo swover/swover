@@ -27,6 +27,7 @@ class Entrance
 
     public static function execute($request)
     {
+        //判断是否为string，比如通过TCP通信的Json格式的消息体
         if (count($request) <= 0 && strlen($request) > 0) {
             echo "request is string: {$request}";
             $request = json_decode($request, true);
