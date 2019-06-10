@@ -4,7 +4,7 @@ require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
 
 require_once dirname(__DIR__) . '/libs/Entrance.php';
 
-require_once dirname(__DIR__) . '/libs/functions.php';
+require_once dirname(__DIR__) . '/libs/process.php';
 
 function configs()
 {

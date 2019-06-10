@@ -26,7 +26,7 @@ function http($config)
     $output = curl_exec($curl);
     $info = curl_getinfo($curl);
     curl_close($curl);
-    echo "Response Info: " . json_encode($info, JSON_UNESCAPED_UNICODE) . PHP_EOL;
+    echo "Response Info: " . json_encode($info, JSON_UNESCAPED_UNICODE) . PHP_EOL . PHP_EOL;
     echo "Result: " . $output . PHP_EOL;
 }
 
@@ -44,7 +44,7 @@ function httpInput($config)
     $output = curl_exec($ch);
     $info = curl_getinfo($ch);
     curl_close($ch);
-    echo "Response Info: " . json_encode($info, JSON_UNESCAPED_UNICODE) . PHP_EOL;
+    echo "Response Info: " . json_encode($info, JSON_UNESCAPED_UNICODE) . PHP_EOL . PHP_EOL;
     echo "Result: " . $output . PHP_EOL;
     echo PHP_EOL;
 }
