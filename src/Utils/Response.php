@@ -5,18 +5,17 @@ namespace Swover\Utils;
 /**
  * Response
  */
-class Response
+class Response extends Cache implements \Swover\Utils\Contracts\Response
 {
-    protected $instance = [];
-
     public function __construct()
     {
-        $this->instance = [
+        $input = [
             'header' => [],
             'status' => 200,
             'cookie' => [],
             'body' => '',
         ];
+        parent::__construct($input);
     }
 
     /**
@@ -34,7 +33,7 @@ class Response
             return $this->sendHttpResponse($resource);
         }
 
-        return $server->send($resource, $this->instance['body']);
+        return $server->send($resource, $this->body);
     }
 
     /**
@@ -43,43 +42,37 @@ class Response
      */
     private function sendHttpResponse($response)
     {
-        foreach ($this->instance['header'] as $key=>$value) {
+        foreach ($this->header as $key=>$value) {
             $response->header($key, $value);
         }
 
-        foreach ($this->instance['cookie'] as $cKey=>$cVal) {
+        foreach ($this->cookie as $cKey=>$cVal) {
             $response->cookie($cKey, $cVal['value'], $cVal['expire'], $cVal['path'], $cVal['domain'], $cVal['secure'], $cVal['httponly']);
         }
 
-        $response->status($this->instance['status']);
+        $response->status($this->status);
 
-        return $response->end($this->instance['body']);
+        return $response->end($this->body);
     }
 
     public function body($body)
     {
-        $this->instance['body'] = $body;
+        $this->body = $body;
     }
 
     public function header($key, $value)
     {
-        if (!isset($this->instance['header'])) {
-            $this->instance['header'] = [];
-        }
-        $this->instance['header'][$key] = $value;
+        $this->header[$key] = $value;
     }
 
     public function status($http_status_code)
     {
-        $this->instance['status'] = $http_status_code;
+        $this->status = $http_status_code;
     }
 
     public function cookie($key, $value = '', $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = false)
     {
-        if (!isset($this->instance['cookie'])) {
-            $this->instance['cookie'] = [];
-        }
-        $this->instance['cookie'][$key] = [
+        $this->cookie[$key] = [
             'value'  => $value,
             'expire' => $expire,
             'path'   => $path,
@@ -87,10 +80,5 @@ class Response
             'secure' => $secure,
             'httponly' => $httponly
         ];
-    }
-
-    public function __get($name)
-    {
-        return isset($this->instance[$name]) ? $this->instance[$name] : null;
     }
 }
