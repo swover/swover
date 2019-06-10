@@ -5,7 +5,7 @@ namespace Swover\Utils;
 /**
  * Request
  */
-class Request extends Cache
+class Request extends Cache implements \Swover\Utils\Contracts\Request
 {
     /**
      * Request constructor.
@@ -26,10 +26,16 @@ class Request extends Cache
 
     private function initHttp(\Swoole\Http\Request $request)
     {
+        try {
+            $input = $request->rawcontent();
+        } catch (\Exception $e) {
+            //Swoole\Http\Request::rawcontent(): Http request is finished.
+            $input = null; //TODO
+        }
         return [
             'get' => $request->get,
             'post' => $request->post,
-            'input' => $request->rawcontent(),
+            'input' => $input,
             'header' => $request->header,
             'server' => $request->server
         ];
@@ -46,27 +52,27 @@ class Request extends Cache
         ];
     }
 
-    public function get($key, $default = null)
+    public function get($key = null, $default = null)
     {
+        if (is_null($key)) return $this->get;
+        return isset($this->get[$key]) ? $this->get[$key] : $default;
     }
 
-    public function post($key, $default = null)
+    public function post($key = null, $default = null)
     {
+        if (is_null($key)) return $this->post;
+        return isset($this->post[$key]) ? $this->post[$key] : $default;
     }
 
     public function input()
     {
+        return isset($this->input) ? $this->input : null;
     }
 
     public function method()
     {
-    }
-
-    /**
-     * Get the root URL for the application.
-     */
-    public function root()
-    {
+        return strtoupper(isset($this->server['method']) ? $this->server['method'] :
+            (isset($this->server['request_method']) ? $this->server['request_method'] : 'get'));
     }
 
     /**
@@ -94,13 +100,6 @@ class Request extends Cache
      * Get the client IP address.
      */
     public function ip()
-    {
-    }
-
-    /**
-     * Get the client user agent.
-     */
-    public function userAgent()
     {
     }
 }
