@@ -36,6 +36,11 @@ $ composer update
 
 ## 开始使用
 
+服务启动后，通过`Request`接收客户端请求，传递`Request`对象给入口函数(通过`entrance`配置)。业务层处理完逻辑后，建议返回`Response`对象、字符串或布尔值给服务。
+
+由于只有Socket、Http才可以从客户端接收数据，而Process只是在当前进程内通过`while(true)`调用入口函数，所以传递给入口函数的是一个空的`Request`对象，当`Response`响应为false或status大于400时，认定为此次业务代码报错，退出死循环，重新拉起新的子进程。
+
+### 启停服务
 ```php
 $config = [
     'server_type' => 'tcp',
@@ -59,5 +64,29 @@ $class->start(); //启动服务
 //$class->restart(); //安全的重启服务
 //$class->reload(); //安全的重新加载服务
 ```
+
+### Request
+`\Swoole\Http\Server`、`\Swoole\Server`接收到客户端请求后，将接收的数据传递给`\Swover\Utils\Request`类。
+
+`Request`的构造函数接收`\Swoole\Http\Request` 或 `array`作为参数，实例化后的对象为一个`\ArrayObject`子类，可通过`$request['get']`、`$request->get`或`$request->get()`获取请求参数。
+
+```php
+$request = [
+    'get' => [],
+    'post' => [],
+    'input' => '',
+    'header' => [],
+    'server' => []
+];
+```
+
+### Response
+应用处理完成业务端逻辑后，需要通过服务将响应数据返回给客户端。
+
+返回数据可以是`\Swover\Utils\Response`对象、字符串或布尔值：
+- 当返回`Response`对象时，服务会直接调用`send()`或`end()`响应数据到客户端；
+- 当返回字符串时，实例化`Response`对象，并将字符串设置为响应消息体；
+- 当返回布尔值时，实例化`Response`对象，如果为`false`，设置`status`为500，否则为200
+
 
 可以在 [samples](./samples) 查看示例。
