@@ -4,6 +4,8 @@ require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
 
 require_once dirname(__DIR__) . '/libs/Entrance.php';
 
+require_once dirname(__DIR__) . '/libs/Coroutine.php';
+
 require_once dirname(__DIR__) . '/libs/process.php';
 
 function configs()
@@ -67,6 +69,13 @@ function getConfig($argument)
             ],
             'httpInput' => [
                 'entrance' => '\\Entrance::httpInput',
+            ],
+            'httpCoro' => [
+                'entrance' => '\\Coroutine::http',
+                'setting' => [
+                    'log_file' => '/Users/sin/swoole_http.log',
+                    'worker_num' => 1,
+                ]
             ],
         ],
         'tcp' => [],
