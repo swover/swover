@@ -50,10 +50,10 @@ class Process extends Base
 
             $this->_setProcessName('worker_'.$index);
 
-            Worker::setChildStatus(true);
+            Worker::setStatus(true);
 
             pcntl_signal(SIGUSR1, function ($signo) {
-                Worker::setChildStatus(false);
+                Worker::setStatus(false);
             });
 
             $signal = $this->execute();
@@ -114,11 +114,11 @@ class Process extends Base
             $request_count ++;
         }
 
-        if (! Worker::checkMaster() ) {
+        if (! Worker::checkProcess(Worker::getMasterPid()) ) {
             return 2;
         }
 
-        if (Worker::getChildStatus() == false) {
+        if (Worker::getStatus() == false) {
             return 3;
         }
 

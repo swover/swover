@@ -23,11 +23,11 @@ class Server
         $this->config = $config;
 
         if (!isset($this->config['server_type']) || !in_array($this->config['server_type'], $this->server_type)) {
-            die('server_type defined error!' . PHP_EOL);
+            throw new \Exception('server_type defined error!' . PHP_EOL);
         }
 
         if (!isset($this->config['process_name'])) {
-            die('process_name defined error!' . PHP_EOL);
+            throw new \Exception('process_name defined error!' . PHP_EOL);
         }
     }
 
@@ -54,7 +54,7 @@ class Server
                 new Socket($this->config);
             }
         } catch (\Exception $e) {
-            echo "{$this->config['process_name']} start fail. error: ".  $e->getMessage() . PHP_EOL;
+            echo "{$this->config['process_name']} start fail. error: " . $e->getMessage() . PHP_EOL;
             return false;
         }
 

@@ -9,7 +9,7 @@ class Entrance
 
         $result = self::execute($data);
 
-        echo 'master:[' . \Swover\Utils\Worker::getMasterPid() . '] current:[' . posix_getpid() . '-' . \Swover\Utils\Worker::getChildStatus() . ']'
+        echo 'master:[' . \Swover\Utils\Worker::getMasterPid() . '] current:[' . posix_getpid() . '-' . \Swover\Utils\Worker::getStatus() . ']'
             . $result . PHP_EOL;
     }
 

@@ -8,7 +8,7 @@ function forceKillProcess()
 {
     $data = ['action' => 'test_force_process', 'data' => ['id' => mt_rand(100, 200)]];
     $result = Entrance::execute($data);
-    echo 'master:[' . \Swover\Utils\Worker::getMasterPid() . '] current:[' . posix_getpid() . '-' . \Swover\Utils\Worker::getChildStatus() . ']'
+    echo 'master:[' . \Swover\Utils\Worker::getMasterPid() . '] current:[' . posix_getpid() . '-' . \Swover\Utils\Worker::getStatus() . ']'
         . $result . PHP_EOL;
     sleep(300);
     echo \Swover\Utils\Worker::getMasterPid() . 'finish';
@@ -25,7 +25,7 @@ function exceptionProcess()
     if (mt_rand(1, 3) == 2) {
         throw new \Exception('mt_rand_error');
     }
-    echo 'master:[' . \Swover\Utils\Worker::getMasterPid() . '] current:[' . posix_getpid() . '-' . \Swover\Utils\Worker::getChildStatus() . ']'
+    echo 'master:[' . \Swover\Utils\Worker::getMasterPid() . '] current:[' . posix_getpid() . '-' . \Swover\Utils\Worker::getStatus() . ']'
         . $result . PHP_EOL;
 }
 

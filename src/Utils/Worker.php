@@ -3,11 +3,25 @@ namespace Swover\Utils;
 
 class Worker
 {
-    //master process id
+    /**
+     * Master process ID
+     * @var int
+     */
     private static $master_pid = 0;
 
-    //current process status
-    private static $child_status = true;
+    /**
+     * Current process ID
+     * @var int
+     */
+    private static $process_pid = 0;
+
+    /**
+     * Current process status
+     *
+     * False means to exit the current process
+     * @var bool
+     */
+    private static $status = true;
 
     public static function setMasterPid($pid)
     {
@@ -19,27 +33,44 @@ class Worker
         return self::$master_pid;
     }
 
+    public static function setPid($pid = 0)
+    {
+        if (!$pid) {
+            $pid = posix_getpid();
+        }
+        self::$process_pid = $pid;
+    }
+
     public static function getPid()
     {
-        return posix_getpid();
+        if (!self::$process_pid) {
+            static::setPid();
+        }
+        return self::$process_pid;
+    }
+
+    public static function setStatus($status)
+    {
+        self::$status = $status;
     }
 
     /**
-     * check master process still alive
+     * The state is set when the current process receives a Linux signal
+     * @return bool
      */
-    public static function checkMaster()
-    {
-        return \swoole_process::kill(self::getMasterPid(), 0);
-    }
-
-    public static function setChildStatus($status)
-    {
-        self::$child_status = $status;
-    }
-
-    public static function getChildStatus()
+    public static function getStatus()
     {
         pcntl_signal_dispatch();
-        return self::$child_status;
+        return self::$status;
+    }
+
+    /**
+     * Detect if a process exists
+     * @param int $pid
+     * @return mixed
+     */
+    public static function checkProcess($pid)
+    {
+        return \swoole_process::kill($pid, 0);
     }
 }

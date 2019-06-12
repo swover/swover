@@ -73,7 +73,6 @@ class Socket extends Base
             if ($this->trace_log) {
                 $this->log("Worker[$worker_id] started.");
             }
-            Worker::setChildStatus(true);
         });
 
         return $this;
