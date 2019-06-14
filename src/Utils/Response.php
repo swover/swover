@@ -5,7 +5,7 @@ namespace Swover\Utils;
 /**
  * Response
  */
-class Response extends Cache implements \Swover\Utils\Contracts\Response
+class Response extends Cache implements \Swover\Contracts\Response
 {
     public function __construct()
     {

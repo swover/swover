@@ -5,7 +5,7 @@ namespace Swover\Utils;
 /**
  * Request
  */
-class Request extends Cache implements \Swover\Utils\Contracts\Request
+class Request extends Cache implements \Swover\Contracts\Request
 {
     /**
      * Request constructor.

@@ -9,12 +9,12 @@ class Entrance
 
         $result = self::execute($data);
 
-        echo 'master:[' . \Swover\Utils\Worker::getMasterPid() . '] current:[' . posix_getpid() . '-' . \Swover\Utils\Worker::getStatus() . ']'
+        echo 'master:[' . \Swover\Worker::getMasterPid() . '] current:[' . posix_getpid() . '-' . \Swover\Worker::getStatus() . ']'
             . $result . PHP_EOL;
     }
 
     //tcp server
-    public static function tcp(\Swover\Utils\Contracts\Request $request)
+    public static function tcp(\Swover\Contracts\Request $request)
     {
         $data = $request['input'];
         if (!$data) {
@@ -27,24 +27,24 @@ class Entrance
     // HTTP server
     // Here are some examples of some entries.
     // In environment, You may need to a single entry.
-    public static function http(\Swover\Utils\Contracts\Request $request)
+    public static function http(\Swover\Contracts\Request $request)
     {
         return self::httpGet($request);
     }
 
-    public static function httpGet(\Swover\Utils\Contracts\Request $request)
+    public static function httpGet(\Swover\Contracts\Request $request)
     {
         $data = $request['get'];
         return self::execute($data);
     }
 
-    public static function httpPost(\Swover\Utils\Contracts\Request $request)
+    public static function httpPost(\Swover\Contracts\Request $request)
     {
         $data = $request['post'];
         return self::execute($data);
     }
 
-    public static function httpInput(\Swover\Utils\Contracts\Request $request)
+    public static function httpInput(\Swover\Contracts\Request $request)
     {
         $data = $request['input'];
         if (!$data) {

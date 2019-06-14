@@ -87,7 +87,7 @@ abstract class Base
      * Execute Application code
      *
      * @param null $request
-     * @return mixed | \Swover\Utils\Contracts\Response
+     * @return mixed | \Swover\Contracts\Response
      */
     protected function entrance($request = null)
     {
@@ -95,7 +95,7 @@ abstract class Base
 
         $result = call_user_func_array($this->entrance, [$request]);
 
-        if ($result instanceof \Swover\Utils\Contracts\Response) {
+        if ($result instanceof \Swover\Contracts\Response) {
             $response = $result;
         } else {
             $response = new Response();

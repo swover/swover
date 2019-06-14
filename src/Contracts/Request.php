@@ -1,6 +1,6 @@
 <?php
 
-namespace Swover\Utils\Contracts;
+namespace Swover\Contracts;
 
 interface Request
 {

@@ -2,7 +2,7 @@
 namespace Swover\Server;
 
 use Swover\Utils\Response;
-use Swover\Utils\Worker;
+use Swover\Worker;
 
 /**
  * Socket Server || HTTP Server

@@ -1,5 +1,5 @@
 <?php
-namespace Swover\Utils;
+namespace Swover;
 
 class Worker
 {

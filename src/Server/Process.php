@@ -2,7 +2,7 @@
 
 namespace Swover\Server;
 
-use Swover\Utils\Worker;
+use Swover\Worker;
 
 /**
  * Process Server
