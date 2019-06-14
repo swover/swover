@@ -5,7 +5,7 @@ namespace Swover\Utils;
 /**
  * The Base Instance used like array
  */
-class Cache extends \ArrayObject implements \ArrayAccess
+class ArrayObject extends \ArrayObject implements \ArrayAccess
 {
     private $__default_string = '';
 
