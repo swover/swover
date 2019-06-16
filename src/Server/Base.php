@@ -102,11 +102,11 @@ abstract class Base
         }
 
         if (is_string($result) || is_numeric($result)) {
-            $response->body($result);
+            $response->setBody($result);
         }
 
         if (is_bool($result) && $result === false) {
-            $response->status(500);
+            $response->setCode(500);
         }
 
         return $response;

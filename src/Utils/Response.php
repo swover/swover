@@ -50,27 +50,27 @@ class Response extends ArrayObject implements \Swover\Contracts\Response
             $response->cookie($cKey, $cVal['value'], $cVal['expire'], $cVal['path'], $cVal['domain'], $cVal['secure'], $cVal['httponly']);
         }
 
-        $response->status($this->status);
+        $response->status($this->code);
 
         return $response->end($this->body);
     }
 
-    public function body($body)
+    public function setBody($body)
     {
         $this->body = $body;
     }
 
-    public function header($key, $value)
+    public function setHeader($key, $value)
     {
         $this->header[$key] = $value;
     }
 
-    public function status($http_status_code)
+    public function setCode($status_code)
     {
-        $this->status = $http_status_code;
+        $this->code = $status_code;
     }
 
-    public function cookie($key, $value = '', $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = false)
+    public function setCookie($key, $value = '', $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = false)
     {
         $this->cookie[$key] = [
             'value'  => $value,

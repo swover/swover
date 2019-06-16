@@ -89,7 +89,7 @@ class Process extends Base
             try {
                 $response = $this->entrance();
 
-                if ($response->status >= 400 || $response->status < 0) {
+                if ($response->code >= 400 || $response->code < 0) {
                     break;
                 }
 

@@ -19,7 +19,7 @@ interface Response
      * @param string $body
      * @return mixed
      */
-    public function body($body);
+    public function setBody($body);
 
     /**
      * Set response headers
@@ -28,15 +28,15 @@ interface Response
      * @param string $value
      * @return mixed
      */
-    public function header($key, $value);
+    public function setHeader($key, $value);
 
     /**
      * Set response http code
      *
-     * @param int $http_status_code
+     * @param int $status_code
      * @return mixed
      */
-    public function status($http_status_code);
+    public function setCode($status_code);
 
     /**
      * Set response cookie
@@ -49,5 +49,5 @@ interface Response
      * @param bool $httponly
      * @return mixed
      */
-    public function cookie($key, $value = '', $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = false);
+    public function setCookie($key, $value = '', $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = false);
 }

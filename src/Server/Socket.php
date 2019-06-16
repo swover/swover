@@ -172,7 +172,7 @@ class Socket extends Base
             $this->server->task($data);
             //TODO 异步测试
             $response = new Response();
-            $response->body('success');
+            $response->setBody('success');
         } else {
             $response = $this->entrance($data);
         }
