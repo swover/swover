@@ -9,19 +9,35 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
 {
     /**
      * Request constructor.
-     * @param $input \Swoole\Http\Request | array
+     * @param $request \Swoole\Http\Request | array
      */
-    public function __construct($input)
+    public function __construct($request)
     {
-        if (is_array($input)) {
-            $input = $this->initArray($input);
-        }
-
-        if ($input instanceof \Swoole\Http\Request) {
-            $input = $this->initHttp($input);
-        }
-
+        $input = $this->initRequest($request);
         parent::__construct($input);
+    }
+
+    private function initRequest($request)
+    {
+        $input = [];
+
+        if (is_array($request)) {
+            $input = $this->initArray($request);
+        }
+
+        if ($request instanceof \Swoole\Http\Request) {
+            $input = $this->initHttp($request);
+        }
+
+        if (empty($input)) return [];
+
+        $input['request'] = array_merge($input['get'], $input['post']);
+
+        if (empty($input['input']) && !empty($input['post'])) {
+            $input['input'] = http_build_query($input['post']);
+        }
+
+        return $input;
     }
 
     private function initHttp(\Swoole\Http\Request $request)
@@ -37,18 +53,30 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
             'post' => $request->post,
             'input' => $input,
             'header' => $request->header,
-            'server' => $request->server
+            'server' => $request->server,
+            'cookie' => $request->cookie,
         ];
     }
 
     private function initArray(array $input)
     {
+        $default = [
+            'server' => [
+                'query_string' => '',
+                'request_method' => 'GET',
+                'request_uri' => '/',
+                'path_info' => '/',
+                //'server_protocol' => 'HTTP/1.1',
+                'server_software' => 'swoole-server'
+            ]
+        ];
         return [
             'get' => isset($input['get']) ? $input['get'] : [],
             'post' => isset($input['post']) ? $input['post'] : [],
             'input' => isset($input['input']) ? $input['input'] : [],
             'header' => isset($input['header']) ? $input['header'] : [],
-            'server' => isset($input['server']) ? $input['server'] : [],
+            'server' => isset($input['server']) ? array_merge($default['server'], $input['server']) : [],
+            'cookie' => isset($input['cookie']) ? $input['cookie'] : [],
         ];
     }
 
@@ -64,6 +92,12 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
         return isset($this->post[$key]) ? $this->post[$key] : $default;
     }
 
+    public function request($key = null, $default = null)
+    {
+        if (is_null($key)) return $this->request;
+        return isset($this->request[$key]) ? $this->request[$key] : $default;
+    }
+
     public function input()
     {
         return isset($this->input) ? $this->input : null;
@@ -75,31 +109,24 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
             (isset($this->server['request_method']) ? $this->server['request_method'] : 'get'));
     }
 
-    /**
-     * Get the URL (no query string) for the request.
-     */
     public function url()
     {
+        return $this->server['request_uri'];
     }
 
-    /**
-     * Get the full URL for the request.
-     */
-    public function fullUrl()
-    {
-    }
-
-    /**
-     * Get the current path info for the request.
-     */
     public function path()
     {
+        return $this->server['path_info'];
     }
 
-    /**
-     * Get the client IP address.
-     */
     public function ip()
     {
+        return isset($this->server['remote_addr']) ? $this->server['remote_addr'] : '';
+    }
+
+    public function cookie($key = null, $default = null)
+    {
+        if (is_null($key)) return $this->cookie;
+        return isset($this->cookie[$key]) ? $this->cookie[$key] : $default;
     }
 }

@@ -45,13 +45,6 @@ interface Request
     public function url();
 
     /**
-     * Get the full URL for the request.
-     *
-     * @return string
-     */
-    public function fullUrl();
-
-    /**
      * Get the current path info for the request.
      *
      * @return string
@@ -64,4 +57,14 @@ interface Request
      * @return string|null
      */
     public function ip();
+
+    /**
+     * Get cookies
+     *
+     * @param string $key
+     * @param string|array|null $default
+     *
+     * @return string|array|null
+     */
+    public function cookie($key = null, $default = null);
 }
