@@ -79,24 +79,6 @@ class RequestTest extends \PHPUnit\Framework\TestCase
 
     public function testPost()
     {
-        // $data = [
-        //     'input' => $data,
-        //     'server' => [
-        //         'query_string' => '',
-        //         'request_method' => 'GET',
-        //         'request_uri' => '/',
-        //         'path_info' => '/',
-        //         'request_time' => $info['connect_time'],
-        //         'request_time_float' => $info['connect_time'] . '.000',
-        //         'server_port' => $info['server_port'],
-        //         'remote_port' => $info['remote_port'],
-        //         'remote_addr' => $info['remote_ip'],
-        //         'master_time' => $info["last_time"],
-        //         //'server_protocol' => 'HTTP/1.1',
-        //         'server_software' => 'swoole-server'
-        //     ]
-        // ];
-
         $request = new \Swoole\Http\Request();
         $request->get = [
             'pka' => 'pva',
