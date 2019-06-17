@@ -11,7 +11,7 @@ class Response extends ArrayObject implements \Swover\Contracts\Response
     {
         $input = [
             'header' => [],
-            'status' => 200,
+            'code' => 200,
             'cookie' => [],
             'body' => '',
         ];
@@ -62,7 +62,7 @@ class Response extends ArrayObject implements \Swover\Contracts\Response
 
     public function setHeader($key, $value)
     {
-        $this->header[$key] = $value;
+        $this['header'][$key] = $value;
     }
 
     public function setCode($status_code)
@@ -72,7 +72,7 @@ class Response extends ArrayObject implements \Swover\Contracts\Response
 
     public function setCookie($key, $value = '', $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = false)
     {
-        $this->cookie[$key] = [
+        $this['cookie'][$key] = [
             'value'  => $value,
             'expire' => $expire,
             'path'   => $path,

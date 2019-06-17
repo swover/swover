@@ -31,7 +31,7 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
 
         if (empty($input)) return [];
 
-        $input['request'] = array_merge($input['get'], $input['post']);
+        $input['request'] = array_merge((array)$input['get'], (array)$input['post']);
 
         if (empty($input['input']) && !empty($input['post'])) {
             $input['input'] = http_build_query($input['post']);
