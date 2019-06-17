@@ -17,9 +17,9 @@ class Worker extends TestCase
     public function testProcess()
     {
         $process_id = 100;
-        $this->assertEquals(posix_getpid(), \Swover\Worker::getPid());
-        \Swover\Worker::setPid($process_id);
-        $this->assertEquals($process_id, \Swover\Worker::getPid());
+        $this->assertEquals(posix_getpid(), \Swover\Worker::getProcessId());
+        \Swover\Worker::setProcessId($process_id);
+        $this->assertEquals($process_id, \Swover\Worker::getProcessId());
     }
 
     public function testStatus()

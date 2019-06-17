@@ -13,7 +13,7 @@ class Worker
      * Current process ID
      * @var int
      */
-    private static $process_pid = 0;
+    private static $process_id = 0;
 
     /**
      * Current process status
@@ -33,20 +33,20 @@ class Worker
         return self::$master_pid;
     }
 
-    public static function setPid($pid = 0)
+    public static function setProcessId($pid = 0)
     {
         if (!$pid) {
             $pid = posix_getpid();
         }
-        self::$process_pid = $pid;
+        self::$process_id = $pid;
     }
 
-    public static function getPid()
+    public static function getProcessId()
     {
-        if (!self::$process_pid) {
-            static::setPid();
+        if (!self::$process_id) {
+            static::setProcessId();
         }
-        return self::$process_pid;
+        return self::$process_id;
     }
 
     public static function setStatus($status)

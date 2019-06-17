@@ -94,7 +94,7 @@ class Process extends Base
                 }
 
             } catch (\Exception $e) {
-                $this->log("[Error] worker pid: ".Worker::getPid().", e: " . $e->getMessage());
+                $this->log("[Error] worker pid: ".Worker::getProcessId().", e: " . $e->getMessage());
                 break;
             }
         }
