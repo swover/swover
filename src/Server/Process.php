@@ -2,6 +2,7 @@
 
 namespace Swover\Server;
 
+use Swover\Utils\Event;
 use Swover\Worker;
 
 /**
@@ -30,9 +31,9 @@ class Process extends Base
             \swoole_process::daemon(true, false);
         }
 
-        $this->_setProcessName('master');
-
+        Event::getInstance()->trigger('master_start', posix_getpid());
         Worker::setMasterPid(posix_getpid());
+        $this->_setProcessName('master');
 
         for ($i = 0; $i < $this->worker_num; $i++) {
             $this->createProcess($i);
