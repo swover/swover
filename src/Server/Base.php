@@ -3,7 +3,6 @@
 namespace Swover\Server;
 
 use Swover\Utils\Event;
-use Swover\Utils\Request;
 use Swover\Utils\Response;
 
 abstract class Base
@@ -86,13 +85,11 @@ abstract class Base
     /**
      * Execute Application code
      *
-     * @param null $request
+     * @param \Swover\Contracts\Request $request
      * @return mixed | \Swover\Contracts\Response
      */
-    protected function entrance($request = null)
+    protected function entrance($request)
     {
-        $request = new Request($request);
-
         $result = call_user_func_array($this->entrance, [$request]);
 
         if ($result instanceof \Swover\Contracts\Response) {
@@ -131,7 +128,7 @@ abstract class Base
 
     public function getConfig($name, $default = null)
     {
-        return isset($this->config[$name]) ? $this->config[$name] : $default;
+        return isset($this->config[$name]) ? $this->config[$name] : (isset($this->config['setting'][$name]) ? $this->config['setting'][$name] : $default);
     }
 }
 

@@ -2,6 +2,7 @@
 namespace Swover\Server;
 
 use Swover\Utils\Event;
+use Swover\Utils\Request;
 use Swover\Utils\Response;
 use Swover\Worker;
 
@@ -152,13 +153,15 @@ class Socket extends Base
     protected function execute($data = null)
     {
         Event::getInstance()->trigger('request', $data);
+        $request = new Request($data);
+
         if ($this->async === true) {
-            $this->server->task($data);
+            $this->server->task($request);
             //TODO 异步测试
             $response = new Response();
             $response->setBody('success');
         } else {
-            $response = $this->entrance($data);
+            $response = $this->entrance($request);
         }
         Event::getInstance()->trigger('response', $response);
         return $response;

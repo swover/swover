@@ -3,6 +3,7 @@
 namespace Swover\Server;
 
 use Swover\Utils\Event;
+use Swover\Utils\Request;
 use Swover\Worker;
 
 /**
@@ -100,7 +101,7 @@ class Process extends Base
 
             try {
                 Event::getInstance()->trigger('request', []);
-                $response = $this->entrance();
+                $response = $this->entrance(new Request([]));
                 Event::getInstance()->trigger('response', $response);
 
                 if ($response->code >= 400 || $response->code < 0) {
