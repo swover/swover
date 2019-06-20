@@ -58,11 +58,10 @@ class Process extends Base
                 Worker::setStatus(false);
             });
 
-            $signal = $this->execute();
+            $this->execute();
 
             Event::getInstance()->trigger('worker_stop', $index);
 
-            $this->log("[#{$worker->pid}]\tWorker-{$index}: shutting down by {$signal}..");
             $worker->exit();
         }, $this->daemonize ? true : false);
 
@@ -147,8 +146,7 @@ class Process extends Base
             $this->processes[$index]->close();
 
             $index = intval($index);
-            $new_pid = $this->createProcess($index);
-            $this->log("[#{$new_pid}]\tWorker-{$index}: restarted..");
+            $this->createProcess($index);
             return;
         }
         throw new \Exception('restart process Error: no pid');
