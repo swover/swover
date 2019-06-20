@@ -86,6 +86,7 @@ class Socket extends Base
         if ($this->server_type == 'http') return $this;
 
         $this->server->on('connect', function ($server, $fd, $from_id) {
+            Event::getInstance()->trigger('connect', $fd);
             if ($this->trace_log) {
                 $this->log("[#{$server->worker_pid}] Client@[$fd:$from_id]: Connect.");
             }
@@ -134,6 +135,7 @@ class Socket extends Base
     private function onTask()
     {
         $this->server->on('Task', function ($server, $task_id, $src_worker_id, $data)  {
+            Event::getInstance()->trigger('task_start', $task_id, $data);
             if ($this->trace_log) {
                 $this->log("[#{$server->worker_pid}] Task@[$src_worker_id:$task_id]: Start.");
             }
@@ -145,14 +147,18 @@ class Socket extends Base
 
     private function onStop()
     {
-        $this->server->on('WorkerStop', function ($server, $worker_id){});
+        $this->server->on('WorkerStop', function ($server, $worker_id){
+            Event::getInstance()->trigger('worker_stop', $worker_id);
+        });
         $this->server->on('Finish', function ($server, $task_id, $data) {
+            Event::getInstance()->trigger('task_finish', $task_id, $data);
             if ($this->trace_log) {
                 $this->log("[#{$server->worker_pid}] Task-$task_id: Finish.");
             }
         });
 
         $this->server->on('close', function ($server, $fd, $from_id) {
+            Event::getInstance()->trigger('close', $fd);
             if ($this->server_type !== 'http') {
                 if ($this->trace_log) {
                     $this->log("[#{$server->worker_pid}] Client@[$fd:$from_id]: Close.");
@@ -167,6 +173,7 @@ class Socket extends Base
      */
     protected function execute($data = null)
     {
+        Event::getInstance()->trigger('request', $data);
         if ($this->trace_log) {
             $this->log('Request Data : '.json_encode($data));
         }
@@ -179,6 +186,7 @@ class Socket extends Base
         } else {
             $response = $this->entrance($data);
         }
+        Event::getInstance()->trigger('response', $response);
         return $response;
     }
 }

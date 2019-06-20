@@ -60,6 +60,8 @@ class Process extends Base
 
             $signal = $this->execute();
 
+            Event::getInstance()->trigger('worker_stop', $index);
+
             $this->log("[#{$worker->pid}]\tWorker-{$index}: shutting down by {$signal}..");
             $worker->exit();
         }, $this->daemonize ? true : false);
@@ -89,7 +91,9 @@ class Process extends Base
             }
 
             try {
+                Event::getInstance()->trigger('request', []);
                 $response = $this->entrance();
+                Event::getInstance()->trigger('response', $response);
 
                 if ($response->code >= 400 || $response->code < 0) {
                     break;
