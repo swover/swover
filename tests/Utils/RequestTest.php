@@ -99,14 +99,13 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testInput()
     {
         $request = new \Swoole\Http\Request();
-        $request->post = [json_encode(['ika' => 'iva', 'ikc' => 'ivc']) => null];
+        $request->post = [json_encode(['ika' => 'iva', 'ikc' => 'ivc']) => ''];
         $request->server = [
             'request_method' => 'post',
         ];
 
         $instance = new Request($request);
-        // $this->assertEquals(json_encode(['ika' => 'iva', 'ikc' => 'ivc']), $instance->input());
-        $this->assertEquals(null, $instance->input());
+        $this->assertEquals(json_encode(['ika' => 'iva', 'ikc' => 'ivc']), $instance->input());
     }
 }
 

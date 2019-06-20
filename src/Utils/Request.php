@@ -29,33 +29,35 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
             $input = $this->initHttp($request);
         }
 
+
         if (empty($input)) return [];
 
         $input['request'] = array_merge((array)$input['get'], (array)$input['post']);
-
-        if (empty($input['input']) && !empty($input['post'])) {
-            $input['input'] = http_build_query($input['post']);
-        }
 
         return $input;
     }
 
     private function initHttp(\Swoole\Http\Request $request)
     {
-        try {
-            $input = $request->rawcontent();
-        } catch (\Exception $e) {
-            //Swoole\Http\Request::rawcontent(): Http request is finished.
-            $input = null; //TODO
-        }
-        return [
+        //Swoole\Http\Request::rawcontent(): Http request is finished.
+        $result = [
             'get' => isset($request->get) ? $request->get : [],
             'post' => $request->post,
-            'input' => $input,
+            'input' => @$request->rawcontent(),
             'header' => $request->header,
             'server' => $request->server,
             'cookie' => $request->cookie,
         ];
+
+        //application/x-www-form-urlencoded
+        if ($result['input'] === false && !empty($result['post'])) {
+            $result['input'] = urldecode(http_build_query($result['post']));
+            if (count($result['post']) == 1 && current($result['post']) === '') {
+                $result['input'] = rtrim($result['input'], '=');
+            }
+        }
+
+        return $result;
     }
 
     private function initArray(array $input)
