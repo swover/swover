@@ -51,7 +51,8 @@ function configs()
                 'worker_num' => 3,
             ],
             'events' => [
-                'master_start' => '\MasterStart'
+                'master_start' => '\MasterStart',
+                'worker_start' => '\WorkerStart',
             ]
         ],
         'tcp' => [

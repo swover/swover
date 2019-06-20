@@ -50,6 +50,7 @@ class Process extends Base
         $process = new \swoole_process(function (\swoole_process $worker) use ($index) {
 
             $this->_setProcessName('worker_'.$index);
+            Event::getInstance()->trigger('worker_start', $index);
 
             Worker::setStatus(true);
 

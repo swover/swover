@@ -9,6 +9,6 @@ class MasterStart implements \Swover\Contracts\Events\MasterStart
      */
     public function trigger($master_id)
     {
-        echo 'Master started ' . $master_id.' ';
+        echo 'Master started ' . $master_id . PHP_EOL;
     }
 }

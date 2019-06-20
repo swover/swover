@@ -72,6 +72,7 @@ class Socket extends Base
         $this->server->on('WorkerStart', function ($server, $worker_id){
             $str = ($worker_id >= $server->setting['worker_num']) ? 'task' : 'event';
             $this->_setProcessName('worker_'.$str);
+            Event::getInstance()->trigger('worker_start', $worker_id);
             if ($this->trace_log) {
                 $this->log("Worker[$worker_id] started.");
             }
