@@ -49,7 +49,7 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
             $input = null; //TODO
         }
         return [
-            'get' => $request->get,
+            'get' => isset($request->get) ? $request->get : [],
             'post' => $request->post,
             'input' => $input,
             'header' => $request->header,
