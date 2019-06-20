@@ -47,7 +47,7 @@ class Socket extends Base
             'max_request'     => $this->max_request
         ];
 
-        $setting = array_merge($setting, $this->config['setting']);
+        $setting = array_merge($setting, $this->getConfig('setting', []));
 
         $this->server->set($setting);
 
