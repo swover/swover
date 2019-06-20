@@ -49,7 +49,7 @@ class Process extends Base
     {
         $process = new \swoole_process(function (\swoole_process $worker) use ($index) {
 
-            $this->_setProcessName('worker_'.$index);
+            $this->_setProcessName('worker_' . $index);
             Event::getInstance()->trigger('worker_start', $index);
 
             Worker::setStatus(true);
@@ -63,14 +63,17 @@ class Process extends Base
             Event::getInstance()->trigger('worker_stop', $index);
 
             $worker->exit();
-        }, $this->daemonize ? true : false);
+        }, $this->daemonize);
 
         $pid = $process->start();
 
         \swoole_event_add($process->pipe, function ($pipe) use ($process) {
-            $data = $process->read();
-            if ($data) {
-                $this->log($data);
+            if ($message = $process->read()) {
+                if ($log_file = $this->getConfig('log_file', '')) {
+                    error_log(date('Y-m-d H:i:s') . ' ' . ltrim($message) . PHP_EOL, 3, $log_file);
+                } else {
+                    echo trim($message) . PHP_EOL;
+                }
             }
         });
 
@@ -99,7 +102,7 @@ class Process extends Base
                 }
 
             } catch (\Exception $e) {
-                $this->log("[Error] worker pid: ".Worker::getProcessId().", e: " . $e->getMessage());
+                echo "[Error] worker pid: " . Worker::getProcessId() . ", e: " . $e->getMessage() . PHP_EOL;
                 break;
             }
         }
@@ -116,10 +119,10 @@ class Process extends Base
             if ($request_count > $this->max_request) {
                 return 1;
             }
-            $request_count ++;
+            $request_count++;
         }
 
-        if (! Worker::checkProcess(Worker::getMasterPid()) ) {
+        if (!Worker::checkProcess(Worker::getMasterPid())) {
             return 2;
         }
 

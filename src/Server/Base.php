@@ -112,18 +112,6 @@ abstract class Base
         return $response;
     }
 
-    /**
-     * write message to log_file
-     */
-    protected function log($msg)
-    {
-        if ($this->log_file != '') {
-            error_log(date('Y-m-d H:i:s') . ' ' . ltrim($msg) . PHP_EOL, 3, $this->log_file);
-        } else {
-            echo trim($msg) . PHP_EOL;
-        }
-    }
-
     public function __get($name)
     {
         if (isset($this->config['setting'][$name])) {
