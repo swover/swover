@@ -45,7 +45,6 @@ function configs()
             #'log_file' => '/tmp/swoole_http.log',
             'entrance' => '\\Entrance::http',
             'async' => false,
-            'trace_log' => true,
             'setting' => [
                 // 'log_file' => '/Users/sin/swoole_http.log',
                 'worker_num' => 3,
@@ -66,8 +65,7 @@ function configs()
             'max_request' => 0,
             #'log_file' => '/Users/sin/swoole_tcp.log',
             'entrance' => '\\Entrance::tcp',
-            'async' => false,
-            'trace_log' => true
+            'async' => false
         ]
     ];
 }

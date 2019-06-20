@@ -9,7 +9,6 @@ use Swover\Worker;
  * Socket Server || HTTP Server
  *
  * @property $async Is it asynchronous？
- * @property $trace_log output trace log?
  */
 class Socket extends Base
 {
@@ -26,10 +25,6 @@ class Socket extends Base
 
         if (!is_bool($this->async)) {
             $this->async = boolval($this->async);
-        }
-
-        if (!is_bool($this->trace_log)) {
-            $this->trace_log = boolval($this->trace_log);
         }
 
         $this->start();
@@ -73,9 +68,6 @@ class Socket extends Base
             $str = ($worker_id >= $server->setting['worker_num']) ? 'task' : 'event';
             $this->_setProcessName('worker_'.$str);
             Event::getInstance()->trigger('worker_start', $worker_id);
-            if ($this->trace_log) {
-                $this->log("Worker[$worker_id] started.");
-            }
         });
 
         return $this;
@@ -87,9 +79,6 @@ class Socket extends Base
 
         $this->server->on('connect', function ($server, $fd, $from_id) {
             Event::getInstance()->trigger('connect', $fd);
-            if ($this->trace_log) {
-                $this->log("[#{$server->worker_pid}] Client@[$fd:$from_id]: Connect.");
-            }
         });
 
         $this->server->on('receive', function (\Swoole\Server $server, $fd, $from_id, $data) {
@@ -136,9 +125,6 @@ class Socket extends Base
     {
         $this->server->on('Task', function ($server, $task_id, $src_worker_id, $data)  {
             Event::getInstance()->trigger('task_start', $task_id, $data);
-            if ($this->trace_log) {
-                $this->log("[#{$server->worker_pid}] Task@[$src_worker_id:$task_id]: Start.");
-            }
             $this->entrance($data);
             $server->finish($data);
         });
@@ -152,18 +138,10 @@ class Socket extends Base
         });
         $this->server->on('Finish', function ($server, $task_id, $data) {
             Event::getInstance()->trigger('task_finish', $task_id, $data);
-            if ($this->trace_log) {
-                $this->log("[#{$server->worker_pid}] Task-$task_id: Finish.");
-            }
         });
 
         $this->server->on('close', function ($server, $fd, $from_id) {
             Event::getInstance()->trigger('close', $fd);
-            if ($this->server_type !== 'http') {
-                if ($this->trace_log) {
-                    $this->log("[#{$server->worker_pid}] Client@[$fd:$from_id]: Close.");
-                }
-            }
         });
     }
 
@@ -174,10 +152,6 @@ class Socket extends Base
     protected function execute($data = null)
     {
         Event::getInstance()->trigger('request', $data);
-        if ($this->trace_log) {
-            $this->log('Request Data : '.json_encode($data));
-        }
-
         if ($this->async === true) {
             $this->server->task($data);
             //TODO 异步测试

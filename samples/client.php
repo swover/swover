@@ -14,13 +14,14 @@ function http($config)
 {
     $url = "http://{$config['host']}:{$config['port']}/test/getPost?action=reload_server";
     $post_data = ['action' => 'test_http', 'data' => ['id' => mt_rand(100, 200)]];
-    echo json_encode($post_data) . PHP_EOL;
+    echo 'post_data: ' . json_encode($post_data) . PHP_EOL;
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
     curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
     curl_setopt($curl, CURLOPT_POST, 1);
     curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($post_data));
+    curl_setopt($curl, CURLOPT_COOKIE , "id=9527;name=ruesin" );
     curl_setopt($curl, CURLOPT_HTTPHEADER, []);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     $output = curl_exec($curl);

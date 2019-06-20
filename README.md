@@ -31,7 +31,6 @@ $ composer update
 | max_request     |   int    | all      | 否 [0]     | 进程最大执行次数，超过这个值时，进程会安全重启。如果设置为0，则永远不会重启 |
 | entrance        |  string  | all      | 是 [无]     | 业务代码的入口文件，会从server中执行，必须指定类名，方法名默认是run |
 | async           |   bool   | tcp,http | 否 [false]     | 是否异步执行，如果为true，接收到请求后，会将请求分发到task-worker，并立即响应 |
-| trace_log       |   bool   | tcp,http | 否 [false]     | 如果为true，woker 进程的 'connect','receive','task','finish','close' 事件会输出日志 |
 | setting         |   array  | all      | 否 [无]     | [配置选项](https://wiki.swoole.com/wiki/page/274.html) 同一配置出现在setting中会覆盖单独的定义 |
 
 ## 开始使用
@@ -53,8 +52,7 @@ $config = [
     'entrance' => '\\Entrance::process',
     'host' => '127.0.0.1',
     'port' => '9501',
-    'async'    => false,
-    'trace_log'   => true
+    'async'    => false
 ];
 
 $class = new \Swover\Server($config);
