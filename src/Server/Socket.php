@@ -1,6 +1,7 @@
 <?php
 namespace Swover\Server;
 
+use Swover\Utils\Event;
 use Swover\Utils\Response;
 use Swover\Worker;
 
@@ -59,6 +60,7 @@ class Socket extends Base
     private function onStart()
     {
         $this->server->on('Start', function ($server) {
+            Event::getInstance()->trigger('master_start', $server->master_pid);
             Worker::setMasterPid($server->master_pid);
             $this->_setProcessName('master');
         });

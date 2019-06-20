@@ -2,6 +2,7 @@
 
 namespace Swover\Server;
 
+use Swover\Utils\Event;
 use Swover\Utils\Request;
 use Swover\Utils\Response;
 
@@ -23,6 +24,8 @@ abstract class Base
 
     protected $config = [];
 
+    protected $events = [];
+
     public function __construct(array $config)
     {
         $this->config = $config;
@@ -32,6 +35,8 @@ abstract class Base
         if (!$this->entrance) {
             throw new \Exception('Has Not Entrance!');
         }
+
+        Event::getInstance()->bind($this->events);
 
         $this->boot();
     }

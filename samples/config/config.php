@@ -8,6 +8,8 @@ require_once dirname(__DIR__) . '/libs/Coroutine.php';
 
 require_once dirname(__DIR__) . '/libs/process.php';
 
+require_once dirname(__DIR__) . '/events/MasterStart.php';
+
 function configs()
 {
     return [
@@ -36,8 +38,11 @@ function configs()
             'async' => false,
             'trace_log' => true,
             'setting' => [
-                'log_file' => '/Users/sin/swoole_http.log',
+                // 'log_file' => '/Users/sin/swoole_http.log',
                 'worker_num' => 3,
+            ],
+            'events' => [
+                'master_start' => '\MasterStart'
             ]
         ],
         'tcp' => [
