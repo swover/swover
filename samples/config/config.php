@@ -2,13 +2,22 @@
 
 require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
 
-require_once dirname(__DIR__) . '/libs/Entrance.php';
+call_user_func(function () {
+    $dirs = [
+        dirname(__DIR__) . '/libs/',
+        dirname(__DIR__) . '/events/',
+    ];
 
-require_once dirname(__DIR__) . '/libs/Coroutine.php';
-
-require_once dirname(__DIR__) . '/libs/process.php';
-
-require_once dirname(__DIR__) . '/events/MasterStart.php';
+    foreach ($dirs as $dir) {
+        $handler = opendir($dir);
+        while ((($filename = readdir($handler)) !== false)) {
+            if (substr($filename, -4) == '.php') {
+                require_once $dir . '/' . $filename;
+            }
+        }
+        closedir($handler);
+    }
+});
 
 function configs()
 {
@@ -89,7 +98,7 @@ function getConfig($argument)
 
     $configs = configs();
 
-    foreach ($extension as $key=>$item) {
+    foreach ($extension as $key => $item) {
         if (strpos($argument, $key) !== false) {
             if (isset($item[$argument])) {
                 return array_merge($configs[$key], $item[$argument]);
