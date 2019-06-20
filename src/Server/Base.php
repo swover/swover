@@ -24,8 +24,6 @@ abstract class Base
 
     protected $config = [];
 
-    protected $events = [];
-
     public function __construct(array $config)
     {
         $this->config = $config;
@@ -36,7 +34,7 @@ abstract class Base
             throw new \Exception('Has Not Entrance!');
         }
 
-        Event::getInstance()->bind($this->events);
+        Event::getInstance()->bind($this->getConfig('events', []));
 
         $this->boot();
     }
@@ -47,11 +45,8 @@ abstract class Base
 
     private function initConfig()
     {
-        if (!isset($this->config['setting'])) {
-            $this->config['setting'] = [];
-        }
-
-        foreach ($this->config['setting'] as $key => $item) {
+        foreach ($this->getConfig('setting', []) as $key => $item) {
+            if ($key == 'setting') continue;
             if (isset($this->config[$key])) {
                 $this->config[$key] = $item;
             }
@@ -144,6 +139,11 @@ abstract class Base
     public function __set($name, $value)
     {
         return $this->config[$name] = $value;
+    }
+
+    public function getConfig($name, $default = null)
+    {
+        return isset($this->config[$name]) ? $this->config[$name] : $default;
     }
 }
 
