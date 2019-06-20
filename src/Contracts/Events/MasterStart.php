@@ -5,7 +5,7 @@ namespace Swover\Contracts\Events;
 interface MasterStart
 {
     /**
-     * Triggering Master start event
+     * Triggering master start event
      * @param $master_id
      * @return mixed
      */

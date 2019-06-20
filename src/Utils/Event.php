@@ -2,8 +2,6 @@
 
 namespace Swover\Utils;
 
-use Swover\Contracts\Events\MasterStart;
-
 /**
  * Events
  */
@@ -21,7 +19,10 @@ class Event extends ArrayObject
         'worker_stop'
     ];
 
-    //
+    /**
+     * The events instances
+     * @var array
+     */
     private $instances = [];
 
     /**
@@ -33,7 +34,7 @@ class Event extends ArrayObject
         if (!in_array($name, $this->events)) return;
 
         if (isset($this->instances[$name])) {
-            foreach ($this->instances[$name] as $class=>$instance) {
+            foreach ($this->instances[$name] as $class => $instance) {
                 call_user_func_array([$instance, 'trigger'], $parameter);
             }
         }
@@ -63,10 +64,15 @@ class Event extends ArrayObject
             $class = new $class; //TODO
         }
 
-        //TODO $name
-        if (!$class instanceof MasterStart) return;
+        $interface = $this->getInterface($name);
+        if (!$class instanceof $interface) return;
 
         //TODO
         $this->instances[$name][get_class($class)] = $class;
+    }
+
+    private function getInterface($name)
+    {
+        return '\Swover\Contracts\Events\\' . str_replace(' ', '', ucwords(str_replace('_', " ", strtolower($name))));
     }
 }
