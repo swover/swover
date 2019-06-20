@@ -7,21 +7,16 @@ class Entrance
         //pull data from message middleware server
         $data = ['action' => 'test_process', 'data' => ['id' => mt_rand(100, 200)]];
 
-        $result = self::execute($data);
+        $result = self::execute('', $data);
 
-        echo 'master:[' . \Swover\Worker::getMasterPid() . '] current:[' . posix_getpid() . '-' . \Swover\Worker::getStatus() . ']'
+        echo 'worker : [' . \Swover\Worker::getProcessId() . ']'
             . $result . PHP_EOL;
     }
 
     //tcp server
     public static function tcp(\Swover\Contracts\Request $request)
     {
-        $data = $request['input'];
-        if (!$data) {
-            return "Has Not Input Data!";
-        }
-        $data = json_decode($data, true);
-        return self::execute($data);
+        return self::execute($request->path(), $request);
     }
 
     // HTTP server
@@ -29,54 +24,55 @@ class Entrance
     // In environment, You may need to a single entry.
     public static function http(\Swover\Contracts\Request $request)
     {
-        return self::httpGet($request);
+        return self::execute($request->path(), $request);
     }
 
-    public static function httpGet(\Swover\Contracts\Request $request)
+    /**
+     * In this example, action is used as the route
+     * In production environment, use your own solution
+     * @param $path
+     * @param array | \Swover\Contracts\Request $request
+     * @return bool|string
+     */
+    public static function execute($path, $request)
     {
-        $data = $request['get'];
-        return self::execute($data);
-    }
-
-    public static function httpPost(\Swover\Contracts\Request $request)
-    {
-        $data = $request['post'];
-        return self::execute($data);
-    }
-
-    public static function httpInput(\Swover\Contracts\Request $request)
-    {
-        $data = $request['input'];
-        if (!$data) {
-            return "Has Not Input Data!";
-        }
-        $data = json_decode($data, true);
-        return self::execute($data);
-    }
-
-    // In this example, action is used as the route
-    // In production environment, use your own solution
-    public static function execute($request)
-    {
-        if (!$request) {
-            return "Has Not Request Data!";
+        if ($request instanceof \Swover\Contracts\Request) {
+            $input = json_decode($request->input(), true);
+            $post = $request->post();
+            $get = $request->get();
+        } elseif (is_array($request)) {
+            $input = $post = [];
+            $get = $request;
+        } else {
+            echo 'Request error!';
+            return false;
         }
 
-        if (!isset($request['action'])) {
-            return "Has Not Action!";
+        if (!$path || $path == '/') {
+            if (isset($input['action']) && $input['action']) {
+                $path = $input['action'];
+            } elseif (isset($post['action']) && $post['action']) {
+                $path = $post['action'];
+            } elseif (isset($get['action']) && $get['action']) {
+                $path = $get['action'];
+            }
         }
 
         sleep(1);
-        $route = self::route($request['action']);
-        return " data :".json_encode($request, JSON_UNESCAPED_UNICODE).' route: '. $route;
+        $route = self::route($path);
+        return ' route: ' . $route
+            . " get :" . json_encode($get, JSON_UNESCAPED_UNICODE)
+            . " post :" . json_encode($post, JSON_UNESCAPED_UNICODE)
+            . " input :" . json_encode($input, JSON_UNESCAPED_UNICODE);
     }
 
     private static function route($action)
     {
         $routes = [
+            '/user/fav' => '\\Http\\Controller\\User::favourite',
             'test_process' => '\\A\\B\\C::test',
-            'test_tcp'     => '\Test\Tcp::run',
-            'test_http'    => '\Test\Http::run'
+            'test_tcp' => '\Test\Tcp::run',
+            'test_http' => '\Test\Http::run'
         ];
         return isset($routes[$action]) ? $routes[$action] : 'Welcome';
     }

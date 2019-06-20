@@ -29,7 +29,7 @@ function configs()
             'worker_num' => 2,
             'task_worker_num' => 1,
             'max_request' => 0,
-            #'log_file' => '/Users/sin/swoole.log',
+            // 'log_file' => '/tmp/swoole.log',
             'entrance' => '\\Entrance::process',
         ],
         'http' => [
@@ -41,11 +41,10 @@ function configs()
             'worker_num' => 2,
             'task_worker_num' => 2,
             'max_request' => 0,
-            #'log_file' => '/tmp/swoole_http.log',
             'entrance' => '\\Entrance::http',
             'async' => false,
             'setting' => [
-                // 'log_file' => '/Users/sin/swoole_http.log',
+                'log_file' => '/tmp/swoole.log',
                 'worker_num' => 3,
             ],
             'events' => [
@@ -62,7 +61,7 @@ function configs()
             'worker_num' => 2,
             'task_worker_num' => 2,
             'max_request' => 0,
-            #'log_file' => '/Users/sin/swoole_tcp.log',
+            #'log_file' => '/tmp/swoole_tcp.log',
             'entrance' => '\\Entrance::tcp',
             'async' => false
         ]
@@ -73,19 +72,10 @@ function getConfig($argument)
 {
     $extension = [
         'http' => [
-            'httpGet' => [
-                'entrance' => '\\Entrance::httpGet',
-            ],
-            'httpPost' => [
-                'entrance' => '\\Entrance::httpPost',
-            ],
-            'httpInput' => [
-                'entrance' => '\\Entrance::httpInput',
-            ],
             'httpCoro' => [
                 'entrance' => '\\Coroutine::http',
                 'setting' => [
-                    'log_file' => '/Users/sin/swoole_http.log',
+                    'log_file' => '/tmp/swoole_http.log',
                     'worker_num' => 1,
                 ]
             ],

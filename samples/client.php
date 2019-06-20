@@ -4,15 +4,14 @@ if (!isset($argv[1])) die;
 
 include 'config/config.php';
 
-//tcp http
-$config = getConfig($argv[1]);
-
-call_user_func($argv[1], $config);
+call_user_func($argv[1]);
 
 //normal HTTP client, GET & POST
-function http($config)
+function http()
 {
-    $url = "http://{$config['host']}:{$config['port']}/test/getPost?action=reload_server";
+    $config = getConfig('http');
+
+    $url = "http://{$config['host']}:{$config['port']}/user/fav?action=reload_server";
     $post_data = ['action' => 'test_http', 'data' => ['id' => mt_rand(100, 200)]];
     echo 'post_data: ' . json_encode($post_data) . PHP_EOL;
     $curl = curl_init();
@@ -32,27 +31,37 @@ function http($config)
 }
 
 //HTTP input client, php://input
-function httpInput($config)
+function input()
 {
-    $url = "http://{$config['host']}:{$config['port']}/user/fav?action=input_test";
-    $post_data = ['action' => 'test_http', 'data' => ['id' => mt_rand(100, 200)]];
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-    curl_setopt($ch, CURLOPT_HTTPHEADER, []);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_data));
-    $output = curl_exec($ch);
-    $info = curl_getinfo($ch);
-    curl_close($ch);
+    $config = getConfig('http');
+
+    $url = "http://{$config['host']}:{$config['port']}";
+    $post_data = ['action' => 'test_input', 'data' => ['id' => mt_rand(100, 200)]];
+    echo 'post_data: ' . json_encode($post_data) . PHP_EOL;
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+    curl_setopt($curl, CURLOPT_POST, 1);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($post_data));
+    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
+    curl_setopt($curl, CURLOPT_COOKIE , "id=9527;name=ruesin" );
+    curl_setopt($curl, CURLOPT_HTTPHEADER, []);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    $output = curl_exec($curl);
+    $info = curl_getinfo($curl);
+    curl_close($curl);
     echo "Response Info: " . json_encode($info, JSON_UNESCAPED_UNICODE) . PHP_EOL . PHP_EOL;
     echo "Result: " . $output . PHP_EOL;
-    echo PHP_EOL;
 }
 
+
+
 //tcp client
-function tcp($config)
+function tcp()
 {
+    $config = getConfig('tcp');
+
     $client = new \swoole_client(SWOOLE_SOCK_TCP, SWOOLE_SOCK_SYNC);
     $client->connect($config['host'], $config['port'], -1);
 
