@@ -30,8 +30,7 @@ function configs()
             'task_worker_num' => 1,
             'max_request' => 0,
             #'log_file' => '/Users/sin/swoole.log',
-            // 'entrance' => '\\Entrance::process',
-            'entrance' => 'singleProcess',
+            'entrance' => '\\Entrance::process',
         ],
         'http' => [
             'server_type' => 'http',

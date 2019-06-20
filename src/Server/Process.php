@@ -10,11 +10,15 @@ use Swover\Worker;
  */
 class Process extends Base
 {
-    //child-process index => pid
-    private $works = [];
-
-    //child-process index => process
-    private $processes = [];
+    /**
+     * workers array, key is worker's process_id, value is array
+     * [
+     *     'id' => $worker_id,
+     *     'process' => \swoole_process
+     * ]
+     * @var array
+     */
+    private $workers = [];
 
     protected function boot()
     {
@@ -77,8 +81,10 @@ class Process extends Base
             }
         });
 
-        $this->processes[$index] = $process;
-        $this->works[$index] = $pid;
+        $this->workers[$pid] = [
+            'id' => $index,
+            'process' => $process
+        ];
         return $pid;
     }
 
@@ -136,23 +142,28 @@ class Process extends Base
     /**
      * restart child process
      *
-     * @param $ret array process info
+     * @param array $info array process info
+     * [
+     *     'pid' => 1234,
+     *     'code' => 0,
+     *     'signal' => 15
+     * ]
      * @throws \Exception
      */
-    private function restart($ret)
+    private function restart($info)
     {
-        $pid = $ret['pid'];
-        $index = array_search($pid, $this->works);
-        if ($index !== false) {
-
-            \swoole_event_del($this->processes[$index]->pipe);
-            $this->processes[$index]->close();
-
-            $index = intval($index);
-            $this->createProcess($index);
-            return;
+        if (!isset($this->workers[$info['pid']])) {
+            throw new \Exception('restart process Error: no pid');
         }
-        throw new \Exception('restart process Error: no pid');
+
+        $worker = $this->workers[$info['pid']];
+
+        \swoole_event_del($worker['process']->pipe);
+        $worker['process']->close();
+
+        unset($this->workers[$info['pid']]);
+
+        $this->createProcess(intval($worker['id']));
     }
 
     /**
