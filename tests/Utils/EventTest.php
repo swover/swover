@@ -50,8 +50,8 @@ class EventTest extends TestCase
         Event::getInstance()->register($events);
 
         Event::getInstance()->before('worker_start', new TestWorkerStartB());
-        Event::getInstance()->trigger('worker_start', 100);
-        $this->expectOutputString('b100a100');
+        Event::getInstance()->trigger('worker_start', 200);
+        $this->expectOutputString('b200a200');
     }
 
     public function testTrigger()
@@ -63,8 +63,28 @@ class EventTest extends TestCase
         Event::getInstance()->remove('task_start');
 
         Event::getInstance()->register($events);
-        Event::getInstance()->trigger('task_start', 100,'data');
-        $this->expectOutputString('100:data');
+
+        Event::getInstance()->trigger('task_start', 300,'data');
+        $this->expectOutputString('300:data');
+    }
+
+    public function testRemove()
+    {
+        $events = [
+            'worker_start' => [
+                new TestWorkerStartA(),
+                new TestWorkerStartB()
+            ]
+        ];
+
+        Event::getInstance()->remove('worker_start');
+
+        Event::getInstance()->register($events);
+
+        Event::getInstance()->remove('worker_start', new TestWorkerStartA());
+
+        Event::getInstance()->trigger('worker_start', 400);
+        $this->expectOutputString('b400');
     }
 }
 

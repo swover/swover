@@ -26,6 +26,12 @@ class Event extends ArrayObject
     private $instances = [];
 
     /**
+     * The bound events
+     * @var array
+     */
+    private $bounds = [];
+
+    /**
      * @param $name
      * @param mixed ...$parameter
      */
@@ -33,8 +39,10 @@ class Event extends ArrayObject
     {
         if (!in_array($name, $this->events)) return;
 
-        if (isset($this->instances[$name])) {
-            foreach ($this->instances[$name] as $class => $instance) {
+        if (isset($this->bounds[$name])) {
+            foreach ($this->bounds[$name] as $class) {
+                if (!isset($this->instances[$name][$class])) continue;
+                $instance = $this->instances[$name][$class];
                 call_user_func_array([$instance, 'trigger'], $parameter);
             }
         }
@@ -98,19 +106,33 @@ class Event extends ArrayObject
         $interface = $this->getInterface($name);
         if (!$class instanceof $interface) return 0;
 
-        // get_class($class)
+        $alias = get_class($class);
         if ($append) {
-            $this->instances[$name][] = $class;
+            $this->bounds[$name][] = $alias;
         } else {
-            array_unshift($this->instances[$name], $class);
+            array_unshift($this->bounds[$name], $alias);
         }
 
+        $this->instances[$name][$alias] = $class;
         return 1;
     }
 
-    public function remove($name)
+    public function remove($name, $class = null)
     {
-        unset($this->instances[$name]);
+        if (is_null($class)) {
+            unset($this->instances[$name], $this->bounds[$name]);
+            return true;
+        }
+
+        if (is_object($class)) {
+            $class = get_class($class);
+        }
+        $bind = array_search($class, $this->bounds);
+        if ($bind !== null) {
+            unset($this->bounds[$bind]);
+        }
+        unset($this->instances[$name][$class]);
+        return true;
     }
 
     private function getInterface($name)
