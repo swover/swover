@@ -33,7 +33,7 @@ abstract class Base
             throw new \Exception('Has Not Entrance!');
         }
 
-        Event::getInstance()->bind($this->getConfig('events', []));
+        Event::getInstance()->register($this->getConfig('events', []));
 
         $this->boot();
     }

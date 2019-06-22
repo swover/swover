@@ -40,7 +40,13 @@ class Event extends ArrayObject
         }
     }
 
-    public function bind($events)
+    /**
+     * Register events by array config
+     *
+     * @param $events
+     * @return int
+     */
+    public function register($events)
     {
         $result = 0;
         foreach ($events as $name => $event) {
@@ -48,16 +54,36 @@ class Event extends ArrayObject
 
             if (is_array($event)) {
                 foreach ($event as $item) {
-                    $result += $this->resolve($name, $item);
+                    $result += $this->bind($name, $item);
                 }
             } else {
-                $result += $this->resolve($name, $event);
+                $result += $this->bind($name, $event);
             }
         }
         return $result;
     }
 
-    private function resolve($name, $class)
+    /**
+     * Bind the class to name
+     *
+     * @param string $name
+     * @param string|object $class
+     * @return int
+     */
+    public function before($name, $class)
+    {
+        return $this->bind($name, $class, false);
+    }
+
+    /**
+     * Bind the class to name
+     *
+     * @param string $name
+     * @param string|object $class
+     * @param bool $append
+     * @return int
+     */
+    public function bind($name, $class, $append = true)
     {
         if (!is_string($class) && !is_object($class)) return 0;
 
@@ -72,9 +98,19 @@ class Event extends ArrayObject
         $interface = $this->getInterface($name);
         if (!$class instanceof $interface) return 0;
 
-        //TODO
-        $this->instances[$name][get_class($class)] = $class;
+        // get_class($class)
+        if ($append) {
+            $this->instances[$name][] = $class;
+        } else {
+            array_unshift($this->instances[$name], $class);
+        }
+
         return 1;
+    }
+
+    public function remove($name)
+    {
+        unset($this->instances[$name]);
     }
 
     private function getInterface($name)

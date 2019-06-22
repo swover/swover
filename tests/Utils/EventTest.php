@@ -10,7 +10,7 @@ use Swover\Utils\Event;
 
 class EventTest extends TestCase
 {
-    public function testBind()
+    public function testRegister()
     {
         $events = [
             'master_start' => '\Swover\Tests\Utils\TestMasterStart',
@@ -20,8 +20,38 @@ class EventTest extends TestCase
             ],
             'task_start' => new TestTaskStart()
         ];
-        $bounds = Event::getInstance()->bind($events);
+        $bounds = Event::getInstance()->register($events);
         $this->assertEquals(4, $bounds);
+    }
+
+    public function testBind()
+    {
+        $events = [
+            'worker_start' => new TestWorkerStartA()
+        ];
+
+        Event::getInstance()->remove('worker_start');
+
+        Event::getInstance()->register($events);
+
+        Event::getInstance()->bind('worker_start', new TestWorkerStartB());
+        Event::getInstance()->trigger('worker_start', 100);
+        $this->expectOutputString('a100b100');
+    }
+
+    public function testBefore()
+    {
+        $events = [
+            'worker_start' => new TestWorkerStartA()
+        ];
+
+        Event::getInstance()->remove('worker_start');
+
+        Event::getInstance()->register($events);
+
+        Event::getInstance()->before('worker_start', new TestWorkerStartB());
+        Event::getInstance()->trigger('worker_start', 100);
+        $this->expectOutputString('b100a100');
     }
 
     public function testTrigger()
@@ -30,8 +60,9 @@ class EventTest extends TestCase
             'task_start' => new TestTaskStart()
         ];
 
-        Event::getInstance()->bind($events);
+        Event::getInstance()->remove('task_start');
 
+        Event::getInstance()->register($events);
         Event::getInstance()->trigger('task_start', 100,'data');
         $this->expectOutputString('100:data');
     }
@@ -49,7 +80,7 @@ class TestWorkerStartA implements WorkerStart
 {
     public function trigger($worker_id)
     {
-        echo $worker_id;
+        echo 'a'.$worker_id;
     }
 }
 
@@ -57,7 +88,7 @@ class TestWorkerStartB implements WorkerStart
 {
     public function trigger($worker_id)
     {
-        echo $worker_id;
+        echo 'b'.$worker_id;
     }
 }
 
