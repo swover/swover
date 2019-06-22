@@ -135,6 +135,12 @@ class Event extends ArrayObject
         return true;
     }
 
+    public function clear()
+    {
+        $this->instances = [];
+        $this->bounds = [];
+    }
+
     private function getInterface($name)
     {
         return '\Swover\Contracts\Events\\' . str_replace(' ', '', ucwords(str_replace('_', " ", strtolower($name))));
