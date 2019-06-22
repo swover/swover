@@ -42,33 +42,39 @@ class Event extends ArrayObject
 
     public function bind($events)
     {
+        $result = 0;
         foreach ($events as $name => $event) {
             if (!in_array($name, $this->events)) continue;
 
             if (is_array($event)) {
                 foreach ($event as $item) {
-                    $this->resolve($name, $item);
+                    $result += $this->resolve($name, $item);
                 }
             } else {
-                $this->resolve($name, $event);
+                $result += $this->resolve($name, $event);
             }
         }
+        return $result;
     }
 
     private function resolve($name, $class)
     {
-        if (!is_string($class) && !is_object($class)) return;
+        if (!is_string($class) && !is_object($class)) return 0;
 
         if (is_string($class)) {
-            if (!class_exists($class)) return;
+            if (!class_exists($class)) {
+                echo $class;
+                return 0;
+            }
             $class = new $class; //TODO
         }
 
         $interface = $this->getInterface($name);
-        if (!$class instanceof $interface) return;
+        if (!$class instanceof $interface) return 0;
 
         //TODO
         $this->instances[$name][get_class($class)] = $class;
+        return 1;
     }
 
     private function getInterface($name)
