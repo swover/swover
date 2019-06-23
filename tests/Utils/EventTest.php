@@ -30,8 +30,6 @@ class EventTest extends TestCase
             'worker_start' => new TestWorkerStartA()
         ];
 
-        Event::getInstance()->clear();
-
         Event::getInstance()->register($events);
 
         Event::getInstance()->bind('worker_start', new TestWorkerStartB());
@@ -60,8 +58,6 @@ class EventTest extends TestCase
             'task_start' => new TestTaskStart()
         ];
 
-        Event::getInstance()->clear();
-
         Event::getInstance()->register($events);
 
         Event::getInstance()->trigger('task_start', 300,'data');
@@ -76,8 +72,6 @@ class EventTest extends TestCase
                 new TestWorkerStartB()
             ]
         ];
-
-        Event::getInstance()->clear();
 
         Event::getInstance()->register($events);
 
