@@ -43,16 +43,17 @@ class ArrayObject extends \ArrayObject implements \ArrayAccess
 
     public function __get($name)
     {
-        return $this->offsetGet($name);
+        return isset($this->$name) ? $this->$name : $this->offsetGet($name);
     }
 
     public function __isset($name)
     {
-        return $this->offsetExists($name);
+        return isset($this->$name) || $this->offsetExists($name);
     }
 
     public function __unset($name)
     {
+        unset($this->$name);
         $this->offsetUnset($name);
     }
 
