@@ -97,7 +97,6 @@ class Event extends ArrayObject
 
         if (is_string($class)) {
             if (!class_exists($class)) {
-                echo $class;
                 return 0;
             }
             $class = new $class; //TODO
@@ -107,6 +106,9 @@ class Event extends ArrayObject
         if (!$class instanceof $interface) return 0;
 
         $alias = get_class($class);
+
+        if (isset($this->instances[$name][$alias])) return 0;
+
         if ($append) {
             $this->bounds[$name][] = $alias;
         } else {
