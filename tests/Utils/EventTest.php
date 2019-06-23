@@ -80,6 +80,22 @@ class EventTest extends TestCase
         Event::getInstance()->trigger('worker_start', 400);
         $this->expectOutputString('b400');
     }
+
+    public function testClear()
+    {
+        $events = [
+            'master_start' => '\Swover\Tests\Utils\TestMasterStart',
+            'worker_start' => [
+                '\Swover\Tests\Utils\TestWorkerStartA',
+                new TestWorkerStartB()
+            ],
+            'task_start' => new TestTaskStart()
+        ];
+        Event::getInstance()->register($events);
+        Event::getInstance()->clear();
+        $bounds = Event::getInstance()->getBounds();
+        $this->assertEquals(0, count($bounds));
+    }
 }
 
 class TestMasterStart implements MasterStart
