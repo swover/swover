@@ -86,5 +86,25 @@ $request = [
 - 当返回字符串时，实例化`Response`对象，并将字符串设置为响应消息体；
 - 当返回布尔值时，实例化`Response`对象，如果为`false`，设置`status`为500，否则为200
 
+### Worker
+提供获取当前进程状态、主进程状态的方法。
+
+当进程收到`SIGCHLD`信号后，当调用`Worker::getStatus()`时，会触发`pcntl_signal_dispatch()`调起注册的事件，将当前进程状态设置为`false`。可以利用此特性，在业务内很好的及时判断当前进程的状态是否需要退出。
+
+可以调用`Worker::checkProcess($pid)`用来检测指定进程ID是否正常存活，可用于在子进程中检测父进程的状态。
+
+### Event
+提供了事件注册的能力，可以通过服务启动时传入配置文件，或者服务启动后再调用Event类来注册相关事件。
+
+事件类型有：
+- master_start：Master主进程启动事件，需实现接口`Swover\Contracts\Events\MasterStart`
+- worker_start：Worker子进程启动事件，需实现接口`Swover\Contracts\Events\WorkerStart`
+- connect：TCP服务接收到Socket连接的事件，需实现接口`Swover\Contracts\Events\Connect`
+- request：TCP、HTTP服务接收到请求后的事件，需实现接口`Swover\Contracts\Events\Request`
+- task_start：TCP、HTTP服务异步task开始时的事件，需实现接口`Swover\Contracts\Events\TaskStart`
+- task_finish：TCP、HTTP服务异步task完成时的事件，需实现接口`Swover\Contracts\Events\TaskFinish`
+- close：TCP服务接收到Socket连接关闭时的事件，需实现接口`Swover\Contracts\Events\Close`
+- response：TCP、HTTP同步服务响应客户端前，Process服务每次循环结束前，将调用此事件，需实现接口`Swover\Contracts\Events\Response`
+- worker_stop：Worker子进程停止时的事件，需实现接口`Swover\Contracts\Events\WorkerStop`
 
 可以在 [samples](./samples) 查看示例。
