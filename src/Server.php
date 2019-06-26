@@ -49,10 +49,11 @@ class Server
 
         try {
             if ($this->config['server_type'] == 'process') {
-                new Process($this->config);
+                $server = new Process($this->config);
             } else {
-                new Socket($this->config);
+                $server = new Socket($this->config);
             }
+            $server->boot();
         } catch (\Exception $e) {
             echo "{$this->config['process_name']} start fail. error: " . $e->getMessage() . PHP_EOL;
             return false;

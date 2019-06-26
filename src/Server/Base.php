@@ -34,11 +34,9 @@ abstract class Base
         }
 
         Event::getInstance()->register($this->getConfig('events', []));
-
-        $this->boot();
     }
 
-    abstract protected function boot();
+    abstract public function boot();
 
     abstract protected function execute($data = null);
 

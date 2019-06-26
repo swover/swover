@@ -21,7 +21,7 @@ class Process extends Base
      */
     private $workers = [];
 
-    protected function boot()
+    public function boot()
     {
         if (!extension_loaded('pcntl')) {
             throw new \Exception('Process required pcntl-extension!');

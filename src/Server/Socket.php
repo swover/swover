@@ -18,7 +18,7 @@ class Socket extends Base
      */
     private $server;
 
-    protected function boot()
+    public function boot()
     {
         if (!isset($this->config['host']) || !isset($this->config['port'])) {
             throw new \Exception('Has Not Host or Port!');
