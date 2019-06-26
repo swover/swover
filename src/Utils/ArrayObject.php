@@ -9,7 +9,7 @@ class ArrayObject extends \ArrayObject implements \ArrayAccess
 {
     private $__default_string = '';
 
-    protected static $instance = null;
+    protected static $instance = [];
 
     public function __construct($input, $flags = 0, $iterator_class = "ArrayIterator")
     {
@@ -22,7 +22,7 @@ class ArrayObject extends \ArrayObject implements \ArrayAccess
 
     public static function setInstance($instance = null)
     {
-        static::$instance = $instance;
+        static::$instance[static::class] = $instance;
     }
 
     /**
@@ -30,10 +30,10 @@ class ArrayObject extends \ArrayObject implements \ArrayAccess
      */
     public static function getInstance()
     {
-        if (is_null(static::$instance)) {
+        if (!isset(static::$instance[static::class])) {
             static::setInstance(new static([]));
         }
-        return static::$instance;
+        return static::$instance[static::class];
     }
 
     public function __set($name, $value)
