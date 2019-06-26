@@ -8,8 +8,6 @@ use Swover\Worker;
 
 /**
  * Socket Server || HTTP Server
- *
- * @property $async Is it asynchronous？
  */
 class Socket extends Base
 {
@@ -22,10 +20,6 @@ class Socket extends Base
     {
         if (!isset($this->config['host']) || !isset($this->config['port'])) {
             throw new \Exception('Has Not Host or Port!');
-        }
-
-        if (!is_bool($this->async)) {
-            $this->async = boolval($this->async);
         }
 
         $this->start();
@@ -43,7 +37,7 @@ class Socket extends Base
             'max_request'     => $this->max_request
         ];
 
-        $setting = array_merge($setting, $this->getConfig('setting', []));
+        $setting = array_merge($setting, $this->config->get('setting', []));
 
         $this->server->set($setting);
 
@@ -155,7 +149,7 @@ class Socket extends Base
         Event::getInstance()->trigger('request', $data);
         $request = new Request($data);
 
-        if ($this->async === true) {
+        if (boolval($this->config->get('async', false)) === true) {
             $this->server->task($request);
             //TODO 异步测试
             $response = new Response();

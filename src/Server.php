@@ -4,6 +4,7 @@ namespace Swover;
 
 use Swover\Server\Process;
 use Swover\Server\Socket;
+use Swover\Utils\Config;
 
 class Server
 {
@@ -20,7 +21,7 @@ class Server
 
     public function __construct(array $config)
     {
-        $this->config = $config;
+        $this->config = Config::setInstance(new Config($config));
 
         if (!isset($this->config['server_type']) || !in_array($this->config['server_type'], $this->server_type)) {
             throw new \Exception('server_type defined error!' . PHP_EOL);
@@ -49,9 +50,9 @@ class Server
 
         try {
             if ($this->config['server_type'] == 'process') {
-                $server = new Process($this->config);
+                $server = new Process();
             } else {
-                $server = new Socket($this->config);
+                $server = new Socket();
             }
             $server->boot();
         } catch (\Exception $e) {

@@ -74,7 +74,7 @@ class Process extends Base
 
         \swoole_event_add($process->pipe, function ($pipe) use ($process) {
             if ($message = $process->read()) {
-                if ($log_file = $this->getConfig('log_file', '')) {
+                if ($log_file = $this->config->get('log_file', '')) {
                     error_log(date('Y-m-d H:i:s') . ' ' . ltrim($message) . PHP_EOL, 3, $log_file);
                 } else {
                     echo trim($message) . PHP_EOL;

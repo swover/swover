@@ -22,7 +22,7 @@ class ArrayObject extends \ArrayObject implements \ArrayAccess
 
     public static function setInstance($instance = null)
     {
-        static::$instance[static::class] = $instance;
+        return static::$instance[static::class] = $instance;
     }
 
     /**

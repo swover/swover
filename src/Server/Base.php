@@ -2,6 +2,7 @@
 
 namespace Swover\Server;
 
+use Swover\Utils\Config;
 use Swover\Utils\Event;
 use Swover\Utils\Response;
 
@@ -21,41 +22,41 @@ abstract class Base
 
     protected $entrance = '';
 
-    protected $config = [];
+    /**
+     * @var Config
+     */
+    protected $config = null;
 
-    public function __construct(array $config)
+    public function __construct()
     {
-        $this->config = $config;
+        $this->config = Config::getInstance();
 
-        $this->initConfig();
+        $this->prepare();
 
         if (!$this->entrance) {
             throw new \Exception('Has Not Entrance!');
         }
 
-        Event::getInstance()->register($this->getConfig('events', []));
+        Event::getInstance()->register($this->config->get('events', []));
     }
 
     abstract public function boot();
 
     abstract protected function execute($data = null);
 
-    private function initConfig()
+    private function prepare()
     {
-        foreach ($this->getConfig('setting', []) as $key => $item) {
-            if ($key == 'setting') continue;
-            if (isset($this->config[$key])) {
-                $this->config[$key] = $item;
-            }
-        }
-        
         foreach ($this->config as $key => $value) {
+
+            if (!isset($this->$key)) continue;
+
             if ($key == 'daemonize') {
                 $value = boolval($value);
             }
             if ($key == 'max_request') {
                 $value = intval($value);
             }
+
             $this->$key = $value;
         }
 
@@ -105,28 +106,6 @@ abstract class Base
         }
 
         return $response;
-    }
-
-    public function __get($name)
-    {
-        if (isset($this->config['setting'][$name])) {
-            return $this->config['setting'][$name];
-        }
-
-        if (!isset($this->config[$name])) {
-            return false;
-        }
-        return $this->config[$name];
-    }
-
-    public function __set($name, $value)
-    {
-        return $this->config[$name] = $value;
-    }
-
-    public function getConfig($name, $default = null)
-    {
-        return isset($this->config[$name]) ? $this->config[$name] : (isset($this->config['setting'][$name]) ? $this->config['setting'][$name] : $default);
     }
 }
 
