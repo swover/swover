@@ -2,7 +2,6 @@
 
 namespace Swover\Server;
 
-use Swover\Utils\Event;
 use Swover\Utils\Request;
 use Swover\Worker;
 
@@ -36,7 +35,7 @@ class Process extends Base
             \swoole_process::daemon(true, false);
         }
 
-        Event::getInstance()->trigger('master_start', posix_getpid());
+        $this->event->trigger('master_start', posix_getpid());
         Worker::setMasterPid(posix_getpid());
         $this->_setProcessName('master');
 
@@ -55,7 +54,7 @@ class Process extends Base
         $process = new \swoole_process(function (\swoole_process $worker) use ($index) {
 
             $this->_setProcessName('worker_' . $index);
-            Event::getInstance()->trigger('worker_start', $index);
+            $this->event->trigger('worker_start', $index);
 
             Worker::setStatus(true);
 
@@ -65,7 +64,7 @@ class Process extends Base
 
             $this->execute();
 
-            Event::getInstance()->trigger('worker_stop', $index);
+            $this->event->trigger('worker_stop', $index);
 
             $worker->exit();
         }, $this->daemonize);
@@ -100,9 +99,9 @@ class Process extends Base
             }
 
             try {
-                Event::getInstance()->trigger('request', []);
+                $this->event->trigger('request', []);
                 $response = $this->entrance(new Request([]));
-                Event::getInstance()->trigger('response', $response);
+                $this->event->trigger('response', $response);
 
                 if ($response->code >= 400 || $response->code < 0) {
                     break;

@@ -23,6 +23,11 @@ abstract class Base
     protected $entrance = '';
 
     /**
+     * @var Event
+     */
+    protected $event = null;
+
+    /**
      * @var Config
      */
     protected $config = null;
@@ -37,7 +42,9 @@ abstract class Base
             throw new \Exception('Has Not Entrance!');
         }
 
-        Event::getInstance()->register($this->config->get('events', []));
+        $this->event = Event::getInstance();
+
+        $this->event->register($this->config->get('events', []));
     }
 
     abstract public function boot();

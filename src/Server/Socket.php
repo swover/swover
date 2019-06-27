@@ -1,7 +1,6 @@
 <?php
 namespace Swover\Server;
 
-use Swover\Utils\Event;
 use Swover\Utils\Request;
 use Swover\Utils\Response;
 use Swover\Worker;
@@ -50,7 +49,7 @@ class Socket extends Base
     private function onStart()
     {
         $this->server->on('Start', function ($server) {
-            Event::getInstance()->trigger('master_start', $server->master_pid);
+            $this->event->trigger('master_start', $server->master_pid);
             Worker::setMasterPid($server->master_pid);
             $this->_setProcessName('master');
         });
@@ -62,7 +61,7 @@ class Socket extends Base
         $this->server->on('WorkerStart', function ($server, $worker_id){
             $str = ($worker_id >= $server->setting['worker_num']) ? 'task' : 'event';
             $this->_setProcessName('worker_'.$str);
-            Event::getInstance()->trigger('worker_start', $worker_id);
+            $this->event->trigger('worker_start', $worker_id);
         });
 
         return $this;
@@ -73,7 +72,7 @@ class Socket extends Base
         if ($this->server_type == 'http') return $this;
 
         $this->server->on('connect', function ($server, $fd, $from_id) {
-            Event::getInstance()->trigger('connect', $fd);
+            $this->event->trigger('connect', $fd);
         });
 
         $this->server->on('receive', function (\Swoole\Server $server, $fd, $from_id, $data) {
@@ -119,7 +118,7 @@ class Socket extends Base
     private function onTask()
     {
         $this->server->on('Task', function ($server, $task_id, $src_worker_id, $data)  {
-            Event::getInstance()->trigger('task_start', $task_id, $data);
+            $this->event->trigger('task_start', $task_id, $data);
             $this->entrance($data);
             $server->finish($data);
         });
@@ -129,14 +128,14 @@ class Socket extends Base
     private function onStop()
     {
         $this->server->on('WorkerStop', function ($server, $worker_id){
-            Event::getInstance()->trigger('worker_stop', $worker_id);
+            $this->event->trigger('worker_stop', $worker_id);
         });
         $this->server->on('Finish', function ($server, $task_id, $data) {
-            Event::getInstance()->trigger('task_finish', $task_id, $data);
+            $this->event->trigger('task_finish', $task_id, $data);
         });
 
         $this->server->on('close', function ($server, $fd, $from_id) {
-            Event::getInstance()->trigger('close', $fd);
+            $this->event->trigger('close', $fd);
         });
     }
 
@@ -146,7 +145,7 @@ class Socket extends Base
      */
     protected function execute($data = null)
     {
-        Event::getInstance()->trigger('request', $data);
+        $this->event->trigger('request', $data);
         $request = new Request($data);
 
         if (boolval($this->config->get('async', false)) === true) {
@@ -157,7 +156,7 @@ class Socket extends Base
         } else {
             $response = $this->entrance($request);
         }
-        Event::getInstance()->trigger('response', $response);
+        $this->event->trigger('response', $response);
         return $response;
     }
 }
