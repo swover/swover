@@ -21,7 +21,7 @@ class Server
 
     public function __construct(array $config)
     {
-        $this->config = Config::setInstance(new Config($config));
+        $this->config = Config::getInstance($config);
 
         if (!isset($this->config['server_type']) || !in_array($this->config['server_type'], $this->server_type)) {
             throw new \Exception('server_type defined error!' . PHP_EOL);

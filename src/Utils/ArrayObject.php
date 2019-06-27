@@ -26,12 +26,13 @@ class ArrayObject extends \ArrayObject implements \ArrayAccess
     }
 
     /**
-     * @return static|null
+     * @param array $input
+     * @return static
      */
-    public static function getInstance()
+    public static function getInstance($input = [])
     {
-        if (!isset(static::$instance[static::class])) {
-            static::setInstance(new static([]));
+        if (!isset(static::$instance[static::class]) || is_null(static::$instance[static::class])) {
+            static::setInstance(new static($input));
         }
         return static::$instance[static::class];
     }
