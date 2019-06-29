@@ -107,7 +107,9 @@ class Event extends ArrayObject
 
         $alias = get_class($class);
 
-        if (isset($this->instances[$name][$alias])) return 0;
+        if (isset($this->instances[$name][$alias])){
+            $this->remove($name, $alias);
+        }
 
         if ($append) {
             $this->bounds[$name][] = $alias;
