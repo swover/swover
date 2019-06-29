@@ -35,26 +35,28 @@ class Process extends Base
             \Swoole\Process::daemon(true, false);
         }
 
-        $this->event->trigger('master_start', posix_getpid());
-        Worker::setMasterPid(posix_getpid());
-        $this->_setProcessName('master');
+        $this->MasterStart();
 
-        for ($i = 0; $i < $this->worker_num; $i++) {
-            $this->createProcess($i);
+        for ($worker_id = 0; $worker_id < $this->worker_num; $worker_id++) {
+            $this->WorkerStart($worker_id);
         }
 
         $this->asyncProcessWait();
     }
 
-    /**
-     * create process
-     */
-    private function createProcess($index)
+    private function MasterStart()
     {
-        $process = new \Swoole\Process(function (\Swoole\Process $worker) use ($index) {
+        $this->event->trigger('master_start', posix_getpid());
+        Worker::setMasterPid(posix_getpid());
+        $this->_setProcessName('master');
+    }
 
-            $this->_setProcessName('worker_' . $index);
-            $this->event->trigger('worker_start', $index);
+    private function WorkerStart($worker_id)
+    {
+        $process = new \Swoole\Process(function (\Swoole\Process $worker) use ($worker_id) {
+
+            $this->_setProcessName('worker_' . $worker_id);
+            $this->event->trigger('worker_start', $worker_id);
 
             Worker::setStatus(true);
 
@@ -64,7 +66,7 @@ class Process extends Base
 
             $this->execute();
 
-            $this->event->trigger('worker_stop', $index);
+            $this->event->trigger('worker_stop', $worker_id);
 
             $worker->exit(0);
         }, $this->daemonize);
@@ -82,7 +84,7 @@ class Process extends Base
         });
 
         $this->workers[$pid] = [
-            'id' => $index,
+            'id' => $worker_id,
             'process' => $process
         ];
         return $pid;
@@ -163,7 +165,7 @@ class Process extends Base
 
         unset($this->workers[$info['pid']]);
 
-        $this->createProcess(intval($worker['id']));
+        $this->WorkerStart(intval($worker['id']));
     }
 
     /**
