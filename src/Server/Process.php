@@ -14,7 +14,7 @@ class Process extends Base
      * workers array, key is worker's process_id, value is array
      * [
      *     'id' => $worker_id,
-     *     'process' => \swoole_process
+     *     'process' => \Swoole\Process
      * ]
      * @var array
      */
@@ -32,7 +32,7 @@ class Process extends Base
     private function start()
     {
         if ($this->daemonize === true) {
-            \swoole_process::daemon(true, false);
+            \Swoole\Process::daemon(true, false);
         }
 
         $this->event->trigger('master_start', posix_getpid());
@@ -51,7 +51,7 @@ class Process extends Base
      */
     private function createProcess($index)
     {
-        $process = new \swoole_process(function (\swoole_process $worker) use ($index) {
+        $process = new \Swoole\Process(function (\Swoole\Process $worker) use ($index) {
 
             $this->_setProcessName('worker_' . $index);
             $this->event->trigger('worker_start', $index);
@@ -66,12 +66,12 @@ class Process extends Base
 
             $this->event->trigger('worker_stop', $index);
 
-            $worker->exit();
+            $worker->exit(0);
         }, $this->daemonize);
 
         $pid = $process->start();
 
-        \swoole_event_add($process->pipe, function ($pipe) use ($process) {
+        swoole_event_add($process->pipe, function ($pipe) use ($process) {
             if ($message = $process->read()) {
                 if ($log_file = $this->config->get('log_file', '')) {
                     error_log(date('Y-m-d H:i:s') . ' ' . ltrim($message) . PHP_EOL, 3, $log_file);
@@ -158,7 +158,7 @@ class Process extends Base
 
         $worker = $this->workers[$info['pid']];
 
-        \swoole_event_del($worker['process']->pipe);
+        swoole_event_del($worker['process']->pipe);
         $worker['process']->close();
 
         unset($this->workers[$info['pid']]);
@@ -171,8 +171,8 @@ class Process extends Base
      */
     private function asyncProcessWait()
     {
-        \swoole_process::signal(SIGCHLD, function ($sig) {
-            while ($ret = \swoole_process::wait(false)) {
+        \Swoole\Process::signal(SIGCHLD, function ($sig) {
+            while ($ret = \Swoole\Process::wait(false)) {
                 $this->restart($ret);
             }
         });

@@ -71,6 +71,6 @@ class Worker
      */
     public static function checkProcess($pid)
     {
-        return \swoole_process::kill($pid, 0);
+        return \Swoole\Process::kill($pid, 0);
     }
 }
