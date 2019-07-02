@@ -22,7 +22,7 @@ class Socket extends Base
             parent::__construct($config);
 
             if (!isset($config['host']) || !isset($config['port'])) {
-                die('Has Not Host or Port!' . PHP_EOL);
+                throw new \Exception('Has Not Host or Port!' . PHP_EOL);
             }
 
             if (!is_bool($this->async)) {
@@ -35,7 +35,7 @@ class Socket extends Base
 
             $this->start($config['host'], $config['port']);
         } catch (\Exception $e) {
-            die('Start error: ' . $e->getMessage());
+            throw new \Exception('Start error: ' . $e->getMessage() . PHP_EOL);
         }
     }
 

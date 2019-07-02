@@ -35,7 +35,7 @@ class Process extends Base
             $this->asyncProcessWait();
 
         } catch (\Exception $e) {
-            die('Start error: ' . $e->getMessage());
+            throw new \Exception('Start error: ' . $e->getMessage() . PHP_EOL);
         }
     }
 

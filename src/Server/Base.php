@@ -27,7 +27,7 @@ class Base
         $this->initConfig($config);
 
         if (!$this->entrance) {
-            die('Has Not Entrance!' . PHP_EOL);
+            throw new \Exception('Has Not Entrance!' . PHP_EOL);
         }
     }
 
