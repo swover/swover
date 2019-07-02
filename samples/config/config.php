@@ -29,7 +29,9 @@ function configs()
             'worker_num' => 2,
             'task_worker_num' => 1,
             'max_request' => 0,
-            // 'log_file' => '/tmp/swoole.log',
+            'setting' => [
+                'log_file' => '/tmp/swoole.log',
+            ],
             'entrance' => '\\Entrance::process',
         ],
         'http' => [
@@ -61,7 +63,9 @@ function configs()
             'worker_num' => 2,
             'task_worker_num' => 2,
             'max_request' => 0,
-            #'log_file' => '/tmp/swoole_tcp.log',
+            'setting' => [
+                'log_file' => '/tmp/swoole_tcp.log',
+            ],
             'entrance' => '\\Entrance::tcp',
             'async' => false
         ]
