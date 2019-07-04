@@ -30,10 +30,12 @@ class EventTest extends TestCase
             'worker_start' => new TestWorkerStartA()
         ];
 
-        Event::getInstance()->register($events);
+        $instance = Event::getInstance();
+        $instance->clear();
+        $instance->register($events);
 
-        Event::getInstance()->bind('worker_start', new TestWorkerStartB());
-        Event::getInstance()->trigger('worker_start', 100);
+        $instance->bind('worker_start', new TestWorkerStartB());
+        $instance->trigger('worker_start', 100);
         $this->expectOutputString('a100b100');
     }
 

@@ -131,9 +131,9 @@ class Event extends ArrayObject
         if (is_object($class)) {
             $class = get_class($class);
         }
-        $bind = array_search($class, $this->bounds);
+        $bind = array_search($class, $this->bounds[$name]);
         if ($bind !== null) {
-            unset($this->bounds[$bind]);
+            unset($this->bounds[$name][$bind]);
         }
         unset($this->instances[$name][$class]);
         return true;
