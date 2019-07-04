@@ -1,0 +1,13 @@
+language: php
+php:
+  - '5.6'
+install:
+  - pecl install swoole-1.9.5
+  - echo "extension = swoole.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+before_script:
+  - composer install
+script:
+  - ./vendor/bin/phpunit -c phpunit.xml
+branches:
+  only:
+    - travis
