@@ -50,9 +50,9 @@ class Server
 
         try {
             if ($this->config['server_type'] == 'process') {
-                $server = new Process();
+                $server = Process::getInstance();
             } else {
-                $server = new Socket();
+                $server = Socket::getInstance();
             }
             $server->boot();
         } catch (\Exception $e) {

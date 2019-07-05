@@ -20,17 +20,12 @@ class Process extends Base
      */
     private $workers = [];
 
-    public function boot()
+    protected function start()
     {
         if (!extension_loaded('pcntl')) {
             throw new \Exception('Process required pcntl-extension!');
         }
 
-        $this->start();
-    }
-
-    private function start()
-    {
         if ($this->daemonize === true) {
             \Swoole\Process::daemon(true, false);
         }

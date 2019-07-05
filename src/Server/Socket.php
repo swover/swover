@@ -15,17 +15,12 @@ class Socket extends Base
      */
     private $server;
 
-    public function boot()
+    protected function start()
     {
         if (!isset($this->config['host']) || !isset($this->config['port'])) {
             throw new \Exception('Has Not Host or Port!');
         }
 
-        $this->start();
-    }
-
-    private function start()
-    {
         $className = ($this->server_type == 'http') ? \Swoole\Http\Server::class : \Swoole\Server::class;
         $this->server = new $className($this->config['host'], $this->config['port'], SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
 
@@ -43,7 +38,6 @@ class Socket extends Base
         $this->onStart()->onReceive()->onRequest()->onTask()->onStop();
 
         $this->server->start();
-        return $this;
     }
 
     private function onStart()

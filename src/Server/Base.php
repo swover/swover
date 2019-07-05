@@ -8,6 +8,10 @@ use Swover\Utils\Response;
 
 abstract class Base
 {
+    protected static $instance = [];
+
+    protected $booted = false;
+
     protected $server_type = '';
 
     protected $daemonize = false;
@@ -32,7 +36,7 @@ abstract class Base
      */
     protected $config = null;
 
-    public function __construct()
+    private function __construct()
     {
         $this->config = Config::getInstance();
 
@@ -47,7 +51,33 @@ abstract class Base
         $this->event->register($this->config->get('events', []));
     }
 
-    abstract public function boot();
+    /**
+     * @return static
+     * @throws \Exception
+     */
+    public static function getInstance()
+    {
+        $class = get_called_class();
+        if (!self::$instance[$class] || is_null(static::$instance[$class]))
+        {
+            self::$instance[$class] = new static();
+        }
+        return self::$instance[$class];
+    }
+
+    public function boot()
+    {
+        if ($this->booted) {
+            return false;
+        }
+
+        $this->booted = true;
+
+        $this->start();
+        return true;
+    }
+
+    abstract protected function start();
 
     abstract protected function execute($data = null);
 
