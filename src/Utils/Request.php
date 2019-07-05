@@ -42,11 +42,11 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
         //Swoole\Http\Request::rawcontent(): Http request is finished.
         $result = [
             'get' => isset($request->get) ? $request->get : [],
-            'post' => $request->post,
+            'post' => isset($request->post) ? $request->post : [],
             'input' => @$request->rawcontent(),
-            'header' => $request->header,
-            'server' => $request->server,
-            'cookie' => $request->cookie,
+            'header' => isset($request->header) ? $request->header : [],
+            'server' => isset($request->server) ? $request->server : [],
+            'cookie' => isset($request->cookie) ? $request->cookie : [],
         ];
 
         //application/x-www-form-urlencoded
