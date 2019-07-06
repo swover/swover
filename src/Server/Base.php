@@ -58,7 +58,7 @@ abstract class Base
     public static function getInstance()
     {
         $class = get_called_class();
-        if (!self::$instance[$class] || is_null(static::$instance[$class]))
+        if (!isset(self::$instance[$class]) || is_null(static::$instance[$class]))
         {
             self::$instance[$class] = new static();
         }
