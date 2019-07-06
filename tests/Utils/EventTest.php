@@ -13,12 +13,12 @@ class EventTest extends TestCase
     public function testRegister()
     {
         $events = [
-            'master_start' => '\Swover\Tests\Utils\TestMasterStart',
-            'worker_start' => [
+            '\Swover\Tests\Utils\TestMasterStart',
+            [
                 '\Swover\Tests\Utils\TestWorkerStartA',
                 new TestWorkerStartB()
             ],
-            'task_start' => new TestTaskStart()
+            new TestTaskStart()
         ];
         $bounds = Event::getInstance()->register($events);
         $this->assertEquals(4, $bounds);
@@ -27,7 +27,7 @@ class EventTest extends TestCase
     public function testBind()
     {
         $events = [
-            'worker_start' => new TestWorkerStartA()
+            new TestWorkerStartA()
         ];
 
         $instance = Event::getInstance();
@@ -42,7 +42,7 @@ class EventTest extends TestCase
     public function testBefore()
     {
         $events = [
-            'worker_start' => new TestWorkerStartA()
+            new TestWorkerStartA()
         ];
 
         $instance = Event::getInstance();
@@ -57,22 +57,20 @@ class EventTest extends TestCase
     public function testTrigger()
     {
         $events = [
-            'task_start' => new TestTaskStart()
+            new TestTaskStart()
         ];
 
         $instance = Event::getInstance();
         $instance->register($events);
-        $instance->trigger(TaskStart::EVENT_TYPE, 300,'data');
+        $instance->trigger(TaskStart::EVENT_TYPE, 300, 'data');
         $this->expectOutputString('300:data');
     }
 
     public function testRemove()
     {
         $events = [
-            'worker_start' => [
-                new TestWorkerStartA(),
-                new TestWorkerStartB()
-            ]
+            new TestWorkerStartA(),
+            new TestWorkerStartB()
         ];
         $instance = Event::getInstance();
         $instance->register($events);
@@ -86,12 +84,12 @@ class EventTest extends TestCase
     public function testClear()
     {
         $events = [
-            'master_start' => '\Swover\Tests\Utils\TestMasterStart',
-            'worker_start' => [
+            '\Swover\Tests\Utils\TestMasterStart',
+            [
                 '\Swover\Tests\Utils\TestWorkerStartA',
                 new TestWorkerStartB()
             ],
-            'task_start' => new TestTaskStart()
+            new TestTaskStart()
         ];
         $instance = Event::getInstance();
         $instance->register($events);
@@ -113,7 +111,7 @@ class TestWorkerStartA implements WorkerStart
 {
     public function trigger($worker_id)
     {
-        echo 'a'.$worker_id;
+        echo 'a' . $worker_id;
     }
 }
 
@@ -121,7 +119,7 @@ class TestWorkerStartB implements WorkerStart
 {
     public function trigger($worker_id)
     {
-        echo 'b'.$worker_id;
+        echo 'b' . $worker_id;
     }
 }
 
@@ -129,6 +127,6 @@ class TestTaskStart implements TaskStart
 {
     public function trigger($task_id, $data)
     {
-        echo $task_id.':'.$data;
+        echo $task_id . ':' . $data;
     }
 }
