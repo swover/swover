@@ -18,7 +18,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         ];
         $instance = new Request($input);
         $this->assertEquals('gva', $instance->get('gka'));
-        //$this->assertEquals($input['get'], $instance->get());
+        $this->assertEquals($input['get'], $instance->get());
         $this->assertEquals(null, $instance->get('gkc'));
         $this->assertEquals('sin', $instance->get('name', 'sin'));
         $this->assertEquals('GET', $instance->method());
@@ -27,7 +27,7 @@ class RequestTest extends \PHPUnit\Framework\TestCase
     public function testArrayPost()
     {
         $input = [
-            'post' => [
+            'POST' => [
                 'pka' => 'pva',
                 'pkb' => 'pvb'
             ],
@@ -56,7 +56,21 @@ class RequestTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('POST', $instance->method());
     }
 
-    //TODO  header url method server
+    public function testMethod()
+    {
+        $input = [
+            'post' => [
+                'pka' => 'pva',
+                'pkb' => 'pvb'
+            ],
+            'header' => [],
+            'server' => [
+                'request_method' => 'get'
+            ],
+        ];
+        $instance = new Request($input);
+        $this->assertEquals('POST', $instance->method());
+    }
 
     public function testGet()
     {

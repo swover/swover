@@ -34,6 +34,10 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
 
         $input['request'] = array_merge((array)$input['get'], (array)$input['post']);
 
+        if (!empty($input['post'])) {
+            $input['server']['method'] = 'POST';
+        }
+
         return $input;
     }
 
@@ -72,14 +76,17 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
                 'server_software' => 'swoole-server'
             ]
         ];
-        return [
-            'get' => isset($input['get']) ? $input['get'] : [],
-            'post' => isset($input['post']) ? $input['post'] : [],
-            'input' => isset($input['input']) ? $input['input'] : [],
-            'header' => isset($input['header']) ? $input['header'] : [],
-            'server' => isset($input['server']) ? array_merge($default['server'], $input['server']) : [],
-            'cookie' => isset($input['cookie']) ? $input['cookie'] : [],
-        ];
+
+        $result = ['get'=>[],'post'=>[],'input'=>[],'header'=>[],'server'=>[],'cookie'=>[]];
+
+        foreach ($input as $key=>$value) {
+            $key = trim(strtolower($key));
+            if (!isset($result[$key])) continue;
+            $result[$key] = $value;
+        }
+
+        $result['server'] = array_merge($default['server'], $result['server']);
+        return $result;
     }
 
     public function get($key = null, $default = null)
