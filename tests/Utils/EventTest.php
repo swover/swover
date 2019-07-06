@@ -34,8 +34,8 @@ class EventTest extends TestCase
         $instance->clear();
         $instance->register($events);
 
-        $instance->bind('worker_start', new TestWorkerStartB());
-        $instance->trigger('worker_start', 100);
+        $instance->bind(new TestWorkerStartB());
+        $instance->trigger(WorkerStart::EVENT_TYPE, 100);
         $this->expectOutputString('a100b100');
     }
 
@@ -45,12 +45,12 @@ class EventTest extends TestCase
             'worker_start' => new TestWorkerStartA()
         ];
 
-        Event::getInstance()->clear();
+        $instance = Event::getInstance();
+        $instance->clear();
+        $instance->register($events);
 
-        Event::getInstance()->register($events);
-
-        Event::getInstance()->before('worker_start', new TestWorkerStartB());
-        Event::getInstance()->trigger('worker_start', 200);
+        $instance->before(new TestWorkerStartB());
+        $instance->trigger(WorkerStart::EVENT_TYPE, 200);
         $this->expectOutputString('b200a200');
     }
 
@@ -60,9 +60,9 @@ class EventTest extends TestCase
             'task_start' => new TestTaskStart()
         ];
 
-        Event::getInstance()->register($events);
-
-        Event::getInstance()->trigger('task_start', 300,'data');
+        $instance = Event::getInstance();
+        $instance->register($events);
+        $instance->trigger(TaskStart::EVENT_TYPE, 300,'data');
         $this->expectOutputString('300:data');
     }
 
@@ -74,12 +74,12 @@ class EventTest extends TestCase
                 new TestWorkerStartB()
             ]
         ];
+        $instance = Event::getInstance();
+        $instance->register($events);
 
-        Event::getInstance()->register($events);
+        $instance->remove(new TestWorkerStartA());
 
-        Event::getInstance()->remove('worker_start', new TestWorkerStartA());
-
-        Event::getInstance()->trigger('worker_start', 400);
+        $instance->trigger(WorkerStart::EVENT_TYPE, 400);
         $this->expectOutputString('b400');
     }
 
@@ -93,10 +93,11 @@ class EventTest extends TestCase
             ],
             'task_start' => new TestTaskStart()
         ];
-        Event::getInstance()->register($events);
-        Event::getInstance()->clear();
-        $bounds = Event::getInstance()->getBounds();
-        $this->assertEquals(0, count($bounds));
+        $instance = Event::getInstance();
+        $instance->register($events);
+        $this->assertEquals(3, count($instance->instances));
+        $instance->clear();
+        $this->assertEquals(0, count($instance->instances));
     }
 }
 

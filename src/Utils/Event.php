@@ -7,44 +7,30 @@ namespace Swover\Utils;
  */
 class Event extends ArrayObject
 {
-    public $events = [
-        'master_start',
-        'worker_start',
-        'connect',
-        'request',
-        'task_start',
-        'task_finish',
-        'close',
-        'response',
-        'worker_stop'
-    ];
-
     /**
      * The events instances
      * @var array
      */
-    private $instances = [];
+    protected $instances = [];
 
     /**
      * The bound events
      * @var array
      */
-    private $bounds = [];
+    protected $bounds = [];
 
     /**
-     * @param $name
+     * @param $type
      * @param mixed ...$parameter
      */
-    public function trigger($name, ...$parameter)
+    public function trigger($type, ...$parameter)
     {
-        if (!in_array($name, $this->events)) return;
+        if (!isset($this->bounds[$type])) return;
 
-        if (isset($this->bounds[$name])) {
-            foreach ($this->bounds[$name] as $class) {
-                if (!isset($this->instances[$name][$class])) continue;
-                $instance = $this->instances[$name][$class];
-                call_user_func_array([$instance, 'trigger'], $parameter);
-            }
+        foreach ($this->bounds[$type] as $class) {
+            if (!isset($this->instances[$type][$class])) continue;
+            $instance = $this->instances[$type][$class];
+            call_user_func_array([$instance, 'trigger'], $parameter);
         }
     }
 
@@ -56,107 +42,161 @@ class Event extends ArrayObject
      */
     public function register($events)
     {
-        $result = 0;
-        foreach ($events as $name => $event) {
-            if (!in_array($name, $this->events)) continue;
+        if (!is_array($events)) $events = [$events];
 
+        $result = 0;
+        foreach ($events as $event) {
             if (is_array($event)) {
                 foreach ($event as $item) {
-                    $result += $this->bind($name, $item);
+                    $result += $this->bind($item);
                 }
             } else {
-                $result += $this->bind($name, $event);
+                $result += $this->bind($event);
             }
         }
         return $result;
     }
 
-    /**
-     * Bind the class to name
-     *
-     * @param string $name
-     * @param string|object $class
-     * @return int
-     */
-    public function before($name, $class)
+    public function getEventType($class)
     {
-        return $this->bind($name, $class, false);
+        if (!is_string($class)) {
+            return false;
+        }
+
+        if (!class_exists($class)) {
+            return false;
+        }
+
+        if (!defined($class . '::EVENT_TYPE')) {
+            return false;
+        }
+
+        if (!method_exists($class, 'trigger')) {
+            return false;
+        }
+
+        return $class::EVENT_TYPE;
     }
 
     /**
      * Bind the class to name
      *
-     * @param string $name
+     * @param string|object $class
+     * @return int
+     */
+    public function before($class)
+    {
+        return $this->bind($class, false);
+    }
+
+    /**
+     * Bind a class to events, This class must define `EVENT_TYPE` constant and `trigger` method
+     *
      * @param string|object $class
      * @param bool $append
      * @return int
      */
-    public function bind($name, $class, $append = true)
+    public function bind($class, $append = true)
     {
-        if (!is_string($class) && !is_object($class)) return 0;
+        if (!$this->checkClass($class)) return 0;
 
         if (is_string($class)) {
-            if (!class_exists($class)) {
-                return 0;
-            }
+            if (!class_exists($class)) return 0;
+
             $class = new $class; //TODO
         }
 
-        $interface = $this->getInterface($name);
-        if (!$class instanceof $interface) return 0;
-
         $alias = get_class($class);
 
-        if (isset($this->instances[$name][$alias])){
-            $this->remove($name, $alias);
+        $type = $this->getEventType($alias);
+
+        if (!$type) return 0;
+
+        return $this->bindInstance($type, $alias, $class, $append);
+    }
+
+    /**
+     * Bind an instance to the specified event-type, named $alias
+     *
+     * @param string $type
+     * @param string $alias
+     * @param object $instance
+     * @param bool $append
+     * @return int
+     */
+    public function bindInstance($type, $alias, $instance, $append = true)
+    {
+        if (isset($this->instances[$type][$alias])) {
+            $this->removeAlias($type, $alias);
         }
 
         if ($append) {
-            $this->bounds[$name][] = $alias;
+            $this->bounds[$type][] = $alias;
         } else {
-            array_unshift($this->bounds[$name], $alias);
+            array_unshift($this->bounds[$type], $alias);
         }
 
-        $this->instances[$name][$alias] = $class;
+        $this->instances[$type][$alias] = $instance;
         return 1;
     }
 
-    public function remove($name, $class = null)
+    /**
+     * Remove class from bounds
+     * This class must define `EVENT_TYPE` constant and `trigger` method
+     *
+     * @param object|string $class
+     * @return bool
+     */
+    public function remove($class)
     {
-        if (is_null($class)) {
-            unset($this->instances[$name], $this->bounds[$name]);
-            return true;
-        }
+        if (!$this->checkClass($class)) return false;
 
         if (is_object($class)) {
             $class = get_class($class);
         }
-        $bind = array_search($class, $this->bounds[$name]);
-        if ($bind !== null) {
-            unset($this->bounds[$name][$bind]);
+
+        $type = $this->getEventType($class);
+
+        if (!$type) return false;
+
+        return $this->removeAlias($type, $class);
+    }
+
+    /**
+     * Remove bound by alias from $type event-bounds
+     *
+     * @param $type
+     * @param string $alias
+     * @return bool
+     */
+    public function removeAlias($type, $alias = null)
+    {
+        if (is_null($alias)) {
+            unset($this->instances[$type], $this->bounds[$type]);
+            return true;
         }
-        unset($this->instances[$name][$class]);
+
+        $bind = array_search($alias, $this->bounds[$type]);
+
+        if ($bind !== null) {
+            unset($this->bounds[$type][$bind]);
+        }
+        unset($this->instances[$type][$alias]);
+
         return true;
     }
 
+    /**
+     * Clear all event bounds
+     */
     public function clear()
     {
         $this->instances = [];
         $this->bounds = [];
     }
 
-    public function getBounds()
+    private function checkClass($class)
     {
-        return $this->bounds;
-    }
-
-    public function getInstances()
-    {
-        return $this->instances;
-    }
-
-    private function getInterface($name)
-    {
-        return '\Swover\Contracts\Events\\' . str_replace(' ', '', ucwords(str_replace('_', " ", strtolower($name))));
+        return is_string($class) || is_object($class);
     }
 }
