@@ -171,6 +171,44 @@ class EventTest extends TestCase
         $this->expectOutputString('closureA600');
     }
 
+    public function testNoneClass()
+    {
+        $instance = Event::getInstance();
+        $instance->clear();
+        $count = $instance->bind('NoneClass');
+        $this->assertEquals(0, $count);
+    }
+
+    public function testCanNotConstruct()
+    {
+        $instance = Event::getInstance();
+        $instance->clear();
+        $count = $instance->bind('\Swover\Tests\Utils\CanNotConstruct');
+        $this->assertEquals(0, $count);
+    }
+
+    public function testHasParamConstruct()
+    {
+        $instance = Event::getInstance();
+        $instance->clear();
+        $count = $instance->bind('\Swover\Tests\Utils\HasParamConstruct');
+        $this->assertEquals(0, $count);
+    }
+
+}
+
+class CanNotConstruct
+{
+    private function __construct()
+    {
+    }
+}
+
+class HasParamConstruct
+{
+    public function __construct($name, $type)
+    {
+    }
 }
 
 class TestMasterStart implements MasterStart

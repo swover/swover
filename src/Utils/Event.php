@@ -110,8 +110,13 @@ class Event extends ArrayObject
 
         if (is_string($class)) {
             if (!class_exists($class)) return 0;
-
-            $class = new $class; //TODO
+            try {
+                $reflection = new \ReflectionClass($class);
+                if (! $reflection->isInstantiable()) return 0;
+                $class = $reflection->newInstance();
+            } catch (\Exception $e) {
+                return 0;
+            }
         }
 
         $alias = get_class($class);
