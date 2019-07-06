@@ -106,8 +106,17 @@ class Server
     public function restart()
     {
         if ($this->stop() != true) {
-            echo "{$this->config['process_name']} has not stopped, restart fail." . PHP_EOL;
-            return false;
+            echo 'Restart fail, do you want to force restart ' . $this->config['process_name'] . '?' . PHP_EOL;
+            echo 'you have to wait 5 seconds for confirmation or it will force restart.' . PHP_EOL;
+            for ($i = 1; $i <= 5; $i++) {
+                sleep(1);
+                echo $i . ' ';
+            }
+            echo PHP_EOL;
+            if ($this->force() != true) {
+                echo '[' . $this->config['process_name'] . '] restart fail !!!' . PHP_EOL;
+                return false;
+            }
         }
 
         return $this->start();
