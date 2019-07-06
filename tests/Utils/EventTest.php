@@ -136,6 +136,41 @@ class EventTest extends TestCase
         $instance->clear();
         $this->assertEquals(0, count($instance->instances));
     }
+
+    public function testClosure()
+    {
+        $instance = Event::getInstance();
+        $instance->clear();
+        $instance->bindInstance(WorkerStart::EVENT_TYPE, 'aliasA', function ($worker_id) {
+            echo 'closureA' . $worker_id;
+        });
+        $instance->bindInstance(WorkerStart::EVENT_TYPE, 'aliasB', function ($worker_id) {
+            echo 'closureB' . $worker_id;
+        });
+
+        $instance->trigger(WorkerStart::EVENT_TYPE, 500);
+
+        $this->expectOutputString('closureA500closureB500');
+    }
+
+    public function testRemoveClosure()
+    {
+        $instance = Event::getInstance();
+        $instance->clear();
+        $instance->bindInstance(WorkerStart::EVENT_TYPE, 'aliasA', function ($worker_id) {
+            echo 'closureA' . $worker_id;
+        });
+        $instance->bindInstance(WorkerStart::EVENT_TYPE, 'aliasB', function ($worker_id) {
+            echo 'closureB' . $worker_id;
+        });
+
+        $instance->removeAlias(WorkerStart::EVENT_TYPE, 'aliasB');
+
+        $instance->trigger(WorkerStart::EVENT_TYPE, 600);
+
+        $this->expectOutputString('closureA600');
+    }
+
 }
 
 class TestMasterStart implements MasterStart

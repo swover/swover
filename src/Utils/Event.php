@@ -30,7 +30,15 @@ class Event extends ArrayObject
         foreach ($this->bounds[$type] as $class) {
             if (!isset($this->instances[$type][$class])) continue;
             $instance = $this->instances[$type][$class];
-            call_user_func_array([$instance, 'trigger'], $parameter);
+            if (method_exists($instance, 'trigger')) {
+                call_user_func_array([$instance, 'trigger'], $parameter);
+                continue;
+            }
+
+            if (is_callable($instance)) {
+                call_user_func_array($instance, $parameter);
+                continue;
+            }
         }
     }
 
