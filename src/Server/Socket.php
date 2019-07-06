@@ -142,9 +142,10 @@ class Socket extends Base
         $this->event->trigger('request', $data);
         $request = new Request($data);
 
+        //If you want to respond to the client in task, see:
+        //https://wiki.swoole.com/wiki/page/925.html
         if (boolval($this->config->get('async', false)) === true) {
             $this->server->task($request);
-            //TODO 异步测试
             $response = new Response();
             $response->setBody('success');
         } else {
