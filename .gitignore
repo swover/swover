@@ -2,3 +2,4 @@
 vendor/
 *.txt
 composer.lock
+tests/codeCoverage/
