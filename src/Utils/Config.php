@@ -8,6 +8,12 @@ namespace Swover\Utils;
 class Config extends ArrayObject
 {
     /**
+     * Just for unit test
+     * @var string
+     */
+    private $test = 'phpunit';
+    
+    /**
      * Config constructor.
      * @param array $config
      */
@@ -33,6 +39,8 @@ class Config extends ArrayObject
 
     public function get($name, $default = null)
     {
-        return isset($this->$name) ? $this->$name : (isset($this['setting'][$name]) ? $this['setting'][$name] : $default);
+        return isset($this[$name]) ? $this[$name]
+            : (isset($this->$name) ? $this->$name
+                : (isset($this['setting'][$name]) ? $this['setting'][$name] : $default));
     }
 }

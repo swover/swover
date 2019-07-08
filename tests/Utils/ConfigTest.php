@@ -22,4 +22,13 @@ class ConfigTest extends TestCase
         $this->assertEquals(100, $newInstance->get('a'));
         $this->assertEquals(200, $newInstance->get('b'));
     }
+
+    public function testProperty()
+    {
+        $config = [
+            'test' => 'test'
+        ];
+        $instance = Config::getInstance($config);
+        $this->assertEquals('test', $instance->get('test'));
+    }
 }
