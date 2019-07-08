@@ -40,13 +40,42 @@ class ArrayTest extends TestCase
         $input = [
             'name' => 'ruesin'
         ];
-        ArrayObject::setInstance(new ArrayObject($input));
-        $instance = ArrayObject::getInstance();
+        $instance = ArrayObject::getInstance($input);
         $this->assertEquals('ruesin', $instance['name']);
 
+        $newInstance = ArrayObject::getInstance();
+        $this->assertEquals(1, count($newInstance));
+    }
+
+    public function testDestroy()
+    {
         ArrayObject::setInstance();
-        $instance = ArrayObject::getInstance();
-        $this->assertEquals(0, count($instance));
+
+        $input = [
+            'name' => 'ruesin'
+        ];
+        $instance = ArrayObject::getInstance($input);
+        $this->assertEquals('ruesin', $instance['name']);
+
+        ArrayObject::destroyInstance();
+
+        $newInstance = ArrayObject::getInstance();
+        $this->assertEquals(0, count($newInstance));
+    }
+
+    public function testRewrite()
+    {
+        ArrayObject::destroyInstance();
+
+        $input = [
+            'name' => 'ruesin'
+        ];
+        $instance = ArrayObject::getInstance($input);
+        $this->assertEquals('ruesin', $instance['name']);
+
+        ArrayObject::setInstance(new ArrayObject(['name'=>'sin']));
+        $newInstance = ArrayObject::getInstance();
+        $this->assertEquals('sin', $newInstance['name']);
     }
 
     public function testGetInstance()

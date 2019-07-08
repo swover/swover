@@ -20,12 +20,25 @@ class ArrayObject extends \ArrayObject implements \ArrayAccess
         parent::__construct($input, $flags, $iterator_class);
     }
 
+    /**
+     * Set Instance
+     * if $instance is null, will destroy this bind
+     * if static already register, will rewrite this bind
+     *
+     * @param null $instance
+     * @return bool|null
+     */
     public static function setInstance($instance = null)
     {
+        if ($instance == null) {
+            return static::destroyInstance();
+        }
         return static::$instance[static::class] = $instance;
     }
 
     /**
+     * Get Instance
+     *
      * @param array $input
      * @return static
      */
@@ -35,6 +48,18 @@ class ArrayObject extends \ArrayObject implements \ArrayAccess
             static::setInstance(new static($input));
         }
         return static::$instance[static::class];
+    }
+
+    /**
+     * Destroy Instance
+     *
+     * @return bool
+     */
+    public static function destroyInstance()
+    {
+        static::$instance[static::class] = null;
+        unset(static::$instance[static::class]);
+        return true;
     }
 
     public function __set($name, $value)

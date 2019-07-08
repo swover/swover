@@ -13,7 +13,7 @@ class ConfigTest extends TestCase
             'a' => 1,
             'b' => 2
         ];
-        $instance = Config::setInstance(new Config($config));
+        $instance = Config::getInstance($config);
         $std = new \stdClass();
         $std->config = $instance;
         $std->config['b'] = 200;
@@ -25,6 +25,7 @@ class ConfigTest extends TestCase
 
     public function testProperty()
     {
+        Config::destroyInstance();
         $config = [
             'test' => 'test'
         ];
