@@ -52,17 +52,18 @@ abstract class Base
     }
 
     /**
+     * Get Server single instance
+     * There only one instance in a process, and only be started once
+     *
      * @return static
      * @throws \Exception
      */
     public static function getInstance()
     {
-        $class = get_called_class();
-        if (!isset(self::$instance[$class]) || is_null(static::$instance[$class]))
-        {
-            self::$instance[$class] = new static();
+        if (!isset(self::$instance[static::class]) || is_null(static::$instance[static::class])) {
+            self::$instance[static::class] = new static();
         }
-        return self::$instance[$class];
+        return self::$instance[static::class];
     }
 
     public function boot()
