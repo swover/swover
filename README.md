@@ -1,12 +1,15 @@
 # Swover
 
-Swover是一个基于Swoole扩展的server框架，提供HTTP、TCP、Process能力。只需简单配置即可使用，对业务代码完全无侵入。
+Swover是一个基于Swoole扩展的服务类库，提供基础的HTTP、TCP、Process服务能力，不包含任何业务代码。只需简单配置即可安全使用，对业务代码完全无侵入。
 
 ## 依赖
 
-- PHP 5.6及之后版本。
-- [Swoole Extension](http://pecl.php.net/package/swoole) 1.9.5 及更新版本.
+- PHP 5.6 及之后版本
+- [Swoole Extension](http://pecl.php.net/package/swoole) 1.9.5 及更新版本
 - pcntl-extension
+- posix-extension
+
+> 虽然提供了对 PHP5 及 swoole 1.x 的支持，但仍建议升级到最新版。
 
 ## 安装
 
@@ -19,25 +22,29 @@ $ composer update
 
 ## 配置项
 
-| 配置            | 数据类型 | 场景     | 必填 & 默认    | 描述                                                         |
-| --------------- | :------: | :------- | :------- | ------------------------------------------------------------ |
-| server_type     |  string  | all      | 是 [无]      | 服务类型，可选项：http,tcp,process                           |
-| daemonize       |   bool   | all      | 是 [false]     | 服务是否以守护进程方式运行                                   |
-| process_name    |  string  | all      | 是 [server]     | 服务的进程名，建议单机内唯一                                 |
-| worker_num      |   int    | all      | 是 [1]     | worker 进程数                                                |
-| task_worker_num |   int    | tcp,http | 是 [1]     | task-worker 进程数                                           |
-| host            |  string  | tcp,http | 是 [无]     | 监听地址                                                     |
-| port            |   int    | tcp,http | 是 [无]     | 监听端口                                                     |
-| max_request     |   int    | all      | 否 [0]     | 进程最大执行次数，超过这个值时，进程会安全重启。如果设置为0，则永远不会重启 |
-| entrance        |  string  | all      | 是 [无]     | 业务代码的入口文件，会从server中执行，必须指定类名，方法名默认是run |
-| async           |   bool   | tcp,http | 否 [false]     | 是否异步执行，如果为true，接收到请求后，会将请求分发到task-worker，并立即响应 |
-| setting         |   array  | all      | 否 [无]     | [配置选项](https://wiki.swoole.com/wiki/page/274.html) 同一配置出现在setting中会覆盖单独的定义 |
+| 配置             | 类型     | 场景      | 必填 |   默认 | 描述                                                             |
+| --------------- | :------: | :------- | :-- | :----  | ------------------------------------------------------------    |
+| server_type     |  string  | all      |**Y**|        | 服务类型，可选项：http,tcp,process                                 |
+| daemonize       |   bool   | all      |  N  | false  | 服务是否以守护进程方式运行                                           |
+| process_name    |  string  | all      |  N  | server | 服务的进程名，建议单机内唯一                                         |
+| worker_num      |   int    | all      |  N  | 1      | worker 进程数                                                     |
+| task_worker_num |   int    | tcp,http |  N  | 0      | task-worker 进程数                                                |
+| host            |  string  | tcp,http |  N  | 0.0.0.0| 监听地址                                                          |
+| port            |   int    | tcp,http |  N  | 0      | 监听端口，`1.9.6`版本以上，设置为`0`表示随机获取一个可用端口             |
+| max_request     |   int    | all      |  N  | 0      | 进程最大执行次数，超过时会安全重启。`0`表示永不重启，为避免内存泄漏，建议设置|
+| entrance        |  string  | all      |**Y**|        | 业务逻辑的入口，必须是可被调用的函数或方法，接收`request`返回`response`   |
+| async           |   bool   | tcp,http |  N  | false  | 是否异步执行，如果为`true`，接收到请求后，转发给`task`异步处理            |
+| setting         |   array  | all      |  N  |        | [配置选项](https://wiki.swoole.com/wiki/page/274.html)             |
+| events          |   array  | all      |  N  |        | 事件注册，支持二维数组，数组下标无实际作用。[事件](#Event)                |
 
 ## 开始使用
 
-服务启动后，通过`Request`接收客户端请求，传递`Request`对象给入口函数(通过`entrance`配置)。业务层处理完逻辑后，建议返回`Response`对象、字符串或布尔值给服务。
+### 服务类型
+`Swover`提供了三种服务类型可用：
+- Tcp：`Tcp`类型的服务基于`\Swoole\Server`处理网络请求与响应
+- Http：`Http`类型的服务基于`\Swoole\Http\Server`处理网络请求与响应
+- Process：通过`\Swoole\Process`创建子进程，在进程内执行`while(true)`调用业务入口，需在入口内处理输入输出
 
-由于只有Socket、Http才可以从客户端接收数据，而Process只是在当前进程内通过`while(true)`调用入口函数，所以传递给入口函数的是一个空的`Request`对象，当`Response`响应为false或status大于400时，认定为此次业务代码报错，退出死循环，重新拉起新的子进程。
 
 ### 启停服务
 ```php
@@ -48,11 +55,21 @@ $config = [
     'worker_num' => 2,
     'task_worker_num' => 1,
     'max_request' => 0,
-    'log_file' => '/tmp/swoole.log',
     'entrance' => '\\Entrance::process',
     'host' => '127.0.0.1',
     'port' => '9501',
-    'async'    => false
+    'async'    => false,
+    'setting' => [
+        'log_file' => '/tmp/swoole_tcp.log',
+    ],
+    'events' => [
+        'master_start' => [
+            '\MasterStartA',
+            new \MasterStartB(),
+        ],
+        'worker_start' => '\WorkerStart',
+        function ($request) { },
+    ]
 ];
 
 $class = new \Swover\Server($config);
@@ -63,48 +80,61 @@ $class->start(); //启动服务
 //$class->reload(); //安全的重新加载服务
 ```
 
+服务启动后，通过`Request`接收客户端请求，将`Request`对象作为参数传递给入口函数。
+
+入口函数处理完业务逻辑后返回结果，建议返回`Response`对象、字符串或布尔值。
+
+
 ### Request
-`\Swoole\Http\Server`、`\Swoole\Server`接收到客户端请求后，将接收的数据传递给`\Swover\Utils\Request`类。
+服务接收到客户端数据后，构造`\Swover\Utils\Request`对象，构造函数接收参数为：
+- `\Swoole\Http\Request`：HTTP服务类型
+- `array`：TCP服务类型
 
-`Request`的构造函数接收`\Swoole\Http\Request` 或 `array`作为参数，实例化后的对象为一个`\ArrayObject`子类，可通过`$request['get']`、`$request->get`或`$request->get()`获取请求参数。
+对象继承自`\ArrayObject`，可通过`$request['get']`、`$request->get`或`$request->get()`获取请求参数。
 
-```php
-$request = [
-    'get' => [],
-    'post' => [],
-    'input' => '',
-    'header' => [],
-    'server' => []
-];
-```
+由于`Process`服务只是通过`while(true)`调用入口函数，所以传递给入口函数的是一个空的`Request`对象。
+
 
 ### Response
-应用处理完成业务端逻辑后，需要通过服务将响应数据返回给客户端。
+入口函数完成后返回数据，构造`\Swover\Utils\Response`对象，响应结果到客户端，数据类型：
 
-返回数据可以是`\Swover\Utils\Response`对象、字符串或布尔值：
-- 当返回`Response`对象时，服务会直接调用`send()`或`end()`响应数据到客户端；
-- 当返回字符串时，实例化`Response`对象，并将字符串设置为响应消息体；
-- 当返回布尔值时，实例化`Response`对象，如果为`false`，设置`status`为500，否则为200
+- `\Swover\Utils\Response`对象
+- 字符串：构造`Response`对象，设置字符串为响应消息体；
+- 布尔值：构造`Response`对象，如果`false`设置`status`为500，否则为200
+
+在`Process`服务中，当`status`大于400时，判定终止此次循环，将重启worker进程。
+
+### Event
+提供了事件机制，可以通过服务启动时传入配置，或者调用Event类来注册相关事件。
+
+注册的事件回调提供了以下几种方式：
+- 实现了指定接口的类
+- 自定义类，必须有`EVENT_TYPE`静态属性和`trigger()`方法，`EVENT_TYPE`表示事件类型
+- 闭包
+
+建议使用实现了指定事件接口的类，因为每个事件触发时的传参不同，使用接口约束可以减少意外错误的发生。
+
+接口类位于`\Swover\Contracts\Events\`，以下忽略前缀：
+
+| 事件             | 接口        | 描述                        | 参数             |
+| --------------- | ----------- | :------------------------- | :--------------- |
+|master_start     | MasterStart | Master主进程启动事件          | $master_id      |
+|worker_start     | WorkerStart | Worker子进程启动事件          | $worker_id      |
+|worker_stop      | WorkerStop  | Worker子进程停止事件          | $worker_id      |
+|task_start       | TaskStart   | TCP、HTTP服务异步task开始事件  | $task_id, $data |
+|task_finish      | TaskFinish  | TCP、HTTP服务异步task完成事件  | $task_id, $data |
+|connect          | Connect     | TCP服务建立Socket连接的事件    | $fd             |
+|close            | Close       | TCP服务关闭Socket连接的事件    | $fd             |
+|request          | Request     | TCP、HTTP服务接收到请求后的事件 | $request        |
+|response         | Response    | 入口函数返回结果后的时间        | $response       |
 
 ### Worker
 提供获取当前进程状态、主进程状态的方法。
 
-当进程收到`SIGCHLD`信号后，当调用`Worker::getStatus()`时，会触发`pcntl_signal_dispatch()`调起注册的事件，将当前进程状态设置为`false`。可以利用此特性，在业务内很好的及时判断当前进程的状态是否需要退出。
+父进程收到`SIGCHLD`信号后，子进程调用`Worker::getStatus()`时，会触发`pcntl_signal_dispatch()`注册的事件，将当前进程状态设置为`false`。利用此特性，在业务内判断当前进程的状态是否需要退出。
 
-可以调用`Worker::checkProcess($pid)`用来检测指定进程ID是否正常存活，可用于在子进程中检测父进程的状态。
+`Worker::checkProcess($pid)`用来检测指定进程ID是否正常存活，可用于在子进程中检测父进程的状态，当父进程不存在时退出当前进程。
 
-### Event
-提供了事件注册的能力，可以通过服务启动时传入配置文件，或者服务启动后再调用Event类来注册相关事件。
-
-事件类型有：
-- master_start：Master主进程启动事件，需实现接口`Swover\Contracts\Events\MasterStart`
-- worker_start：Worker子进程启动事件，需实现接口`Swover\Contracts\Events\WorkerStart`
-- connect：TCP服务接收到Socket连接的事件，需实现接口`Swover\Contracts\Events\Connect`
-- request：TCP、HTTP服务接收到请求后的事件，需实现接口`Swover\Contracts\Events\Request`
-- task_start：TCP、HTTP服务异步task开始时的事件，需实现接口`Swover\Contracts\Events\TaskStart`
-- task_finish：TCP、HTTP服务异步task完成时的事件，需实现接口`Swover\Contracts\Events\TaskFinish`
-- close：TCP服务接收到Socket连接关闭时的事件，需实现接口`Swover\Contracts\Events\Close`
-- response：TCP、HTTP同步服务响应客户端前，Process服务每次循环结束前，将调用此事件，需实现接口`Swover\Contracts\Events\Response`
-- worker_stop：Worker子进程停止时的事件，需实现接口`Swover\Contracts\Events\WorkerStop`
-
-可以在 [samples](./samples) 查看示例。
+## 示例
+- [示例](./samples) 
+- [测试用例](./tests)
