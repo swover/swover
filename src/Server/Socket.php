@@ -17,16 +17,18 @@ class Socket extends Base
 
     protected function start()
     {
-        if (!isset($this->config['host']) || !isset($this->config['port'])) {
-            throw new \Exception('Has Not Host or Port!');
-        }
+        $host = $this->config->get('host', '0.0.0.0');
+        $port = $this->config->get('port', 0);
 
         $className = ($this->server_type == 'http') ? \Swoole\Http\Server::class : \Swoole\Server::class;
-        $this->server = new $className($this->config['host'], $this->config['port'], SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
+        $this->server = new $className($host, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
+
+        $this->config['host'] = $host;
+        $this->config['port'] = $port;
 
         $setting = [
             'worker_num'      => $this->worker_num,
-            'task_worker_num' => $this->task_worker_num,
+            'task_worker_num' => max($this->task_worker_num, 0),
             'daemonize'       => $this->daemonize,
             'max_request'     => $this->max_request
         ];
