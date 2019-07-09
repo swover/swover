@@ -20,7 +20,7 @@ abstract class Base
 
     protected $worker_num = 1;
 
-    protected $task_worker_num = 1;
+    protected $task_worker_num = 0;
 
     protected $max_request = 0;
 
@@ -100,10 +100,6 @@ abstract class Base
 
         if ($this->worker_num <= 0) {
             $this->worker_num = 1;
-        }
-
-        if ($this->task_worker_num <= 0) {
-            $this->task_worker_num = 1;
         }
     }
 
