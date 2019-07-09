@@ -87,10 +87,11 @@ class Process extends Base
 
     protected function execute($data = null)
     {
-        $request_count = 0;
         $signal = 0;
-        while (true) {
-            $signal = $this->getProcessSignal($request_count);
+        for ($i = ($this->max_request <= 0 ? $this->max_request - 1 : $this->max_request);
+             $i != 0; $i--) {
+
+            $signal = $this->getProcessSignal();
             if ($signal > 0) {
                 break;
             }
@@ -116,15 +117,8 @@ class Process extends Base
      * get child process sign
      * @return int
      */
-    private function getProcessSignal(&$request_count)
+    private function getProcessSignal()
     {
-        if ($this->max_request > 0) {
-            if ($request_count > $this->max_request) {
-                return 1;
-            }
-            $request_count++;
-        }
-
         if (!Worker::checkProcess(Worker::getMasterPid())) {
             return 2;
         }
