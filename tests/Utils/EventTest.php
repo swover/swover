@@ -10,7 +10,21 @@ use Swover\Utils\Event;
 
 class EventTest extends TestCase
 {
-    public function testRegister()
+
+    public function instanceProvider()
+    {
+        Event::setInstance(null);
+        $instance = Event::getInstance();
+        $instance->clear();
+        $this->assertEmpty($instance);
+        return [[$instance]];
+    }
+
+    /**
+     * @dataProvider instanceProvider
+     * @param Event $instance
+     */
+    public function testRegister($instance)
     {
         $events = [
             '\Swover\Tests\Utils\TestMasterStart',
@@ -20,107 +34,118 @@ class EventTest extends TestCase
             ],
             new TestTaskStart()
         ];
-        $bounds = Event::getInstance()->register($events);
+        $bounds = $instance->register($events);
         $this->assertEquals(4, $bounds);
     }
 
-    public function testRegisterNoArray()
+    /**
+     * @dataProvider instanceProvider
+     * @param Event $instance
+     */
+    public function testRegisterNoArray($instance)
     {
         $events = '\Swover\Tests\Utils\TestMasterStart';
-        $bounds = Event::getInstance()->register($events);
+        $bounds = $instance->register($events);
         $this->assertEquals(1, $bounds);
     }
 
-    public function testBind()
-    {
-        $events = [
-            new TestWorkerStartA()
-        ];
-
-        $instance = Event::getInstance();
-        $instance->clear();
-        $instance->register($events);
-
-        $instance->bind(new TestWorkerStartB());
-
-        $instance->trigger(WorkerStart::EVENT_TYPE, 100);
-        $this->expectOutputString('a100b100');
-    }
-
-    public function testBindInstance()
-    {
-        $instance = Event::getInstance();
-        $instance->clear();
-
-        $instance->bindInstance('special_event', 'special_alias', new TestWorkerStartB());
-
-        $instance->trigger('special_event', 100);
-        $this->expectOutputString('b100');
-    }
-
-    public function testBefore()
-    {
-        $events = [
-            new TestWorkerStartA()
-        ];
-
-        $instance = Event::getInstance();
-        $instance->clear();
-        $instance->register($events);
-
-        $instance->before(new TestWorkerStartB());
-        $instance->trigger(WorkerStart::EVENT_TYPE, 200);
-        $this->expectOutputString('b200a200');
-    }
-
-    public function testTrigger()
+    /**
+     * @dataProvider instanceProvider
+     * @param Event $instance
+     */
+    public function testTrigger($instance)
     {
         $events = [
             new TestTaskStart()
         ];
 
-        $instance = Event::getInstance();
-        $instance->clear();
         $instance->register($events);
         $instance->trigger(TaskStart::EVENT_TYPE, 300, 'data');
         $this->expectOutputString('300:data');
     }
 
-    public function testRemove()
+    /**
+     * @dataProvider instanceProvider
+     * @param Event $instance
+     */
+    public function testBind($instance)
+    {
+        $events = [
+            new TestWorkerStartA()
+        ];
+
+        $instance->register($events);
+        $instance->bind(new TestWorkerStartB());
+        $instance->trigger(WorkerStart::EVENT_TYPE, 100);
+        $this->expectOutputString('a100b100');
+    }
+
+    /**
+     * @dataProvider instanceProvider
+     * @param Event $instance
+     */
+    public function testBindInstance($instance)
+    {
+        $instance->bindInstance('special_event', 'special_alias', new TestWorkerStartB());
+        $instance->trigger('special_event', 100);
+        $this->expectOutputString('b100');
+    }
+
+    /**
+     * @dataProvider instanceProvider
+     * @param Event $instance
+     */
+    public function testBefore($instance)
+    {
+        $events = [
+            new TestWorkerStartA()
+        ];
+
+        $instance->register($events);
+        $instance->before(new TestWorkerStartB());
+        $instance->trigger(WorkerStart::EVENT_TYPE, 200);
+        $this->expectOutputString('b200a200');
+    }
+
+    /**
+     * @dataProvider instanceProvider
+     * @param Event $instance
+     */
+    public function testRemove($instance)
     {
         $events = [
             new TestWorkerStartA(),
             new TestWorkerStartB()
         ];
-        $instance = Event::getInstance();
-        $instance->clear();
-        $instance->register($events);
 
+        $instance->register($events);
         $instance->remove(new TestWorkerStartA());
-
         $instance->trigger(WorkerStart::EVENT_TYPE, 400);
         $this->expectOutputString('b400');
     }
 
-    public function testRemoveAlias()
+    /**
+     * @dataProvider instanceProvider
+     * @param Event $instance
+     */
+    public function testRemoveAlias($instance)
     {
         $events = [
             new TestWorkerStartA(),
             new TestWorkerStartB()
         ];
-        $instance = Event::getInstance();
-        $instance->clear();
 
         $instance->register($events);
-
         $instance->removeAlias(WorkerStart::EVENT_TYPE, TestWorkerStartA::class);
-
         $instance->trigger(WorkerStart::EVENT_TYPE, 400);
-
         $this->expectOutputString('b400');
     }
 
-    public function testClear()
+    /**
+     * @dataProvider instanceProvider
+     * @param Event $instance
+     */
+    public function testClear($instance)
     {
         $events = [
             '\Swover\Tests\Utils\TestMasterStart',
@@ -130,17 +155,19 @@ class EventTest extends TestCase
             ],
             new TestTaskStart()
         ];
-        $instance = Event::getInstance();
+
         $instance->register($events);
         $this->assertEquals(3, count($instance->instances));
         $instance->clear();
         $this->assertEquals(0, count($instance->instances));
     }
 
-    public function testClosure()
+    /**
+     * @dataProvider instanceProvider
+     * @param Event $instance
+     */
+    public function testClosure($instance)
     {
-        $instance = Event::getInstance();
-        $instance->clear();
         $instance->bindInstance(WorkerStart::EVENT_TYPE, 'aliasA', function ($worker_id) {
             echo 'closureA' . $worker_id;
         });
@@ -153,10 +180,12 @@ class EventTest extends TestCase
         $this->expectOutputString('closureA500closureB500');
     }
 
-    public function testRemoveClosure()
+    /**
+     * @dataProvider instanceProvider
+     * @param Event $instance
+     */
+    public function testRemoveClosure($instance)
     {
-        $instance = Event::getInstance();
-        $instance->clear();
         $instance->bindInstance(WorkerStart::EVENT_TYPE, 'aliasA', function ($worker_id) {
             echo 'closureA' . $worker_id;
         });
@@ -165,36 +194,39 @@ class EventTest extends TestCase
         });
 
         $instance->removeAlias(WorkerStart::EVENT_TYPE, 'aliasB');
-
         $instance->trigger(WorkerStart::EVENT_TYPE, 600);
-
         $this->expectOutputString('closureA600');
     }
 
-    public function testNoneClass()
+    /**
+     * @dataProvider instanceProvider
+     * @param Event $instance
+     */
+    public function testNoneClass($instance)
     {
-        $instance = Event::getInstance();
-        $instance->clear();
         $count = $instance->bind('NoneClass');
         $this->assertEquals(0, $count);
     }
 
-    public function testCanNotConstruct()
+    /**
+     * @dataProvider instanceProvider
+     * @param Event $instance
+     */
+    public function testCanNotConstruct($instance)
     {
-        $instance = Event::getInstance();
-        $instance->clear();
         $count = $instance->bind('\Swover\Tests\Utils\CanNotConstruct');
         $this->assertEquals(0, $count);
     }
 
-    public function testHasParamConstruct()
+    /**
+     * @dataProvider instanceProvider
+     * @param Event $instance
+     */
+    public function testHasParamConstruct($instance)
     {
-        $instance = Event::getInstance();
-        $instance->clear();
         $count = $instance->bind('\Swover\Tests\Utils\HasParamConstruct');
         $this->assertEquals(0, $count);
     }
-
 }
 
 class CanNotConstruct
