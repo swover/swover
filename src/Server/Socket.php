@@ -23,8 +23,8 @@ class Socket extends Base
         $className = ($this->server_type == 'http') ? \Swoole\Http\Server::class : \Swoole\Server::class;
         $this->server = new $className($host, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
 
-        $this->config['host'] = $host;
-        $this->config['port'] = $port;
+        $this->config['host'] = $this->server->host;
+        $this->config['port'] = $this->server->port;
 
         $setting = [
             'worker_num'      => $this->worker_num,
@@ -141,8 +141,8 @@ class Socket extends Base
      */
     protected function execute($data = null)
     {
-        $this->event->trigger('request', $data);
         $request = new Request($data);
+        $this->event->trigger('request', $request);
 
         //If you want to respond to the client in task, see:
         //https://wiki.swoole.com/wiki/page/925.html

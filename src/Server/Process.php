@@ -97,8 +97,9 @@ class Process extends Base
             }
 
             try {
-                $this->event->trigger('request', []);
-                $response = $this->entrance(new Request([]));
+                $request = new Request([]);
+                $this->event->trigger('request', $request);
+                $response = $this->entrance($request);
                 $this->event->trigger('response', $response);
 
                 if ($response->code >= 400 || $response->code < 0) {

@@ -11,7 +11,7 @@ interface Request extends Event
 
     /**
      * Triggering request or receive event
-     * @param \Swoole\Http\Request|array $request request data
+     * @param \Swoole\Http\Request request data
      * @return mixed
      */
     public function trigger($request);
