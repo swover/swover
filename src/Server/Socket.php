@@ -52,12 +52,14 @@ class Socket extends Base
 
         $this->server->on('ManagerStart', function(\Swoole\Server $server) {
             $this->_setProcessName('manager');
+            Worker::setMasterPid($server->master_pid);
         });
 
         $this->server->on('WorkerStart', function (\Swoole\Server $server, $worker_id){
             $str = ($worker_id >= $server->setting['worker_num']) ? 'task' : 'event';
             $this->_setProcessName('worker_'.$str);
             $this->event->trigger('worker_start', $worker_id);
+            Worker::setMasterPid($server->master_pid);
         });
 
         return $this;
