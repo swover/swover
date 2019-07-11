@@ -42,6 +42,11 @@ class Socket extends Base
         $this->server->start();
     }
 
+    /**
+     * When server startup success, onStart/onManagerStart/onWorkerStart will concurrently in different processes
+     * @see https://wiki.swoole.com/wiki/page/41.html
+     * @return $this
+     */
     private function onStart()
     {
         $this->server->on('Start', function (\Swoole\Server $server) {
