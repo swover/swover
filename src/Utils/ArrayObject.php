@@ -40,11 +40,14 @@ class ArrayObject extends \ArrayObject implements \ArrayAccess
      * Get Instance
      *
      * @param array $input
-     * @return static
+     * @param bool $rebuild
+     * @return mixed
      */
-    public static function getInstance($input = [])
+    public static function getInstance($input = [], $rebuild = false)
     {
-        if (!isset(static::$instance[static::class]) || is_null(static::$instance[static::class])) {
+        if ($rebuild
+            || !isset(static::$instance[static::class])
+            || is_null(static::$instance[static::class])) {
             static::setInstance(new static($input));
         }
         return static::$instance[static::class];

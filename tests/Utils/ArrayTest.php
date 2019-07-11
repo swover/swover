@@ -84,4 +84,14 @@ class ArrayTest extends TestCase
         $instance['name'] = 'ruesin';
         $this->assertEquals('ruesin', $instance['name']);
     }
+
+    public function testRebuild()
+    {
+        ArrayObject::destroyInstance();
+        $instance = ArrayObject::getInstance(['name'=>'ruesin']);
+        $this->assertEquals('ruesin', $instance['name']);
+
+        $instance = ArrayObject::getInstance(['name'=>'sin'], true);
+        $this->assertEquals('sin', $instance['name']);
+    }
 }
