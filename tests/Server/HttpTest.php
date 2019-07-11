@@ -195,10 +195,7 @@ class HttpTest extends TestCase
     {
         $function = function (\Swoole\Process $worker) use ($config) {
             $config['entrance'] = function (Request $request) use ($worker) {
-                if (!isset($request->header['auth'])) {
-                    return 'failure';
-                }
-                return 'success';
+                return $request->header('auth') ? 'success' : 'failure';
             };
             return $config;
         };

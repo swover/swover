@@ -112,6 +112,12 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
         return isset($this->input) ? $this->input : null;
     }
 
+    public function header($key = null, $default = null)
+    {
+        if (is_null($key)) return $this->header;
+        return isset($this->header[$key]) ? $this->header[$key] : $default;
+    }
+
     public function method()
     {
         return strtoupper(isset($this->server['method']) ? $this->server['method'] :

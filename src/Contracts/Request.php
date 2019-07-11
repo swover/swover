@@ -31,6 +31,15 @@ interface Request
     public function input();
 
     /**
+     * Gets a header value from headers.
+     *
+     * @param string $key
+     * @param null $default
+     * @return mixed
+     */
+    public function header($key = null, $default = null);
+
+    /**
      * Get the request method.
      *
      * @return string
