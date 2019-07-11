@@ -50,21 +50,21 @@ class Socket extends Base
     private function onStart()
     {
         $this->server->on('Start', function (\Swoole\Server $server) {
-            $this->event->trigger('master_start', $server->master_pid);
             Worker::setMasterPid($server->master_pid);
+            $this->event->trigger('master_start', $server->master_pid);
             $this->_setProcessName('master');
         });
 
         $this->server->on('ManagerStart', function(\Swoole\Server $server) {
-            $this->_setProcessName('manager');
             Worker::setMasterPid($server->master_pid);
+            $this->_setProcessName('manager');
         });
 
-        $this->server->on('WorkerStart', function (\Swoole\Server $server, $worker_id){
-            $str = ($worker_id >= $server->setting['worker_num']) ? 'task' : 'event';
-            $this->_setProcessName('worker_'.$str);
-            $this->event->trigger('worker_start', $worker_id);
+        $this->server->on('WorkerStart', function (\Swoole\Server $server, $worker_id) {
             Worker::setMasterPid($server->master_pid);
+            $str = ($worker_id >= $server->setting['worker_num']) ? 'task' : 'event';
+            $this->_setProcessName('worker_' . $str);
+            $this->event->trigger('worker_start', $worker_id);
         });
 
         return $this;
@@ -120,7 +120,7 @@ class Socket extends Base
 
     private function onTask()
     {
-        $this->server->on('Task', function (\Swoole\Server $server, $task_id, $src_worker_id, $data)  {
+        $this->server->on('Task', function (\Swoole\Server $server, $task_id, $src_worker_id, $data) {
             $this->event->trigger('task_start', $task_id, $data);
             $this->entrance($data);
             $server->finish($data);
@@ -130,15 +130,20 @@ class Socket extends Base
 
     private function onStop()
     {
-        $this->server->on('WorkerStop', function (\Swoole\Server $server, $worker_id){
+        $this->server->on('WorkerStop', function (\Swoole\Server $server, $worker_id) {
             $this->event->trigger('worker_stop', $worker_id);
         });
         $this->server->on('Finish', function (\Swoole\Server $server, $task_id, $data) {
             $this->event->trigger('task_finish', $task_id, $data);
         });
-
         $this->server->on('close', function (\Swoole\Server $server, $fd, $from_id) {
             $this->event->trigger('close', $fd);
+        });
+        $this->server->on('WorkerError', function (\Swoole\Server $server, $worker_id, $worker_pid, $exit_code, $signal) {
+            $this->event->trigger('worker_error', $server);
+        });
+        $this->server->on('Shutdown', function (\Swoole\Server $server) {
+            $this->event->trigger('shutdown', $server);
         });
     }
 
