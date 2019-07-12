@@ -8,28 +8,20 @@ use Swover\Utils\Config;
 
 class Server
 {
-    private $config = [];
-
     /**
-     * service type
+     * @var Config
      */
-    private $server_type = [
-        'tcp',
-        'http',
-        'process'
-    ];
+    private $config = [];
 
     public function __construct(array $config)
     {
         $this->config = Config::getInstance($config);
 
-        if (!isset($this->config['server_type']) || !in_array($this->config['server_type'], $this->server_type)) {
+        if (!isset($this->config['server_type']) || !in_array($this->config['server_type'], ['tcp', 'http', 'process'])) {
             throw new \Exception('server_type defined error!' . PHP_EOL);
         }
 
-        if (!isset($this->config['process_name'])) {
-            throw new \Exception('process_name defined error!' . PHP_EOL);
-        }
+        $this->config['process_name'] = $this->config->get('process_name', 'swover_' . $this->config['server_type']);
     }
 
     /**
