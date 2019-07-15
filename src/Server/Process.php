@@ -79,6 +79,7 @@ class Process extends Base
 
             $this->event->trigger(Events::WORKER_STOP, $this->server, $worker_id);
 
+            $this->event->trigger(Events::WORKER_EXIT, $this->server, $worker_id);
             $worker->exit(0);
         }, $this->daemonize);
 
@@ -123,6 +124,7 @@ class Process extends Base
                 }
 
             } catch (\Exception $e) {
+                $this->event->trigger(Events::WORKER_ERROR, $server, $server->worker_id, $server->worker_pid, $e->getCode(), $signal);
                 echo "[Error] worker pid: " . Worker::getProcessId() . ", e: " . $e->getMessage() . PHP_EOL;
                 break;
             }

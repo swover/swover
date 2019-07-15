@@ -128,11 +128,19 @@ class Socket extends Base
             $this->entrance($data);
             $server->finish($data);
         });
+
+        $this->server->on('PipeMessage', function (\Swoole\Server $server, $src_worker_id, $message) {
+            $this->event->trigger(Events::PIPE_MESSAGE, $server, $src_worker_id, $message);
+        });
+
         return $this;
     }
 
     private function onStop()
     {
+        $this->server->on('ManagerStop', function (\Swoole\Server $server) {
+            $this->event->trigger(Events::MANAGER_STOP, $server);
+        });
         $this->server->on('WorkerStop', function (\Swoole\Server $server, $worker_id) {
             $this->event->trigger(Events::WORKER_STOP, $server, $worker_id);
         });
@@ -145,6 +153,11 @@ class Socket extends Base
         $this->server->on('WorkerError', function (\Swoole\Server $server, $worker_id, $worker_pid, $exit_code, $signal) {
             $this->event->trigger(Events::WORKER_ERROR, $server, $worker_id, $worker_pid, $exit_code, $signal);
         });
+        if (isset($this->server->setting['reload_async']) && $this->server->setting['reload_async'] === true) {
+            $this->server->on('WorkerExit', function (\Swoole\Server $server, $worker_id) {
+                $this->event->trigger(Events::WORKER_EXIT, $server, $worker_id);
+            });
+        }
         $this->server->on('Shutdown', function (\Swoole\Server $server) {
             $this->event->trigger(Events::SHUTDOWN, $server);
         });
