@@ -3,11 +3,11 @@
 class WorkerStart implements \Swover\Contracts\Events\WorkerStart
 {
     /**
-     * Triggering Master start event
+     * @param stdClass|\Swoole\Server $server
      * @param $worker_id
-     * @return mixed
+     * @return mixed|void
      */
-    public function trigger($worker_id)
+    public function trigger($server, $worker_id)
     {
         echo 'Worker started ' . $worker_id .PHP_EOL;
     }

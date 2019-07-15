@@ -11,8 +11,8 @@ interface MasterStart extends Event
 
     /**
      * Triggering master start event
-     * @param $master_id
+     * @param \Swoole\Server | \stdClass $server
      * @return mixed
      */
-    public function trigger($master_id);
+    public function trigger($server);
 }

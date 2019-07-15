@@ -3,12 +3,11 @@
 class MasterStart implements \Swover\Contracts\Events\MasterStart
 {
     /**
-     * Triggering Master start event
-     * @param $master_id
-     * @return mixed
+     * @param stdClass|\Swoole\Server $server
+     * @return mixed|void
      */
-    public function trigger($master_id)
+    public function trigger($server)
     {
-        echo 'Master started ' . $master_id . PHP_EOL;
+        echo 'Master started ' . $server->master_pid . PHP_EOL;
     }
 }

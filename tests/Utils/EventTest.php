@@ -60,7 +60,7 @@ class EventTest extends TestCase
         ];
 
         $instance->register($events);
-        $instance->trigger(TaskStart::EVENT_TYPE, 300, 'data');
+        $instance->trigger(TaskStart::EVENT_TYPE, null, 300, 0, 'data');
         $this->expectOutputString('300:data');
     }
 
@@ -76,7 +76,7 @@ class EventTest extends TestCase
 
         $instance->register($events);
         $instance->bind(new TestWorkerStartB());
-        $instance->trigger(WorkerStart::EVENT_TYPE, 100);
+        $instance->trigger(WorkerStart::EVENT_TYPE, null, 100);
         $this->expectOutputString('a100b100');
     }
 
@@ -87,7 +87,7 @@ class EventTest extends TestCase
     public function testBindInstance($instance)
     {
         $instance->bindInstance('special_event', 'special_alias', new TestWorkerStartB());
-        $instance->trigger('special_event', 100);
+        $instance->trigger('special_event', null, 100);
         $this->expectOutputString('b100');
     }
 
@@ -103,7 +103,7 @@ class EventTest extends TestCase
 
         $instance->register($events);
         $instance->before(new TestWorkerStartB());
-        $instance->trigger(WorkerStart::EVENT_TYPE, 200);
+        $instance->trigger(WorkerStart::EVENT_TYPE, null, 200);
         $this->expectOutputString('b200a200');
     }
 
@@ -120,7 +120,7 @@ class EventTest extends TestCase
 
         $instance->register($events);
         $instance->remove(new TestWorkerStartA());
-        $instance->trigger(WorkerStart::EVENT_TYPE, 400);
+        $instance->trigger(WorkerStart::EVENT_TYPE, null, 400);
         $this->expectOutputString('b400');
     }
 
@@ -137,7 +137,7 @@ class EventTest extends TestCase
 
         $instance->register($events);
         $instance->removeAlias(WorkerStart::EVENT_TYPE, TestWorkerStartA::class);
-        $instance->trigger(WorkerStart::EVENT_TYPE, 400);
+        $instance->trigger(WorkerStart::EVENT_TYPE, null, 400);
         $this->expectOutputString('b400');
     }
 
@@ -253,7 +253,7 @@ class TestMasterStart implements MasterStart
 
 class TestWorkerStartA implements WorkerStart
 {
-    public function trigger($worker_id)
+    public function trigger($server, $worker_id)
     {
         echo 'a' . $worker_id;
     }
@@ -261,7 +261,7 @@ class TestWorkerStartA implements WorkerStart
 
 class TestWorkerStartB implements WorkerStart
 {
-    public function trigger($worker_id)
+    public function trigger($server, $worker_id)
     {
         echo 'b' . $worker_id;
     }
@@ -269,7 +269,7 @@ class TestWorkerStartB implements WorkerStart
 
 class TestTaskStart implements TaskStart
 {
-    public function trigger($task_id, $data)
+    public function trigger($server, $task_id, $worker_id, $data)
     {
         echo $task_id . ':' . $data;
     }

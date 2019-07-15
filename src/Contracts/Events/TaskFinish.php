@@ -11,9 +11,10 @@ interface TaskFinish extends Event
 
     /**
      * Triggering task event
+     * @param \Swoole\Server $server
      * @param $task_id
      * @param $data
      * @return mixed
      */
-    public function trigger($task_id, $data);
+    public function trigger($server, $task_id, $data);
 }

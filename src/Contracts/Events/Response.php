@@ -11,8 +11,9 @@ interface Response extends Event
 
     /**
      * Triggering response event
+     * @param \Swoole\Server | \stdClass $server
      * @param \Swover\Utils\Response $response request instance
      * @return mixed
      */
-    public function trigger($response);
+    public function trigger($server, $response);
 }

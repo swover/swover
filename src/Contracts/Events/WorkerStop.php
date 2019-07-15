@@ -11,8 +11,10 @@ interface WorkerStop extends Event
 
     /**
      * Triggering worker stop event
+     *
+     * @param \Swoole\Server | \stdClass $server
      * @param $worker_id
      * @return mixed
      */
-    public function trigger($worker_id);
+    public function trigger($server, $worker_id);
 }

@@ -30,15 +30,15 @@ class TcpTest extends TestCase
 
             $config = call_user_func_array($function, [$worker]);
             $class = new Server($config);
-            Event::getInstance()->bindInstance('master_start', 'master_start', function ($master_id) use ($worker) {
+            Event::getInstance()->bindInstance('master_start', 'master_start', function ($server) use ($worker) {
                 $worker->write(Worker::getMasterPid());
                 $worker->write(Worker::getMasterPid());
                 $worker->write(Worker::getMasterPid());
             });
-            Event::getInstance()->bindInstance('worker_start', 'worker_start', function ($worker_id) use ($worker) {
+            Event::getInstance()->bindInstance('worker_start', 'worker_start', function ($server, $worker_id) use ($worker) {
                 $worker->push($worker_id);
             });
-            Event::getInstance()->bindInstance('worker_stop', 'worker_stop', function ($worker_id) use ($worker) {
+            Event::getInstance()->bindInstance('worker_stop', 'worker_stop', function ($server, $worker_id) use ($worker) {
                 $worker->pop();
             });
             ob_flush();
@@ -143,14 +143,14 @@ class TcpTest extends TestCase
                 return $request->header('auth', '') ? $request->header('auth') : 'success';
             };
             //Request Event
-            Event::getInstance()->bindInstance('request', 'request', function (Request $request) use ($worker) {
+            Event::getInstance()->bindInstance('request', 'request', function ($server, Request $request) use ($worker) {
                 parse_str($request->input(), $get);
                 if (isset($get['action']) && $get['action'] == 'user') {
                     $request['header']['auth'] = 'ruesin';
                 }
             });
             //Response Event
-            Event::getInstance()->bindInstance('response', 'response', function (Response $response) use ($worker) {
+            Event::getInstance()->bindInstance('response', 'response', function ($server, Response $response) use ($worker) {
                 if ($response['body'] == 'ruesin') {
                     $response->setBody('Hello Xin');
                 }

@@ -83,7 +83,7 @@ class ProcessTest extends TestCase
                     \Swoole\Process::kill(Worker::getMasterPid(), 9);
                 }
             };
-            Event::getInstance()->bindInstance('worker_stop', 'stop', function ($worker_id) use ($worker) {
+            Event::getInstance()->bindInstance('worker_stop', 'stop', function ($server, $worker_id) use ($worker) {
                 $worker->write('byebye');
             });
             return $config;
@@ -106,7 +106,7 @@ class ProcessTest extends TestCase
             $config['entrance'] = function ($request) {
                 usleep(100000);
             };
-            Event::getInstance()->bindInstance('worker_stop', 'shutdown_stop', function ($worker_id) use ($worker) {
+            Event::getInstance()->bindInstance('worker_stop', 'shutdown_stop', function ($server, $worker_id) use ($worker) {
                 if ($worker_id === 0) {
                     sleep(1);
                     $worker->write('worker_stop_bye');
@@ -147,7 +147,7 @@ class ProcessTest extends TestCase
                     }
                 }
             };
-            Event::getInstance()->bindInstance('worker_stop', 'stop', function ($worker_id) use ($worker) {
+            Event::getInstance()->bindInstance('worker_stop', 'stop', function ($server, $worker_id) use ($worker) {
                 #$worker->write('byebye');
             });
             return $config;
@@ -170,10 +170,10 @@ class ProcessTest extends TestCase
                 usleep(100000);
                 $worker->write(isset($request['say']) ? $request['say'] : 'no-say');
             };
-            Event::getInstance()->bindInstance('request', 'request', function ($request) {
+            Event::getInstance()->bindInstance('request', 'request', function ($server, $request) {
                 $request['say'] = 'bye-bye';
             });
-            Event::getInstance()->bindInstance('worker_stop', 'stop', function ($worker_id) use ($worker) {
+            Event::getInstance()->bindInstance('worker_stop', 'stop', function ($server, $worker_id) use ($worker) {
                 \Swoole\Process::kill(Worker::getMasterPid(), 9);
             });
             return $config;
@@ -202,7 +202,7 @@ class ProcessTest extends TestCase
                 }
                 return true;
             };
-            Event::getInstance()->bindInstance('response', 'response', function (Response $response) use ($worker) {
+            Event::getInstance()->bindInstance('response', 'response', function ($server, Response $response) use ($worker) {
                 if ($response->body == 'stop') {
                     $response->setCode(400);
                 }
@@ -214,7 +214,7 @@ class ProcessTest extends TestCase
                 }
             });
 
-            Event::getInstance()->bindInstance('worker_stop', 'stop', function ($worker_id) use ($worker) {
+            Event::getInstance()->bindInstance('worker_stop', 'stop', function ($server, $worker_id) use ($worker) {
                 \Swoole\Process::kill(Worker::getMasterPid(), 9);
             });
             return $config;
@@ -242,11 +242,11 @@ class ProcessTest extends TestCase
 
             $worker->useQueue();
 
-            Event::getInstance()->bindInstance('worker_start', 'worker_start', function ($request) use ($worker) {
+            Event::getInstance()->bindInstance('worker_start', 'worker_start', function ($server, $request) use ($worker) {
                 $worker->push(1);
             });
 
-            Event::getInstance()->bindInstance('worker_stop', 'stop', function ($worker_id) use ($worker, $config) {
+            Event::getInstance()->bindInstance('worker_stop', 'stop', function ($server, $worker_id) use ($worker, $config) {
                 $stat = $worker->statQueue();
                 if ($worker_id == 0 && $stat['queue_num'] > $config['worker_num'] * 2 ) {
                     $worker->write($stat['queue_num']);

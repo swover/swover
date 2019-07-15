@@ -20,6 +20,12 @@ class Process extends Base
      */
     private $workers = [];
 
+    /**
+     * @var \stdClass
+     * @see \Swoole\Server
+     */
+    private $server = null;
+
     protected function start()
     {
         if (!extension_loaded('pcntl')) {
@@ -29,6 +35,8 @@ class Process extends Base
         if ($this->daemonize === true) {
             \Swoole\Process::daemon(true, false);
         }
+
+        $this->server = new \stdClass();
 
         $this->MasterStart();
 
@@ -41,17 +49,24 @@ class Process extends Base
 
     private function MasterStart()
     {
-        $this->event->trigger('master_start', posix_getpid());
-        Worker::setMasterPid(posix_getpid());
+        $master_id = posix_getpid();
+        $this->server->master_pid = $master_id;
+        $this->server->manager_pid = $master_id;
+        Worker::setMasterPid($master_id);
         $this->_setProcessName('master');
+        $this->event->trigger('master_start', $this->server);
     }
 
     private function WorkerStart($worker_id)
     {
         $process = new \Swoole\Process(function (\Swoole\Process $worker) use ($worker_id) {
 
+            $this->server->worker_pid = $worker->pid;
+            $this->server->worker_id = $worker_id;
+            $this->server->taskworker = false;
+
             $this->_setProcessName('worker_' . $worker_id);
-            $this->event->trigger('worker_start', $worker_id);
+            $this->event->trigger('worker_start', $this->server, $worker_id);
 
             Worker::setStatus(true);
 
@@ -59,9 +74,9 @@ class Process extends Base
                 Worker::setStatus(false);
             });
 
-            $this->execute();
+            $this->execute($this->server);
 
-            $this->event->trigger('worker_stop', $worker_id);
+            $this->event->trigger('worker_stop', $this->server, $worker_id);
 
             $worker->exit(0);
         }, $this->daemonize);
@@ -85,7 +100,7 @@ class Process extends Base
         return $pid;
     }
 
-    protected function execute($data = null)
+    protected function execute($server, $data = null)
     {
         $signal = 0;
         for ($i = ($this->max_request <= 0 ? $this->max_request - 1 : $this->max_request);
@@ -98,9 +113,9 @@ class Process extends Base
 
             try {
                 $request = new Request([]);
-                $this->event->trigger('request', $request);
+                $this->event->trigger('request', $server, $request);
                 $response = $this->entrance($request);
-                $this->event->trigger('response', $response);
+                $this->event->trigger('response', $server, $response);
 
                 if ($response->code >= 400 || $response->code < 0) {
                     break;

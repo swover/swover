@@ -80,7 +80,7 @@ abstract class Base
 
     abstract protected function start();
 
-    abstract protected function execute($data = null);
+    abstract protected function execute($server, $data = null);
 
     private function prepare()
     {

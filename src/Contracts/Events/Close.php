@@ -11,8 +11,10 @@ interface Close extends Event
 
     /**
      * Triggering close connection event
+     * @param \Swoole\Server $server
      * @param mixed $fd Connect's file descriptor
+     * @param $from_id
      * @return mixed
      */
-    public function trigger($fd);
+    public function trigger($server, $fd, $from_id);
 }

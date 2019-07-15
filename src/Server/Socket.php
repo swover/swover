@@ -1,4 +1,5 @@
 <?php
+
 namespace Swover\Server;
 
 use Swover\Utils\Request;
@@ -27,10 +28,10 @@ class Socket extends Base
         $this->config['port'] = $this->server->port;
 
         $setting = [
-            'worker_num'      => $this->worker_num,
+            'worker_num' => $this->worker_num,
             'task_worker_num' => max($this->task_worker_num, 0),
-            'daemonize'       => $this->daemonize,
-            'max_request'     => $this->max_request
+            'daemonize' => $this->daemonize,
+            'max_request' => $this->max_request
         ];
 
         $setting = array_merge($setting, $this->config->get('setting', []));
@@ -51,11 +52,11 @@ class Socket extends Base
     {
         $this->server->on('Start', function (\Swoole\Server $server) {
             Worker::setMasterPid($server->master_pid);
-            $this->event->trigger('master_start', $server->master_pid);
             $this->_setProcessName('master');
+            $this->event->trigger('master_start', $server);
         });
 
-        $this->server->on('ManagerStart', function(\Swoole\Server $server) {
+        $this->server->on('ManagerStart', function (\Swoole\Server $server) {
             Worker::setMasterPid($server->master_pid);
             $this->_setProcessName('manager');
         });
@@ -64,7 +65,7 @@ class Socket extends Base
             Worker::setMasterPid($server->master_pid);
             $str = ($worker_id >= $server->setting['worker_num']) ? 'task' : 'event';
             $this->_setProcessName('worker_' . $str);
-            $this->event->trigger('worker_start', $worker_id);
+            $this->event->trigger('worker_start', $server, $worker_id);
         });
 
         return $this;
@@ -74,8 +75,8 @@ class Socket extends Base
     {
         if ($this->server_type == 'http') return $this;
 
-        $this->server->on('connect', function ($server, $fd, $from_id) {
-            $this->event->trigger('connect', $fd);
+        $this->server->on('connect', function (\Swoole\Server $server, $fd, $from_id) {
+            $this->event->trigger('connect', $server, $fd, $from_id);
         });
 
         $this->server->on('receive', function (\Swoole\Server $server, $fd, $from_id, $data) {
@@ -94,7 +95,7 @@ class Socket extends Base
                 ]
             ];
 
-            $result = $this->execute($request);
+            $result = $this->execute($server, $request);
 
             return $result->send($fd, $this->server);
         });
@@ -111,7 +112,7 @@ class Socket extends Base
                 return $response->end();
             }
 
-            $result = $this->execute($request);
+            $result = $this->execute($this->server, $request);
 
             return $result->send($response, $this->server);
         });
@@ -121,7 +122,7 @@ class Socket extends Base
     private function onTask()
     {
         $this->server->on('Task', function (\Swoole\Server $server, $task_id, $src_worker_id, $data) {
-            $this->event->trigger('task_start', $task_id, $data);
+            $this->event->trigger('task_start', $server, $task_id, $src_worker_id, $data);
             $this->entrance($data);
             $server->finish($data);
         });
@@ -131,16 +132,16 @@ class Socket extends Base
     private function onStop()
     {
         $this->server->on('WorkerStop', function (\Swoole\Server $server, $worker_id) {
-            $this->event->trigger('worker_stop', $worker_id);
+            $this->event->trigger('worker_stop', $server, $worker_id);
         });
         $this->server->on('Finish', function (\Swoole\Server $server, $task_id, $data) {
-            $this->event->trigger('task_finish', $task_id, $data);
+            $this->event->trigger('task_finish', $server, $task_id, $data);
         });
         $this->server->on('close', function (\Swoole\Server $server, $fd, $from_id) {
-            $this->event->trigger('close', $fd);
+            $this->event->trigger('close', $server, $fd, $from_id);
         });
         $this->server->on('WorkerError', function (\Swoole\Server $server, $worker_id, $worker_pid, $exit_code, $signal) {
-            $this->event->trigger('worker_error', $server);
+            $this->event->trigger('worker_error', $server, $worker_id, $worker_pid, $exit_code, $signal);
         });
         $this->server->on('Shutdown', function (\Swoole\Server $server) {
             $this->event->trigger('shutdown', $server);
@@ -148,13 +149,14 @@ class Socket extends Base
     }
 
     /**
-     * @param $data \Swoole\Http\Request|array
+     * @param \Swoole\Server $server
+     * @param \Swoole\Http\Request|array $data
      * @return mixed|Response
      */
-    protected function execute($data = null)
+    protected function execute($server, $data = null)
     {
         $request = new Request($data);
-        $this->event->trigger('request', $request);
+        $this->event->trigger('request', $server, $request);
 
         //If you want to respond to the client in task, see:
         //https://wiki.swoole.com/wiki/page/925.html
@@ -165,7 +167,7 @@ class Socket extends Base
         } else {
             $response = $this->entrance($request);
         }
-        $this->event->trigger('response', $response);
+        $this->event->trigger('response', $server, $response);
         return $response;
     }
 }
