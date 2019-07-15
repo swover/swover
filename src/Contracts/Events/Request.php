@@ -2,9 +2,9 @@
 
 namespace Swover\Contracts\Events;
 
-use Swover\Contracts\Event;
+use Swover\Contracts\Events;
 
-interface Request extends Event
+interface Request extends Events
 {
     /**
      * The event-type for bounds

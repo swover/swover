@@ -4,7 +4,7 @@ namespace Swover\Tests\Utils;
 
 use PHPUnit\Framework\TestCase;
 use Swover\Utils\Event;
-use Swover\Contracts\Event as EventInterface;
+use Swover\Contracts\Events as EventInterface;
 
 class EventTest extends TestCase
 {
@@ -246,7 +246,7 @@ class TestMasterStart
     /**
      * The event-type for bounds
      */
-    const EVENT_TYPE = 'master_start';
+    const EVENT_TYPE = EventInterface::START;
 
     public function trigger($master_id)
     {
@@ -259,7 +259,7 @@ class TestWorkerStartA
     /**
      * The event-type for bounds
      */
-    const EVENT_TYPE = 'worker_start';
+    const EVENT_TYPE = EventInterface::WORKER_START;
 
     public function trigger($server, $worker_id)
     {
@@ -272,7 +272,7 @@ class TestWorkerStartB
     /**
      * The event-type for bounds
      */
-    const EVENT_TYPE = 'worker_start';
+    const EVENT_TYPE = EventInterface::WORKER_START;
 
     public function trigger($server, $worker_id)
     {
@@ -285,7 +285,7 @@ class TestTaskStart
     /**
      * The event-type for bounds
      */
-    const EVENT_TYPE = 'task_start';
+    const EVENT_TYPE = EventInterface::TASK;
 
     public function trigger($server, $task_id, $worker_id, $data)
     {
