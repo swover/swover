@@ -105,28 +105,23 @@ $class->start(); //启动服务
 在`Process`服务中，当`status`大于400时，判定终止此次循环，将重启worker进程。
 
 ### Event
-提供了事件机制，可以通过服务启动时传入配置，或者调用Event类来注册相关事件。
+提供了事件机制，可以通过服务启动时传入配置 或 调用`\Swover\Utils\Events`注册事件。
 
-注册的事件回调提供了以下几种方式：
-- 实现了指定接口的类
-- 自定义类，必须有`EVENT_TYPE`静态属性和`trigger()`方法，`EVENT_TYPE`表示事件类型
-- 闭包
+此处提供的事件，主要是为了扩展Swoole的事件回调，事件按照注册顺序先后触发。可调用`Event::before()`方法将方法插入队头。
 
-建议使用实现了指定事件接口的类，因为每个事件触发时的传参不同，使用接口约束可以减少意外错误的发生。
+注册的回调方法：
+- 自定义类：必须有表示事件类型的`EVENT_TYPE`静态属性，时间触发的`trigger(...$params)`方法
+- 闭包 `function(...$params){}`
 
-接口类位于`\Swover\Contracts\Events\`，以下忽略前缀：
+触发方法的参数有严格约定，除了`Request`和`Response`两个事件为特殊定义，其余事件的参数均与[Swoole事件](https://wiki.swoole.com/wiki/page/41.html)一致。
 
-| 事件             | 接口        | 描述                        | 参数             |
-| --------------- | ----------- | :------------------------- | :--------------- |
-|master_start     | MasterStart | Master主进程启动事件          | $master_id      |
-|worker_start     | WorkerStart | Worker子进程启动事件          | $worker_id      |
-|worker_stop      | WorkerStop  | Worker子进程停止事件          | $worker_id      |
-|task_start       | TaskStart   | TCP、HTTP服务异步task开始事件  | $task_id, $data |
-|task_finish      | TaskFinish  | TCP、HTTP服务异步task完成事件  | $task_id, $data |
-|connect          | Connect     | TCP服务建立Socket连接的事件    | $fd             |
-|close            | Close       | TCP服务关闭Socket连接的事件    | $fd             |
-|request          | Request     | TCP、HTTP服务接收到请求后的事件 | $request        |
-|response         | Response    | 入口函数返回结果后的时间        | $response       |
+支持的类型定义在`\Swover\Contracts\Events`接口中，建议绑定事件是直接使用常量，避免绑定失败。
+
+> 事件类型大小写不敏感，最终绑定均转为小写。
+
+TCP的`receive`和HTTP的`request`事件统一为`request`事件，参数及使用定义在`\Swover\Utils\Event\Request`。
+
+`response`事件参数及使用定义在`\Swover\Utils\Event\Response`。
 
 ### Worker
 提供获取当前进程状态、主进程状态的方法。
