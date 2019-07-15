@@ -25,6 +25,7 @@ class Event extends ArrayObject
      */
     public function trigger($type, ...$parameter)
     {
+        $type = strtolower($type);
         if (!isset($this->bounds[$type])) return;
 
         foreach ($this->bounds[$type] as $class) {
