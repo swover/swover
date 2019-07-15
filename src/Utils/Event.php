@@ -65,27 +65,6 @@ class Event extends ArrayObject
         return $result;
     }
 
-    public function getEventType($class)
-    {
-        if (!is_string($class)) {
-            return false;
-        }
-
-        if (!class_exists($class)) {
-            return false;
-        }
-
-        if (!defined($class . '::EVENT_TYPE')) {
-            return false;
-        }
-
-        if (!method_exists($class, 'trigger')) {
-            return false;
-        }
-
-        return $class::EVENT_TYPE;
-    }
-
     /**
      * Bind the class to name
      *
@@ -139,6 +118,7 @@ class Event extends ArrayObject
      */
     public function bindInstance($type, $alias, $instance, $append = true)
     {
+        $type = strtolower($type);
         if (isset($this->instances[$type][$alias])) {
             $this->removeAlias($type, $alias);
         }
@@ -184,6 +164,7 @@ class Event extends ArrayObject
      */
     public function removeAlias($type, $alias = null)
     {
+        $type = strtolower($type);
         if (is_null($alias)) {
             unset($this->instances[$type], $this->bounds[$type]);
             return true;
@@ -208,6 +189,37 @@ class Event extends ArrayObject
         $this->bounds = [];
     }
 
+    /**
+     * Get event type from class
+     * @param string $class
+     * @return bool | string
+     */
+    public function getEventType($class)
+    {
+        if (!is_string($class)) {
+            return false;
+        }
+
+        if (!class_exists($class)) {
+            return false;
+        }
+
+        if (!defined($class . '::EVENT_TYPE')) {
+            return false;
+        }
+
+        if (!method_exists($class, 'trigger')) {
+            return false;
+        }
+
+        return $class::EVENT_TYPE;
+    }
+
+    /**
+     * Determine is an available Class
+     * @param $class
+     * @return bool
+     */
     private function checkClass($class)
     {
         return is_string($class) || is_object($class);
