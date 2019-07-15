@@ -3,10 +3,8 @@
 namespace Swover\Tests\Utils;
 
 use PHPUnit\Framework\TestCase;
-use Swover\Contracts\Events\MasterStart;
-use Swover\Contracts\Events\TaskStart;
-use Swover\Contracts\Events\WorkerStart;
 use Swover\Utils\Event;
+use Swover\Contracts\Event as EventInterface;
 
 class EventTest extends TestCase
 {
@@ -60,7 +58,7 @@ class EventTest extends TestCase
         ];
 
         $instance->register($events);
-        $instance->trigger(\Swover\Contracts\Events\Event::TASK_START, null, 300, 0, 'data');
+        $instance->trigger(EventInterface::TASK_START, null, 300, 0, 'data');
         $this->expectOutputString('300:data');
     }
 
@@ -76,7 +74,7 @@ class EventTest extends TestCase
 
         $instance->register($events);
         $instance->bind(new TestWorkerStartB());
-        $instance->trigger(\Swover\Contracts\Events\Event::WORKER_START, null, 100);
+        $instance->trigger(EventInterface::WORKER_START, null, 100);
         $this->expectOutputString('a100b100');
     }
 
@@ -103,7 +101,7 @@ class EventTest extends TestCase
 
         $instance->register($events);
         $instance->before(new TestWorkerStartB());
-        $instance->trigger(\Swover\Contracts\Events\Event::WORKER_START, null, 200);
+        $instance->trigger(EventInterface::WORKER_START, null, 200);
         $this->expectOutputString('b200a200');
     }
 
@@ -120,7 +118,7 @@ class EventTest extends TestCase
 
         $instance->register($events);
         $instance->remove(new TestWorkerStartA());
-        $instance->trigger(\Swover\Contracts\Events\Event::WORKER_START, null, 400);
+        $instance->trigger(EventInterface::WORKER_START, null, 400);
         $this->expectOutputString('b400');
     }
 
@@ -136,8 +134,8 @@ class EventTest extends TestCase
         ];
 
         $instance->register($events);
-        $instance->removeAlias(\Swover\Contracts\Events\Event::WORKER_START, TestWorkerStartA::class);
-        $instance->trigger(\Swover\Contracts\Events\Event::WORKER_START, null, 400);
+        $instance->removeAlias(EventInterface::WORKER_START, TestWorkerStartA::class);
+        $instance->trigger(EventInterface::WORKER_START, null, 400);
         $this->expectOutputString('b400');
     }
 
@@ -168,14 +166,14 @@ class EventTest extends TestCase
      */
     public function testClosure($instance)
     {
-        $instance->bindInstance(\Swover\Contracts\Events\Event::WORKER_START, 'aliasA', function ($worker_id) {
+        $instance->bindInstance(EventInterface::WORKER_START, 'aliasA', function ($worker_id) {
             echo 'closureA' . $worker_id;
         });
-        $instance->bindInstance(\Swover\Contracts\Events\Event::WORKER_START, 'aliasB', function ($worker_id) {
+        $instance->bindInstance(EventInterface::WORKER_START, 'aliasB', function ($worker_id) {
             echo 'closureB' . $worker_id;
         });
 
-        $instance->trigger(\Swover\Contracts\Events\Event::WORKER_START, 500);
+        $instance->trigger(EventInterface::WORKER_START, 500);
 
         $this->expectOutputString('closureA500closureB500');
     }
@@ -186,15 +184,15 @@ class EventTest extends TestCase
      */
     public function testRemoveClosure($instance)
     {
-        $instance->bindInstance(\Swover\Contracts\Events\Event::WORKER_START, 'aliasA', function ($worker_id) {
+        $instance->bindInstance(EventInterface::WORKER_START, 'aliasA', function ($worker_id) {
             echo 'closureA' . $worker_id;
         });
-        $instance->bindInstance(\Swover\Contracts\Events\Event::WORKER_START, 'aliasB', function ($worker_id) {
+        $instance->bindInstance(EventInterface::WORKER_START, 'aliasB', function ($worker_id) {
             echo 'closureB' . $worker_id;
         });
 
-        $instance->removeAlias(\Swover\Contracts\Events\Event::WORKER_START, 'aliasB');
-        $instance->trigger(\Swover\Contracts\Events\Event::WORKER_START, 600);
+        $instance->removeAlias(EventInterface::WORKER_START, 'aliasB');
+        $instance->trigger(EventInterface::WORKER_START, 600);
         $this->expectOutputString('closureA600');
     }
 

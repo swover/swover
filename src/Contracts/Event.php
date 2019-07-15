@@ -1,6 +1,6 @@
 <?php
 
-namespace Swover\Contracts\Events;
+namespace Swover\Contracts;
 
 interface Event
 {

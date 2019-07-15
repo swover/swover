@@ -2,6 +2,8 @@
 
 namespace Swover\Contracts\Events;
 
+use Swover\Contracts\Event;
+
 interface Response extends Event
 {
     /**
