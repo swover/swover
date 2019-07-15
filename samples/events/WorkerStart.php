@@ -1,7 +1,12 @@
 <?php
 
-class WorkerStart implements \Swover\Contracts\Events\WorkerStart
+class WorkerStart
 {
+    /**
+     * The event-type for bounds
+     */
+    const EVENT_TYPE = 'worker_start';
+
     /**
      * @param stdClass|\Swoole\Server $server
      * @param $worker_id

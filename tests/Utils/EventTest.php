@@ -60,7 +60,7 @@ class EventTest extends TestCase
         ];
 
         $instance->register($events);
-        $instance->trigger(TaskStart::EVENT_TYPE, null, 300, 0, 'data');
+        $instance->trigger(\Swover\Contracts\Events\Event::TASK_START, null, 300, 0, 'data');
         $this->expectOutputString('300:data');
     }
 
@@ -76,7 +76,7 @@ class EventTest extends TestCase
 
         $instance->register($events);
         $instance->bind(new TestWorkerStartB());
-        $instance->trigger(WorkerStart::EVENT_TYPE, null, 100);
+        $instance->trigger(\Swover\Contracts\Events\Event::WORKER_START, null, 100);
         $this->expectOutputString('a100b100');
     }
 
@@ -103,7 +103,7 @@ class EventTest extends TestCase
 
         $instance->register($events);
         $instance->before(new TestWorkerStartB());
-        $instance->trigger(WorkerStart::EVENT_TYPE, null, 200);
+        $instance->trigger(\Swover\Contracts\Events\Event::WORKER_START, null, 200);
         $this->expectOutputString('b200a200');
     }
 
@@ -120,7 +120,7 @@ class EventTest extends TestCase
 
         $instance->register($events);
         $instance->remove(new TestWorkerStartA());
-        $instance->trigger(WorkerStart::EVENT_TYPE, null, 400);
+        $instance->trigger(\Swover\Contracts\Events\Event::WORKER_START, null, 400);
         $this->expectOutputString('b400');
     }
 
@@ -136,8 +136,8 @@ class EventTest extends TestCase
         ];
 
         $instance->register($events);
-        $instance->removeAlias(WorkerStart::EVENT_TYPE, TestWorkerStartA::class);
-        $instance->trigger(WorkerStart::EVENT_TYPE, null, 400);
+        $instance->removeAlias(\Swover\Contracts\Events\Event::WORKER_START, TestWorkerStartA::class);
+        $instance->trigger(\Swover\Contracts\Events\Event::WORKER_START, null, 400);
         $this->expectOutputString('b400');
     }
 
@@ -168,14 +168,14 @@ class EventTest extends TestCase
      */
     public function testClosure($instance)
     {
-        $instance->bindInstance(WorkerStart::EVENT_TYPE, 'aliasA', function ($worker_id) {
+        $instance->bindInstance(\Swover\Contracts\Events\Event::WORKER_START, 'aliasA', function ($worker_id) {
             echo 'closureA' . $worker_id;
         });
-        $instance->bindInstance(WorkerStart::EVENT_TYPE, 'aliasB', function ($worker_id) {
+        $instance->bindInstance(\Swover\Contracts\Events\Event::WORKER_START, 'aliasB', function ($worker_id) {
             echo 'closureB' . $worker_id;
         });
 
-        $instance->trigger(WorkerStart::EVENT_TYPE, 500);
+        $instance->trigger(\Swover\Contracts\Events\Event::WORKER_START, 500);
 
         $this->expectOutputString('closureA500closureB500');
     }
@@ -186,15 +186,15 @@ class EventTest extends TestCase
      */
     public function testRemoveClosure($instance)
     {
-        $instance->bindInstance(WorkerStart::EVENT_TYPE, 'aliasA', function ($worker_id) {
+        $instance->bindInstance(\Swover\Contracts\Events\Event::WORKER_START, 'aliasA', function ($worker_id) {
             echo 'closureA' . $worker_id;
         });
-        $instance->bindInstance(WorkerStart::EVENT_TYPE, 'aliasB', function ($worker_id) {
+        $instance->bindInstance(\Swover\Contracts\Events\Event::WORKER_START, 'aliasB', function ($worker_id) {
             echo 'closureB' . $worker_id;
         });
 
-        $instance->removeAlias(WorkerStart::EVENT_TYPE, 'aliasB');
-        $instance->trigger(WorkerStart::EVENT_TYPE, 600);
+        $instance->removeAlias(\Swover\Contracts\Events\Event::WORKER_START, 'aliasB');
+        $instance->trigger(\Swover\Contracts\Events\Event::WORKER_START, 600);
         $this->expectOutputString('closureA600');
     }
 
@@ -243,32 +243,52 @@ class HasParamConstruct
     }
 }
 
-class TestMasterStart implements MasterStart
+class TestMasterStart
 {
+    /**
+     * The event-type for bounds
+     */
+    const EVENT_TYPE = 'master_start';
+
     public function trigger($master_id)
     {
         echo $master_id;
     }
 }
 
-class TestWorkerStartA implements WorkerStart
+class TestWorkerStartA
 {
+    /**
+     * The event-type for bounds
+     */
+    const EVENT_TYPE = 'worker_start';
+
     public function trigger($server, $worker_id)
     {
         echo 'a' . $worker_id;
     }
 }
 
-class TestWorkerStartB implements WorkerStart
+class TestWorkerStartB
 {
+    /**
+     * The event-type for bounds
+     */
+    const EVENT_TYPE = 'worker_start';
+
     public function trigger($server, $worker_id)
     {
         echo 'b' . $worker_id;
     }
 }
 
-class TestTaskStart implements TaskStart
+class TestTaskStart
 {
+    /**
+     * The event-type for bounds
+     */
+    const EVENT_TYPE = 'task_start';
+
     public function trigger($server, $task_id, $worker_id, $data)
     {
         echo $task_id . ':' . $data;

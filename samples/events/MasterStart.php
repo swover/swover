@@ -1,7 +1,12 @@
 <?php
 
-class MasterStart implements \Swover\Contracts\Events\MasterStart
+class MasterStart
 {
+    /**
+     * The event-type for bounds
+     */
+    const EVENT_TYPE = 'master_start';
+
     /**
      * @param stdClass|\Swoole\Server $server
      * @return mixed|void
