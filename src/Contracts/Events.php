@@ -72,7 +72,7 @@ interface Events
      * @see \Swoole\Server::$onFinish
      */
     const TASK_FINISH = 'finish';
-
+    const FINISH = self::TASK_FINISH;
     /**
      * @see \Swoole\Server::$onConnect
      */

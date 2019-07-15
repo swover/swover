@@ -2,6 +2,7 @@
 
 namespace Swover\Server;
 
+use Swover\Contracts\Events;
 use Swover\Utils\Request;
 use Swover\Worker;
 
@@ -54,7 +55,7 @@ class Process extends Base
         $this->server->manager_pid = $master_id;
         Worker::setMasterPid($master_id);
         $this->_setProcessName('master');
-        $this->event->trigger('master_start', $this->server);
+        $this->event->trigger(Events::START, $this->server);
     }
 
     private function WorkerStart($worker_id)
@@ -66,7 +67,7 @@ class Process extends Base
             $this->server->taskworker = false;
 
             $this->_setProcessName('worker_' . $worker_id);
-            $this->event->trigger('worker_start', $this->server, $worker_id);
+            $this->event->trigger(Events::WORKER_START, $this->server, $worker_id);
 
             Worker::setStatus(true);
 
@@ -76,7 +77,7 @@ class Process extends Base
 
             $this->execute($this->server);
 
-            $this->event->trigger('worker_stop', $this->server, $worker_id);
+            $this->event->trigger(Events::WORKER_STOP, $this->server, $worker_id);
 
             $worker->exit(0);
         }, $this->daemonize);
@@ -113,9 +114,9 @@ class Process extends Base
 
             try {
                 $request = new Request([]);
-                $this->event->trigger('request', $server, $request);
+                $this->event->trigger(Events::REQUEST, $server, $request);
                 $response = $this->entrance($request);
-                $this->event->trigger('response', $server, $response);
+                $this->event->trigger(Events::RESPONSE, $server, $response);
 
                 if ($response->code >= 400 || $response->code < 0) {
                     break;

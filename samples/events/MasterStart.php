@@ -1,11 +1,13 @@
 <?php
 
+use Swover\Contracts\Events;
+
 class MasterStart
 {
     /**
      * The event-type for bounds
      */
-    const EVENT_TYPE = 'master_start';
+    const EVENT_TYPE = Events::MASTER_START;
 
     /**
      * @param stdClass|\Swoole\Server $server

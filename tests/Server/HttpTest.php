@@ -3,6 +3,7 @@
 namespace Swover\Tests\Utils;
 
 use PHPUnit\Framework\TestCase;
+use Swover\Contracts\Events;
 use Swover\Contracts\Request;
 use Swover\Contracts\Response;
 use Swover\Server;
@@ -30,15 +31,15 @@ class HttpTest extends TestCase
 
             $config = call_user_func_array($function, [$worker]);
             $class = new Server($config);
-            Event::getInstance()->bindInstance('master_start', 'master_start', function ($server) use ($worker) {
+            Event::getInstance()->bindInstance(Events::START, 'master_start', function ($server) use ($worker) {
                 $worker->write(Worker::getMasterPid());
                 $worker->write(Worker::getMasterPid());
                 $worker->write(Worker::getMasterPid());
             });
-            Event::getInstance()->bindInstance('worker_start', 'worker_start', function ($server, $worker_id) use ($worker) {
+            Event::getInstance()->bindInstance(Events::WORKER_START, 'worker_start', function ($server, $worker_id) use ($worker) {
                 $worker->push($worker_id);
             });
-            Event::getInstance()->bindInstance('worker_stop', 'worker_stop', function ($server, $worker_id) use ($worker) {
+            Event::getInstance()->bindInstance(Events::WORKER_STOP, 'worker_stop', function ($server, $worker_id) use ($worker) {
                 $worker->pop();
             });
             ob_flush();

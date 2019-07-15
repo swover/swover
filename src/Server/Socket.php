@@ -2,6 +2,7 @@
 
 namespace Swover\Server;
 
+use Swover\Contracts\Events;
 use Swover\Utils\Request;
 use Swover\Utils\Response;
 use Swover\Worker;
@@ -53,19 +54,20 @@ class Socket extends Base
         $this->server->on('Start', function (\Swoole\Server $server) {
             Worker::setMasterPid($server->master_pid);
             $this->_setProcessName('master');
-            $this->event->trigger('master_start', $server);
+            $this->event->trigger(Events::START, $server);
         });
 
         $this->server->on('ManagerStart', function (\Swoole\Server $server) {
             Worker::setMasterPid($server->master_pid);
             $this->_setProcessName('manager');
+            $this->event->trigger(Events::MANAGER_START, $server);
         });
 
         $this->server->on('WorkerStart', function (\Swoole\Server $server, $worker_id) {
             Worker::setMasterPid($server->master_pid);
             $str = ($worker_id >= $server->setting['worker_num']) ? 'task' : 'event';
             $this->_setProcessName('worker_' . $str);
-            $this->event->trigger('worker_start', $server, $worker_id);
+            $this->event->trigger(Events::WORKER_START, $server, $worker_id);
         });
 
         return $this;
@@ -76,7 +78,7 @@ class Socket extends Base
         if ($this->server_type == 'http') return $this;
 
         $this->server->on('connect', function (\Swoole\Server $server, $fd, $from_id) {
-            $this->event->trigger('connect', $server, $fd, $from_id);
+            $this->event->trigger(Events::CONNECT, $server, $fd, $from_id);
         });
 
         $this->server->on('receive', function (\Swoole\Server $server, $fd, $from_id, $data) {
@@ -122,7 +124,7 @@ class Socket extends Base
     private function onTask()
     {
         $this->server->on('Task', function (\Swoole\Server $server, $task_id, $src_worker_id, $data) {
-            $this->event->trigger('task_start', $server, $task_id, $src_worker_id, $data);
+            $this->event->trigger(Events::TASK, $server, $task_id, $src_worker_id, $data);
             $this->entrance($data);
             $server->finish($data);
         });
@@ -132,19 +134,19 @@ class Socket extends Base
     private function onStop()
     {
         $this->server->on('WorkerStop', function (\Swoole\Server $server, $worker_id) {
-            $this->event->trigger('worker_stop', $server, $worker_id);
+            $this->event->trigger(Events::WORKER_STOP, $server, $worker_id);
         });
         $this->server->on('Finish', function (\Swoole\Server $server, $task_id, $data) {
-            $this->event->trigger('task_finish', $server, $task_id, $data);
+            $this->event->trigger(Events::FINISH, $server, $task_id, $data);
         });
         $this->server->on('close', function (\Swoole\Server $server, $fd, $from_id) {
-            $this->event->trigger('close', $server, $fd, $from_id);
+            $this->event->trigger(Events::CLOSE, $server, $fd, $from_id);
         });
         $this->server->on('WorkerError', function (\Swoole\Server $server, $worker_id, $worker_pid, $exit_code, $signal) {
-            $this->event->trigger('worker_error', $server, $worker_id, $worker_pid, $exit_code, $signal);
+            $this->event->trigger(Events::WORKER_ERROR, $server, $worker_id, $worker_pid, $exit_code, $signal);
         });
         $this->server->on('Shutdown', function (\Swoole\Server $server) {
-            $this->event->trigger('shutdown', $server);
+            $this->event->trigger(Events::SHUTDOWN, $server);
         });
     }
 
@@ -156,7 +158,7 @@ class Socket extends Base
     protected function execute($server, $data = null)
     {
         $request = new Request($data);
-        $this->event->trigger('request', $server, $request);
+        $this->event->trigger(Events::REQUEST, $server, $request);
 
         //If you want to respond to the client in task, see:
         //https://wiki.swoole.com/wiki/page/925.html
@@ -167,7 +169,7 @@ class Socket extends Base
         } else {
             $response = $this->entrance($request);
         }
-        $this->event->trigger('response', $server, $response);
+        $this->event->trigger(Events::RESPONSE, $server, $response);
         return $response;
     }
 }
