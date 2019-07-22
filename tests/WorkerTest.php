@@ -4,7 +4,7 @@ namespace Swover\Tests;
 
 use PHPUnit\Framework\TestCase;
 
-class Worker extends TestCase
+class WorkerTest extends TestCase
 {
     public function testMaster()
     {
