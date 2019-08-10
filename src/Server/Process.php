@@ -21,12 +21,6 @@ class Process extends Base
      */
     private $workers = [];
 
-    /**
-     * @var \stdClass
-     * @see \Swoole\Server
-     */
-    private $server = null;
-
     protected function start()
     {
         if (!extension_loaded('pcntl')) {

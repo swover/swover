@@ -12,11 +12,6 @@ use Swover\Worker;
  */
 class Socket extends Base
 {
-    /**
-     * @var \Swoole\Http\Server | \Swoole\Server
-     */
-    private $server;
-
     protected function start()
     {
         $host = $this->config->get('host', '0.0.0.0');

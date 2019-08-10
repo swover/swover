@@ -8,6 +8,11 @@ use Swover\Utils\Response;
 
 abstract class Base
 {
+    /**
+     * @var \Swoole\Http\Server | \Swoole\Server | \stdClass
+     */
+    protected $server = null;
+
     protected static $instance = [];
 
     protected $booted = false;
@@ -113,6 +118,11 @@ abstract class Base
         } else {
             trigger_error(__METHOD__ . ' failed. require cli_set_process_title or swoole_set_process_name.');
         }
+    }
+
+    public function getServer()
+    {
+        return $this->server;
     }
 
     /**
