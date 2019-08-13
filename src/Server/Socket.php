@@ -125,7 +125,7 @@ class Socket extends Base
             $this->server->on('Task', function (\Swoole\Server $server, \Swoole\Server\Task $task) {
                 $this->event->trigger(Events::TASK, $server, $task->id, $task->worker_id, $task->data);
                 $this->entrance($task->data);
-                $server->finish($task->data);
+                $task->finish($task->data);
             });
         } else {
             $this->server->on('Task', function (\Swoole\Server $server, $task_id, $src_worker_id, $data) {
