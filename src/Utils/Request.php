@@ -77,12 +77,18 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
             ]
         ];
 
-        $result = ['get'=>[],'post'=>[],'input'=>[],'header'=>[],'server'=>[],'cookie'=>[]];
+        $result = ['get' => [], 'post' => [], 'input' => [], 'header' => [], 'server' => [], 'cookie' => []];
 
-        foreach ($input as $key=>$value) {
+        foreach ($input as $key => $value) {
             $key = trim(strtolower($key));
             if (!isset($result[$key])) continue;
             $result[$key] = $value;
+            if (in_array($key, ['header', 'server'])) {
+                foreach ((array)$value as $k => $v) {
+                    unset($result[$key][$k]);
+                    $result[$key][strtolower($k)] = $v;
+                }
+            }
         }
 
         $result['server'] = array_merge($default['server'], $result['server']);
@@ -115,6 +121,7 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
     public function header($key = null, $default = null)
     {
         if (is_null($key)) return $this->header;
+        $key = strtolower($key);
         return isset($this->header[$key]) ? $this->header[$key] : $default;
     }
 
