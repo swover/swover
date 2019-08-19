@@ -118,8 +118,7 @@ class Socket extends Base
 
     private function onTask()
     {
-        $version = swoole_version();
-        if (intval($version) >= 4 && ltrim(strstr($version, '.'), '.') >= 2.12
+        if ($this->_getSwooleVersion() >= 400020012
             && boolval(isset($this->server->setting['task_enable_coroutine']) ? $this->server->setting['task_enable_coroutine'] : false)
         ) {
             $this->server->on('Task', function (\Swoole\Server $server, \Swoole\Server\Task $task) {

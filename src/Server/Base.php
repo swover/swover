@@ -120,6 +120,14 @@ abstract class Base
         }
     }
 
+    protected function _getSwooleVersion()
+    {
+        if (preg_match('/^(\d+)\.(\d+)\.(\d+)/U', swoole_version(), $versions)) {
+            return (int)$versions[1] . str_pad($versions[2], 4, 0, STR_PAD_LEFT) . str_pad($versions[3], 4, 0, STR_PAD_LEFT);
+        }
+        return 0;
+    }
+
     public function getServer()
     {
         return $this->server;
