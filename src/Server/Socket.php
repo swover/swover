@@ -181,11 +181,7 @@ class Socket extends Base
 
         //If you want to respond to the client in task, see:
         //https://wiki.swoole.com/wiki/page/925.html
-        $async = boolval($this->config->get('async', false));
-        if ($request->header('swover-async', null) !== null) {
-            $async = boolval($request->header('swover-async', false));
-        }
-        if ($async === true && $this->task_worker_num > 0) {
+        if (boolval($this->config->get('async', false)) === true && $this->task_worker_num > 0) {
             $this->server->task($request);
             $response = new Response();
             $response->setBody('success');
