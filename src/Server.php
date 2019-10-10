@@ -194,8 +194,40 @@ class Server
      */
     private function getPid($type = 'master')
     {
-        $cmd = "ps aux | grep 'php {$this->config['process_name']} {$type}' | grep -v grep  | awk '{ print $2}'";
-        exec($cmd, $pid);
+        $pid = [];
+        //$cmd = "if [ `command -v ps >/dev/null 2>&1` ]; then ps aux | grep 'php {$this->config['process_name']} {$type}' | grep -v grep  | awk '{ print $2}'; fi";
+        $cmd = "command -v ps >/dev/null 2>&1 || { echo 'no-ps-command'; exit 1;} && { ps aux | grep 'php {$this->config['process_name']} {$type}' | grep -v grep  | awk '{ print $2}'; }";
+        if (function_exists('exec')) {
+            exec($cmd, $pid, $result);
+            if ($result != 0) {
+                $pid = $this->getProcPid($type);
+            }
+        } elseif (function_exists('shell_exec')) {
+            $result = shell_exec($cmd);
+            $pid = array_filter(explode("\n", $result));
+            if (isset($pid[0]) && $pid[0] == 'no-ps-command') {
+                $pid = $this->getProcPid($type);
+            }
+        }
+        return $pid;
+    }
+
+    private function getProcPid($type = 'master')
+    {
+        $pid = [];
+        $path = '/proc/';
+        if (!is_dir($path)) return $pid;
+        $files = scandir($path);
+        foreach ($files as $file) {
+            if ($file != "." && $file != "..") {
+                if (is_file($path . $file)) continue;
+                if (intval($file) > 0 && strlen(intval($file)) == strlen($file)) {
+                    if (!file_exists($path . $file . '/cmdline')) continue;
+                    if (strpos(file_get_contents($path . $file . '/cmdline'), "php {$this->config['process_name']} {$type}") === false) continue;
+                    $pid[] = $file;
+                }
+            }
+        }
         return $pid;
     }
 }

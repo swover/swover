@@ -77,9 +77,9 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
             ]
         ];
 
-        $result = ['get'=>[],'post'=>[],'input'=>[],'header'=>[],'server'=>[],'cookie'=>[]];
+        $result = ['get' => [], 'post' => [], 'input' => [], 'header' => [], 'server' => [], 'cookie' => []];
 
-        foreach ($input as $key=>$value) {
+        foreach ($input as $key => $value) {
             $key = trim(strtolower($key));
             if (!isset($result[$key])) continue;
             $result[$key] = $value;

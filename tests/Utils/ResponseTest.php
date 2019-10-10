@@ -46,7 +46,7 @@ class ResponseTest extends TestCase
 
         $instance->setCookie('name', 'ruesin');
         $this->assertEquals('ruesin', $instance['cookie']['name']['value']);
-        $this->assertEquals('/', $instance['cookie']['name']['path']);
+        $this->assertEquals('', $instance['cookie']['name']['path']);
 
         $instance->setCookie('company', 'swover', 0, '/', 'github.com');
         $this->assertEquals('swover', $instance['cookie']['company']['value']);

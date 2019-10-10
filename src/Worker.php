@@ -60,7 +60,7 @@ class Worker
      */
     public static function getStatus()
     {
-        pcntl_signal_dispatch();
+        function_exists('pcntl_signal_dispatch') && pcntl_signal_dispatch();
         return self::$status;
     }
 

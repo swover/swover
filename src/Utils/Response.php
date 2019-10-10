@@ -42,11 +42,11 @@ class Response extends ArrayObject implements \Swover\Contracts\Response
      */
     private function sendHttpResponse($response)
     {
-        foreach ($this->header as $key=>$value) {
+        foreach ($this->header as $key => $value) {
             $response->header($key, $value);
         }
 
-        foreach ($this->cookie as $cKey=>$cVal) {
+        foreach ($this->cookie as $cKey => $cVal) {
             $response->cookie($cKey, $cVal['value'], $cVal['expire'], $cVal['path'], $cVal['domain'], $cVal['secure'], $cVal['httponly']);
         }
 
@@ -70,12 +70,12 @@ class Response extends ArrayObject implements \Swover\Contracts\Response
         $this->code = $status_code;
     }
 
-    public function setCookie($key, $value = '', $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = false)
+    public function setCookie($name, $value = '', $expire = 0, $path = '', $domain = '', $secure = false, $httponly = false)
     {
-        $this['cookie'][$key] = [
-            'value'  => $value,
+        $this['cookie'][$name] = [
+            'value' => $value,
             'expire' => $expire,
-            'path'   => $path,
+            'path' => $path,
             'domain' => $domain,
             'secure' => $secure,
             'httponly' => $httponly
