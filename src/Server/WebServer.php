@@ -9,7 +9,7 @@ class WebServer extends Server
 {
     protected $server_type = 'websocket';
 
-    protected function getServer($host, $port)
+    protected function genServer($host, $port)
     {
         return new \Swoole\WebSocket\Server($host, $port);
     }

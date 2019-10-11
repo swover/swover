@@ -9,7 +9,7 @@ use Swover\Utils\Response;
 abstract class Base
 {
     /**
-     * @var \Swoole\Http\Server | \Swoole\Server | \stdClass
+     * @var \Swoole\Http\Server | \Swoole\Server | \Swoole\WebSocket\Server | \stdClass
      */
     protected $server = null;
 
@@ -71,18 +71,6 @@ abstract class Base
         return self::$instance[static::class];
     }
 
-    public function boot()
-    {
-        if ($this->booted) {
-            return false;
-        }
-
-        $this->booted = true;
-
-        $this->start();
-        return true;
-    }
-
     abstract protected function start();
 
     abstract protected function execute($server, $data = null);
@@ -106,6 +94,18 @@ abstract class Base
         if ($this->worker_num <= 0) {
             $this->worker_num = 1;
         }
+    }
+
+    public function boot()
+    {
+        if ($this->booted) {
+            return false;
+        }
+
+        $this->booted = true;
+
+        $this->start();
+        return true;
     }
 
     protected function _setProcessName($name)

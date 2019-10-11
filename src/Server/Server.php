@@ -17,16 +17,13 @@ abstract class Server extends Base
      */
     protected $server;
 
-    abstract protected function getServer($host, $port);
+    abstract protected function genServer($host, $port);
 
     abstract protected function getCallback();
 
     protected function start()
     {
-        $host = $this->config->get('host', '0.0.0.0');
-        $port = $this->config->get('port', 0);
-
-        $this->server = $this->getServer($host, $port);
+        $this->server = $this->genServer($this->config->get('host', '0.0.0.0'), $this->config->get('port', 0));
 
         $this->config['host'] = $this->server->host;
         $this->config['port'] = $this->server->port;
@@ -87,11 +84,21 @@ abstract class Server extends Base
 
     protected function onTask()
     {
-        $this->server->on('Task', function (\Swoole\Server $server, $task_id, $src_worker_id, $data) {
-            $this->event->trigger(Events::TASK, $server, $task_id, $src_worker_id, $data);
-            $this->entrance($data);
-            $server->finish($data);
-        });
+        if ($this->_getSwooleVersion() >= 400020012
+            && boolval(isset($this->server->setting['task_enable_coroutine']) ? $this->server->setting['task_enable_coroutine'] : false)
+        ) {
+            $this->server->on('Task', function (\Swoole\Server $server, \Swoole\Server\Task $task) {
+                $this->event->trigger(Events::TASK, $server, $task->id, $task->worker_id, $task->data);
+                $this->entrance($task->data);
+                $task->finish($task->data);
+            });
+        } else {
+            $this->server->on('Task', function (\Swoole\Server $server, $task_id, $src_worker_id, $data) {
+                $this->event->trigger(Events::TASK, $server, $task_id, $src_worker_id, $data);
+                $this->entrance($data);
+                $server->finish($data);
+            });
+        }
 
         $this->server->on('PipeMessage', function (\Swoole\Server $server, $src_worker_id, $message) {
             $this->event->trigger(Events::PIPE_MESSAGE, $server, $src_worker_id, $message);

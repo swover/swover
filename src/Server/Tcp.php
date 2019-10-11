@@ -11,7 +11,7 @@ class Tcp extends Server
 {
     protected $server_type = 'tcp';
 
-    protected function getServer($host, $port)
+    protected function genServer($host, $port)
     {
         return new \Swoole\Server($host, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
     }

@@ -9,7 +9,7 @@ class Http extends Server
 {
     protected $server_type = 'http';
 
-    protected function getServer($host, $port)
+    protected function genServer($host, $port)
     {
         return new \Swoole\Http\Server($host, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
     }
