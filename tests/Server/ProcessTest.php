@@ -169,7 +169,7 @@ class ProcessTest extends TestCase
         $function = function (\Swoole\Process $worker) use ($config) {
             $config['entrance'] = function ($request) use ($config, $worker) {
                 usleep(100000);
-                $worker->write(isset($request['say']) ? $request['say'] : 'no-say');
+                $worker->write($request['say'] ?? 'no-say');
             };
             Event::getInstance()->bindInstance('request', 'request', function ($server, $request) {
                 $request['say'] = 'bye-bye';

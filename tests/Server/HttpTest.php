@@ -133,7 +133,7 @@ class HttpTest extends TestCase
     {
         $function = function (\Swoole\Process $worker) use ($config) {
             $config['entrance'] = function (Request $request) use ($worker) {
-                return isset($request->get['name']) ? $request->get['name'] : 'success';
+                return $request->get['name'] ?? 'success';
             };
             //Request Event
             Event::getInstance()->bindInstance('request', 'request', function ($server, Request $request) use ($worker) {

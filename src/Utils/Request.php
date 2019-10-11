@@ -45,12 +45,12 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
     {
         //Swoole\Http\Request::rawcontent(): Http request is finished.
         $result = [
-            'get' => isset($request->get) ? $request->get : [],
-            'post' => isset($request->post) ? $request->post : [],
+            'get' => $request->get ?? [],
+            'post' => $request->post ?? [],
             'input' => @$request->rawcontent(),
-            'header' => isset($request->header) ? $request->header : [],
-            'server' => isset($request->server) ? $request->server : [],
-            'cookie' => isset($request->cookie) ? $request->cookie : [],
+            'header' => $request->header ?? [],
+            'server' => $request->server ?? [],
+            'cookie' => $request->cookie ?? [],
         ];
 
         //application/x-www-form-urlencoded
@@ -92,36 +92,35 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
     public function get($key = null, $default = null)
     {
         if (is_null($key)) return $this->get;
-        return isset($this->get[$key]) ? $this->get[$key] : $default;
+        return $this->get[$key] ?? $default;
     }
 
     public function post($key = null, $default = null)
     {
         if (is_null($key)) return $this->post;
-        return isset($this->post[$key]) ? $this->post[$key] : $default;
+        return $this->post[$key] ?? $default;
     }
 
     public function request($key = null, $default = null)
     {
         if (is_null($key)) return $this->request;
-        return isset($this->request[$key]) ? $this->request[$key] : $default;
+        return $this->request[$key] ?? $default;
     }
 
     public function input()
     {
-        return isset($this->input) ? $this->input : null;
+        return $this->input ?? null;
     }
 
     public function header($key = null, $default = null)
     {
         if (is_null($key)) return $this->header;
-        return isset($this->header[$key]) ? $this->header[$key] : $default;
+        return $this->header[$key] ?? $default;
     }
 
     public function method()
     {
-        return strtoupper(isset($this->server['method']) ? $this->server['method'] :
-            (isset($this->server['request_method']) ? $this->server['request_method'] : 'get'));
+        return strtoupper($this->server['method'] ?? ($this->server['request_method'] ?? 'get'));
     }
 
     public function url()
@@ -136,12 +135,12 @@ class Request extends ArrayObject implements \Swover\Contracts\Request
 
     public function ip()
     {
-        return isset($this->server['remote_addr']) ? $this->server['remote_addr'] : '';
+        return $this->server['remote_addr'] ?? '';
     }
 
     public function cookie($key = null, $default = null)
     {
         if (is_null($key)) return $this->cookie;
-        return isset($this->cookie[$key]) ? $this->cookie[$key] : $default;
+        return $this->cookie[$key] ?? $default;
     }
 }

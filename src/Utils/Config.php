@@ -39,8 +39,6 @@ class Config extends ArrayObject
 
     public function get($name, $default = null)
     {
-        return isset($this[$name]) ? $this[$name]
-            : (isset($this->$name) ? $this->$name
-                : (isset($this['setting'][$name]) ? $this['setting'][$name] : $default));
+        return $this[$name] ?? ($this->$name ?? ($this['setting'][$name] ?? $default));
     }
 }

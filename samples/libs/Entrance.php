@@ -74,6 +74,6 @@ class Entrance
             'test_tcp' => '\Test\Tcp::run',
             'test_http' => '\Test\Http::run'
         ];
-        return isset($routes[$action]) ? $routes[$action] : 'Welcome';
+        return $routes[$action] ?? 'Welcome';
     }
 }

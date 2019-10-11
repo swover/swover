@@ -85,7 +85,7 @@ abstract class Server extends Base
     protected function onTask()
     {
         if ($this->_getSwooleVersion() >= 400020012
-            && boolval(isset($this->server->setting['task_enable_coroutine']) ? $this->server->setting['task_enable_coroutine'] : false)
+            && boolval($this->server->setting['task_enable_coroutine'] ?? false)
         ) {
             $this->server->on('Task', function (\Swoole\Server $server, \Swoole\Server\Task $task) {
                 $this->event->trigger(Events::TASK, $server, $task->id, $task->worker_id, $task->data);

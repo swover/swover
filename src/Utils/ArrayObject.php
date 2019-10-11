@@ -72,7 +72,7 @@ class ArrayObject extends \ArrayObject implements \ArrayAccess
 
     public function __get($name)
     {
-        return $this->offsetExists($name) ? $this->offsetGet($name) : (isset($this->$name) ? $this->$name : null);
+        return $this->offsetExists($name) ? $this->offsetGet($name) : ($this->$name ?? null);
     }
 
     public function __isset($name)
