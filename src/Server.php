@@ -2,8 +2,11 @@
 
 namespace Swover;
 
+use Swover\Server\Http;
 use Swover\Server\Process;
 use Swover\Server\Socket;
+use Swover\Server\Tcp;
+use Swover\Server\WebServer;
 use Swover\Utils\Config;
 
 class Server
@@ -17,7 +20,8 @@ class Server
     {
         $this->config = Config::getInstance($config);
 
-        if (!isset($this->config['server_type']) || !in_array($this->config['server_type'], ['tcp', 'http', 'process'])) {
+        if (!isset($this->config['server_type'])
+            || !in_array($this->config['server_type'], ['tcp', 'http', 'websocket' , 'process'])) {
             throw new \Exception('server_type defined error!' . PHP_EOL);
         }
 
@@ -41,10 +45,22 @@ class Server
         echo "Starting {$this->config['process_name']} ..." . PHP_EOL;
 
         try {
-            if ($this->config['server_type'] == 'process') {
-                $server = Process::getInstance();
-            } else {
-                $server = Socket::getInstance();
+            switch ($this->config['server_type']) {
+                case 'process':
+                    $server = Process::getInstance();
+                    break;
+                case 'tcp':
+                    $server = Tcp::getInstance();
+                    break;
+                case 'http':
+                    $server = Http::getInstance();
+                    break;
+                case 'websocket':
+                    $server = WebServer::getInstance();
+                    break;
+                default:
+                    throw new \Exception("Get server instance failed!");
+                    break;
             }
             $server->boot();
         } catch (\Exception $e) {
@@ -99,7 +115,7 @@ class Server
     {
         if ($this->stop() != true) {
             echo 'Restart fail, do you want to force restart ' . $this->config['process_name'] . '?' . PHP_EOL;
-            echo 'you have to wait 5 seconds for confirmation or it will force restart.' . PHP_EOL;
+            echo 'You have to wait 5 seconds for confirmation or it will force restart.' . PHP_EOL;
             for ($i = 1; $i <= 5; $i++) {
                 sleep(1);
                 echo $i . ' ';

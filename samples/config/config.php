@@ -68,7 +68,27 @@ function configs()
             ],
             'entrance' => '\\Entrance::tcp',
             'async' => false
-        ]
+        ],
+        'websocket' => [
+            'server_type' => 'websocket',
+            'daemonize' => false,
+            'process_name' => 'swover',
+            'host' => '127.0.0.1',
+            'port' => '9501',
+            'worker_num' => 1,
+            'task_worker_num' => 1,
+            'max_request' => 0,
+            'entrance' => '\\Entrance::http',
+            'async' => false,
+            'setting' => [
+                'log_file' => '/tmp/swoole.log',
+                'worker_num' => 3,
+            ],
+            'events' => [
+                'master_start' => '\MasterStart',
+                'worker_start' => '\WorkerStart',
+            ]
+        ],
     ];
 }
 
@@ -86,6 +106,7 @@ function getConfig($argument)
         ],
         'tcp' => [],
         'process' => [],
+        'websocket' => []
     ];
 
     $configs = configs();

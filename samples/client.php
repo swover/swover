@@ -55,8 +55,6 @@ function input()
     echo "Result: " . $output . PHP_EOL;
 }
 
-
-
 //tcp client
 function tcp()
 {
@@ -70,6 +68,20 @@ function tcp()
     $client->send(json_encode($requst));
     echo $client->recv();
     $client->close();
+}
+
+function websocket()
+{
+    $config = getConfig('websocket');
+    $client = new \Swoole\Http\Client($config['host'], $config['port']);
+    $client->setHeaders(['Trace-Id' => md5(time()),]);
+    $client->on('message', function (\Swoole\Http\Client $cli, $frame) {
+        var_dump($frame);
+    });
+    $client->upgrade('/', function (\Swoole\Http\Client $cli) {
+        echo "Body: {$cli->body}".PHP_EOL;
+        $cli->push("Hello world!");
+    });
 }
 
 function process($config)
