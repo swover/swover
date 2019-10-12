@@ -63,9 +63,9 @@ function tcp()
     $client = new \swoole_client(SWOOLE_SOCK_TCP, SWOOLE_SOCK_SYNC);
     $client->connect($config['host'], $config['port'], -1);
 
-    $requst = ['action' => 'test_tcp', 'data' => ['id' => mt_rand(200, 300)]];
-    echo json_encode($requst) . PHP_EOL;
-    $client->send(json_encode($requst));
+    $request = ['action' => 'test_tcp', 'data' => ['id' => mt_rand(200, 300)]];
+    echo json_encode($request) . PHP_EOL;
+    $client->send(json_encode($request));
     echo $client->recv();
     $client->close();
 }
@@ -80,7 +80,8 @@ function websocket()
     });
     $client->upgrade('/', function (\Swoole\Http\Client $cli) {
         echo "Body: {$cli->body}".PHP_EOL;
-        $cli->push("Hello world!");
+        $request = ['action' => 'test_tcp', 'data' => ['id' => mt_rand(200, 300)]];
+        $cli->push(json_encode($request));
     });
 }
 

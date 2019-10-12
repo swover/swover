@@ -72,7 +72,8 @@ class Entrance
             '/user/fav' => '\\Http\\Controller\\User::favourite',
             'test_process' => '\\A\\B\\C::test',
             'test_tcp' => '\Test\Tcp::run',
-            'test_http' => '\Test\Http::run'
+            'test_http' => '\Test\Http::run',
+            'test_websocket' => '\Test\WebSocket::run',
         ];
         return $routes[$action] ?? 'Welcome';
     }
