@@ -4,7 +4,6 @@ namespace Swover;
 
 use Swover\Server\Http;
 use Swover\Server\Process;
-use Swover\Server\Socket;
 use Swover\Server\Tcp;
 use Swover\Server\WebServer;
 use Swover\Utils\Config;
@@ -14,14 +13,23 @@ class Server
     /**
      * @var Config
      */
-    private $config = [];
+    private $config;
+
+    const SERVER_TYPES = [
+        'socket',
+        'tcp',
+        'http',
+        'websocket',
+        'udp',
+        'process'
+    ];
 
     public function __construct(array $config)
     {
         $this->config = Config::getInstance($config);
 
         if (!isset($this->config['server_type'])
-            || !in_array($this->config['server_type'], ['tcp', 'http', 'websocket' , 'process'])) {
+            || !in_array($this->config['server_type'], self::SERVER_TYPES)) {
             throw new \Exception('server_type defined error!' . PHP_EOL);
         }
 
@@ -34,15 +42,14 @@ class Server
     public function start()
     {
         if (!empty($this->getAllPid())) {
-            echo 'Process names[' . $this->config['process_name'] . '] already exists, you have to wait 5 seconds for confirmation or it will start normally.' . PHP_EOL;
+            $this->log('Process names[' . $this->config['process_name'] . '] already exists, you have to wait 5 seconds for confirmation or it will start normally.');
             for ($i = 1; $i <= 5; $i++) {
                 sleep(1);
-                echo $i . ' ';
+                $this->log($i . ' s.');
             }
-            echo PHP_EOL;
         }
 
-        echo "Starting {$this->config['process_name']} ..." . PHP_EOL;
+        $this->log("Starting {$this->config['process_name']} ...");
 
         try {
             switch ($this->config['server_type']) {
@@ -50,6 +57,7 @@ class Server
                     $server = Process::getInstance();
                     break;
                 case 'tcp':
+                case 'socket':
                     $server = Tcp::getInstance();
                     break;
                 case 'http':
@@ -60,34 +68,48 @@ class Server
                     break;
                 default:
                     throw new \Exception("Get server instance failed!");
-                    break;
             }
             $server->boot();
         } catch (\Exception $e) {
-            echo "{$this->config['process_name']} start fail. error: " . $e->getMessage() . PHP_EOL;
-            return false;
+            return $this->failure("{$this->config['process_name']} start fail. error: " . $e->getMessage() . ' ' . $e->getTraceAsString());
         }
 
-        echo "{$this->config['process_name']} start success." . PHP_EOL;
-        return true;
+        return $this->success("{$this->config['process_name']} start success.");
+    }
+
+    /**
+     * Forced to stop server
+     */
+    public function force()
+    {
+        $this->stop(true);
     }
 
     /**
      * safe stop server
+     * @param bool $force Forced to stop server
+     * @return bool
      */
-    public function stop()
+    public function stop($force = false)
     {
-        $pid = $this->getPid('master');
-
-        if (empty($pid)) {
-            echo "{$this->config['process_name']} has not master process." . PHP_EOL;
-            return true;
+        if ($force) {
+            $pid = $this->getAllPid();
+        } else {
+            $pid = $this->getPid('master');
         }
 
-        exec("kill -15 " . implode(' ', $pid), $output, $return);
+        if (empty($pid)) {
+            return $this->success("{$this->config['process_name']} has not process.");
+        }
+
+        if ($force) {
+            exec("kill -9 " . implode(' ', $pid), $output, $return);
+        } else {
+            exec("kill -15 " . implode(' ', $pid), $output, $return);
+        }
+
         if ($return === false) {
-            echo "{$this->config['process_name']} stop fail" . PHP_EOL;
-            return false;
+            return $this->failure("{$this->config['process_name']} stop fail");
         }
 
         $stopped = false;
@@ -100,12 +122,10 @@ class Server
         }
 
         if (!$stopped) {
-            echo "{$this->config['process_name']} did not stop altogether." . PHP_EOL;
-            return false;
+            return $this->failure("{$this->config['process_name']} did not stop altogether.");
         }
 
-        echo "{$this->config['process_name']} stop success" . PHP_EOL;
-        return true;
+        return $this->success("{$this->config['process_name']} stop success");
     }
 
     /**
@@ -114,16 +134,14 @@ class Server
     public function restart()
     {
         if ($this->stop() != true) {
-            echo 'Restart fail, do you want to force restart ' . $this->config['process_name'] . '?' . PHP_EOL;
-            echo 'You have to wait 5 seconds for confirmation or it will force restart.' . PHP_EOL;
+            $this->log('Restart fail, do you want to force restart ' . $this->config['process_name'] . '?');
+            $this->log('You have to wait 5 seconds for confirmation or it will force restart.');
             for ($i = 1; $i <= 5; $i++) {
                 sleep(1);
-                echo $i . ' ';
+                $this->log($i . ' s.');
             }
-            echo PHP_EOL;
             if ($this->force() != true) {
-                echo '[' . $this->config['process_name'] . '] restart fail !!!' . PHP_EOL;
-                return false;
+                return $this->failure('[' . $this->config['process_name'] . '] restart fail !!!');
             }
         }
 
@@ -142,54 +160,15 @@ class Server
         }
 
         if (empty($pid)) {
-            echo "{$this->config['process_name']} has not process" . PHP_EOL;
-            return false;
+            return $this->failure("{$this->config['process_name']} has not process");
         }
 
         exec("kill -USR1 " . implode(' ', $pid), $output, $return);
 
         if ($return === false) {
-            echo "{$this->config['process_name']} reload fail" . PHP_EOL;
-            return false;
+            return $this->failure("{$this->config['process_name']} reload fail");
         }
-        echo "{$this->config['process_name']} reload success" . PHP_EOL;
-        return true;
-    }
-
-    /**
-     * force stop server
-     */
-    public function force()
-    {
-        $pids = $this->getAllPid();
-
-        if (empty($pids)) {
-            echo "{$this->config['process_name']} has not process" . PHP_EOL;
-            return true;
-        }
-
-        exec("kill -9 " . implode(' ', $pids), $output, $return);
-        if ($return === false) {
-            echo "{$this->config['process_name']} stop fail" . PHP_EOL;
-            return false;
-        }
-
-        $stopped = false;
-        for ($i = 0; $i < 10; $i++) {
-            if (empty($this->getAllPid())) {
-                $stopped = true;
-                break;
-            }
-            sleep(mt_rand(1, 3));
-        }
-
-        if (!$stopped) {
-            echo "{$this->config['process_name']} did not stop altogether." . PHP_EOL;
-            return false;
-        }
-
-        echo "{$this->config['process_name']} stop success" . PHP_EOL;
-        return true;
+        return $this->success("{$this->config['process_name']} reload success");
     }
 
     /**
@@ -198,11 +177,11 @@ class Server
     private function getAllPid()
     {
         $types = ['master', 'manager', 'worker'];
-        $pids = [];
+        $pid = [];
         foreach ($types as $type) {
-            $pids = array_merge($pids, $this->getPid($type));
+            $pid = array_merge($pid, $this->getPid($type));
         }
-        return $pids;
+        return $pid;
     }
 
     /**
@@ -245,5 +224,22 @@ class Server
             }
         }
         return $pid;
+    }
+
+    private function log($message)
+    {
+        echo $message . PHP_EOL;
+    }
+
+    private function success($message)
+    {
+        $this->log($message);
+        return true;
+    }
+
+    private function failure($message)
+    {
+        $this->log($message);
+        return false;
     }
 }
