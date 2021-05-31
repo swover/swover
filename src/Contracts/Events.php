@@ -21,6 +21,8 @@ interface Events
      */
     const RESPONSE = 'response';
 
+    const BEFORE_START = 'before_start';
+
     /**
      * @see \Swoole\Server::$onStart
      */
@@ -92,4 +94,9 @@ interface Events
      * @see \Swoole\Server::$onClose
      */
     const PIPE_MESSAGE = 'pipeMessage';
+
+
+    const WEBSOCKET_OPEN = 'open';
+
+    const HAND_SHAKE = 'HandShake';
 }

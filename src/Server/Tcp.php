@@ -52,6 +52,8 @@ class Tcp extends Base
             $this->$callback();
         }
 
+        $this->event->trigger(Events::BEFORE_START, $this->server);
+
         $this->server->start();
     }
 

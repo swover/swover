@@ -2,6 +2,8 @@
 
 namespace Swover\Server;
 
+use Swover\Contracts\Events;
+
 class WebServer extends Http
 {
     protected $server_type = 'websocket';
@@ -20,25 +22,13 @@ class WebServer extends Http
 
     protected function onOpen()
     {
-        # https://wiki.swoole.com/wiki/page/409.html
-        // $this->server->on('HandShake', function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) {
-        // });
-
-        # https://wiki.swoole.com/wiki/page/401.html
-        // $this->server->on('open', function (\Swoole\WebSocket\Server $server, \Swoole\Http\Request $request) {
-        //     echo "server: handshake success with fd{$request->fd}\n";
-        // });
+        $this->server->on('open', function (\Swoole\WebSocket\Server $server, \Swoole\Http\Request $request) {
+            $this->event->trigger(Events::WEBSOCKET_OPEN, $server, $request);
+        });
     }
 
     protected function onReceive()
     {
-        $this->server->on('request', function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) {
-            if ($request->server['path_info'] == '/favicon.ico' || $request->server['request_uri'] == '/favicon.ico') {
-                return $response->end();
-            }
-            return $this->execute($this->server, $request)->send($response, $this->server);
-        });
-
         $this->server->on('message', function (\Swoole\WebSocket\Server $server, \Swoole\WebSocket\Frame $frame) {
             $info = $server->getClientInfo($frame->fd);
             $request = [
@@ -57,4 +47,20 @@ class WebServer extends Http
         });
     }
 
+    public static function onHandShake(\Swoole\WebSocket\Server $server)
+    {
+        $server->on('HandShake', function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) {
+            $this->event->trigger(Events::HAND_SHAKE, $request, $response);
+        });
+    }
+
+    public static function onRequest(\Swoole\WebSocket\Server $server)
+    {
+        $server->on('request', function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) {
+            if ($request->server['path_info'] == '/favicon.ico' || $request->server['request_uri'] == '/favicon.ico') {
+                return $response->end();
+            }
+            return $this->execute($this->server, $request)->send($response, $this->server);
+        });
+    }
 }
