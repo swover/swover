@@ -2,10 +2,7 @@
 
 namespace Swover\Server;
 
-/**
- * Http Server
- */
-class Http extends Server
+class Http extends Tcp
 {
     protected $server_type = 'http';
 
@@ -19,7 +16,7 @@ class Http extends Server
         return [];
     }
 
-    protected function onRequest()
+    protected function onReceive()
     {
         $this->server->on('request', function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) {
             if ($request->server['path_info'] == '/favicon.ico' || $request->server['request_uri'] == '/favicon.ico') {

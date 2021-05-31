@@ -2,10 +2,7 @@
 
 namespace Swover\Server;
 
-/**
- * WebSocket Server
- */
-class WebServer extends Server
+class WebServer extends Http
 {
     protected $server_type = 'websocket';
 
@@ -33,7 +30,7 @@ class WebServer extends Server
         // });
     }
 
-    protected function onRequest()
+    protected function onReceive()
     {
         $this->server->on('request', function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) {
             if ($request->server['path_info'] == '/favicon.ico' || $request->server['request_uri'] == '/favicon.ico') {
