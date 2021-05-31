@@ -15,13 +15,20 @@ class Server
      */
     private $config;
 
+    const SERVER_TYPE_SOCKET = 'socket';
+    const SERVER_TYPE_TCP = 'tcp';
+    const SERVER_TYPE_HTTP = 'http';
+    const SERVER_TYPE_WEBSOCKET = 'websocket';
+    const SERVER_TYPE_UDP = 'udp';
+    const SERVER_TYPE_PROCESS = 'process';
+
     const SERVER_TYPES = [
-        'socket',
-        'tcp',
-        'http',
-        'websocket',
-        'udp',
-        'process'
+        self::SERVER_TYPE_SOCKET,
+        self::SERVER_TYPE_TCP,
+        self::SERVER_TYPE_HTTP,
+        self::SERVER_TYPE_WEBSOCKET,
+        self::SERVER_TYPE_UDP,
+        self::SERVER_TYPE_PROCESS,
     ];
 
     public function __construct(array $config)
@@ -53,17 +60,17 @@ class Server
 
         try {
             switch ($this->config['server_type']) {
-                case 'process':
+                case self::SERVER_TYPE_PROCESS:
                     $server = Process::getInstance();
                     break;
-                case 'tcp':
-                case 'socket':
+                case self::SERVER_TYPE_TCP:
+                case self::SERVER_TYPE_SOCKET:
                     $server = Tcp::getInstance();
                     break;
-                case 'http':
+                case self::SERVER_TYPE_HTTP:
                     $server = Http::getInstance();
                     break;
-                case 'websocket':
+                case self::SERVER_TYPE_WEBSOCKET:
                     $server = WebServer::getInstance();
                     break;
                 default:
@@ -153,7 +160,7 @@ class Server
      */
     public function reload()
     {
-        if ($this->config['server_type'] == 'process') {
+        if ($this->config['server_type'] == self::SERVER_TYPE_PROCESS) {
             $pid = $this->getPid('worker');
         } else {
             $pid = $this->getPid('master');
